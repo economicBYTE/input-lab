@@ -9,10 +9,10 @@ TypePractice 是一个专注于技术内容的打字练习工具，帮助开发�
 ## 常用命令
 
 ```bash
-pnpm install    # 安装依赖
-pnpm dev        # 启动开发服务器
-pnpm build      # 构建生产版本
-pnpm test       # 运行测试
+npm install    # 安装依赖
+npm run dev    # 启动开发服务器
+npm run build  # 构建生产版本
+npm test       # 运行测试
 ```
 
 ## 技术栈

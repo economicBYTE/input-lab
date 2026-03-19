@@ -2,11 +2,6 @@ import { create } from 'zustand';
 import type { PracticeState } from '@/types';
 
 interface PracticeStore extends PracticeState {
-  // 计算属性
-  kpm: number;
-  errorRate: number;
-  isCompleted: boolean;
-
   // Actions
   init: (documentId: string, content: string) => void;
   handleInput: (char: string) => boolean; // 返回是否完成
@@ -26,24 +21,6 @@ const initialState: PracticeState = {
 
 export const usePracticeStore = create<PracticeStore>((set, get) => ({
   ...initialState,
-
-  get kpm() {
-    const { currentIndex, startTime } = get();
-    if (!startTime || currentIndex === 0) return 0;
-    const minutes = (Date.now() - startTime) / 60000;
-    return minutes > 0 ? Math.round(currentIndex / minutes) : 0;
-  },
-
-  get errorRate() {
-    const { errorCount, totalKeystrokes } = get();
-    if (totalKeystrokes === 0) return 0;
-    return Math.round((errorCount / totalKeystrokes) * 1000) / 10;
-  },
-
-  get isCompleted() {
-    const { currentIndex, content } = get();
-    return content.length > 0 && currentIndex >= content.length;
-  },
 
   init: (documentId, content) => {
     set({ ...initialState, documentId, content });

@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Statistic, Row, Col, Tag, Space, Typography } from 'antd';
 import { usePracticeStore } from '@/stores/practiceStore';
 import { practiceRecordService } from '@/services/db';
-
-const { Title } = Typography;
 
 export default function Result() {
   const { id } = useParams<{ id: string }>();
@@ -21,21 +18,24 @@ export default function Result() {
     reset,
   } = usePracticeStore();
 
-  const endTime = Date.now();
+  // 用 useState 捕获结束时间，避免每次渲染重新计算
+  const [endTime] = useState(() => Date.now());
   const duration = startTime ? endTime - startTime : 0;
   const durationSeconds = Math.round(duration / 1000);
   const minutes = Math.floor(durationSeconds / 60);
   const seconds = durationSeconds % 60;
 
-  const kpm = startTime && duration > 0
-    ? Math.round(content.length / (duration / 60000))
-    : 0;
+  const kpm =
+    startTime && duration > 0
+      ? Math.round(content.length / (duration / 60000))
+      : 0;
 
-  const errorRate = totalKeystrokes > 0
-    ? Math.round((errorCount / totalKeystrokes) * 1000) / 10
-    : 0;
+  const errorRate =
+    totalKeystrokes > 0
+      ? Math.round((errorCount / totalKeystrokes) * 1000) / 10
+      : 0;
 
-  // 保存练习记录
+  // Save practice record
   useEffect(() => {
     if (!saved && documentId && startTime) {
       practiceRecordService.save({
@@ -64,53 +64,61 @@ export default function Result() {
 
   return (
     <div className="result-container">
-      <Card className="result-card">
-        <Title level={2} style={{ textAlign: 'center', marginBottom: 32 }}>
-          练习完成
-        </Title>
+      <div className="result-card">
+        <div className="result-title">practice complete</div>
 
-        <Row gutter={[32, 32]}>
-          <Col xs={12} sm={6}>
-            <Statistic
-              title="总时长"
-              value={`${minutes}:${seconds.toString().padStart(2, '0')}`}
-            />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Statistic title="KPM" value={kpm} suffix="键/分" />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Statistic title="错误率" value={errorRate} suffix="%" />
-          </Col>
-          <Col xs={12} sm={6}>
-            <Statistic title="总字符" value={content.length} />
-          </Col>
-        </Row>
+        <div className="result-stats">
+          <div className="result-stat">
+            <div className="result-stat-label">time</div>
+            <div className="result-stat-value">
+              {minutes}:{seconds.toString().padStart(2, '0')}
+            </div>
+          </div>
+          <div className="result-stat">
+            <div className="result-stat-label">kpm</div>
+            <div className="result-stat-value">{kpm}</div>
+          </div>
+          <div className="result-stat">
+            <div className="result-stat-label">errors</div>
+            <div className="result-stat-value">
+              {errorRate}
+              <span className="unit">%</span>
+            </div>
+          </div>
+          <div className="result-stat">
+            <div className="result-stat-label">chars</div>
+            <div className="result-stat-value">{content.length}</div>
+          </div>
+        </div>
 
         {errorChars.length > 0 && (
-          <div style={{ marginTop: 32 }}>
-            <Title level={5}>错误字符</Title>
-            <Space wrap>
+          <div className="result-errors">
+            <div className="result-errors-title">error characters</div>
+            <div className="result-error-tags">
               {errorChars.map((char, i) => (
-                <Tag key={i} color="error" style={{ fontSize: 16, padding: '4px 12px' }}>
-                  {char === ' ' ? '空格' : char === '\n' ? '换行' : char === '\t' ? 'Tab' : char}
-                </Tag>
+                <span key={i} className="result-error-tag">
+                  {char === ' '
+                    ? 'space'
+                    : char === '\n'
+                      ? 'enter'
+                      : char === '\t'
+                        ? 'tab'
+                        : char}
+                </span>
               ))}
-            </Space>
+            </div>
           </div>
         )}
 
-        <div style={{ marginTop: 48, textAlign: 'center' }}>
-          <Space size="large">
-            <Button type="primary" size="large" onClick={handleRetry}>
-              再练一次
-            </Button>
-            <Button size="large" onClick={handleBack}>
-              返回列表
-            </Button>
-          </Space>
+        <div className="result-actions">
+          <button className="btn btn-primary" onClick={handleRetry}>
+            retry
+          </button>
+          <button className="btn btn-secondary" onClick={handleBack}>
+            back
+          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
