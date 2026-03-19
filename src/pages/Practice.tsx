@@ -1,7 +1,10 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { documentService } from '@/services/db';
 import { usePracticeStore } from '@/stores/practiceStore';
+
+const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
+const SCROLL_RETURN_DELAY = 5000; // 5s auto-return
 
 export default function Practice() {
   const { id } = useParams<{ id: string }>();
@@ -9,8 +12,13 @@ export default function Practice() {
   const inputRef = useRef<HTMLInputElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
+  const wordsContentRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const scrollReturnTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [isTyping, setIsTyping] = useState(false);
+  const [scrollOffsetPx, setScrollOffsetPx] = useState(0);
+  const [translateYPx, setTranslateYPx] = useState(0);
 
   const {
     content,
@@ -20,6 +28,28 @@ export default function Practice() {
     totalKeystrokes,
     errorCount,
   } = usePracticeStore();
+
+  // Split content into lines and compute char index ranges per line
+  const lines = useMemo(() => {
+    if (!content) return [];
+    const result: { text: string; startIndex: number }[] = [];
+    let idx = 0;
+    const parts = content.split('\n');
+    parts.forEach((part, i) => {
+      const lineText = i < parts.length - 1 ? part + '\n' : part;
+      result.push({ text: lineText, startIndex: idx });
+      idx += lineText.length;
+    });
+    return result;
+  }, [content]);
+
+  // Determine which line the cursor is on
+  const activeLineIndex = useMemo(() => {
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (currentIndex >= lines[i]!.startIndex) return i;
+    }
+    return 0;
+  }, [currentIndex, lines]);
 
   // KPM calculation
   const kpm = useCallback(() => {
@@ -49,6 +79,59 @@ export default function Practice() {
   useEffect(() => {
     inputRef.current?.focus();
   }, [content]);
+
+  // Compute translateY from DOM measurement
+  useLayoutEffect(() => {
+    const container = wordsContentRef.current;
+    const wrapper = wrapperRef.current;
+    if (!container || !wrapper) return;
+
+    const lineElements = container.querySelectorAll('.line');
+    const activeLine = lineElements[activeLineIndex] as HTMLElement | undefined;
+    if (!activeLine) return;
+
+    const viewportHeight = wrapper.clientHeight;
+    const viewportCenter = viewportHeight / 2;
+    const lineCenter = activeLine.offsetTop + activeLine.offsetHeight / 2;
+
+    setTranslateYPx(viewportCenter - lineCenter + scrollOffsetPx);
+  }, [activeLineIndex, scrollOffsetPx, content, lines]);
+
+  // Reset scroll offset when typing moves to a new position
+  const prevIndexRef = useRef(currentIndex);
+  useEffect(() => {
+    if (currentIndex !== prevIndexRef.current) {
+      prevIndexRef.current = currentIndex;
+      setScrollOffsetPx(0);
+    }
+  }, [currentIndex]);
+
+  // Get pixel height of one base line for wheel step size
+  const getBaseLineHeightPx = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return 48; // fallback
+    const fontSize = parseFloat(getComputedStyle(wrapper).fontSize);
+    return BASE_LINE_HEIGHT * fontSize / 1; // rem to px: 3.2 * rootFontSize
+  }, []);
+
+  // Wheel handler for manual scrolling
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const step = getBaseLineHeightPx();
+    const delta = e.deltaY > 0 ? -step : step;
+    setScrollOffsetPx((prev) => prev + delta);
+
+    // Reset auto-return timer
+    clearTimeout(scrollReturnTimerRef.current);
+    scrollReturnTimerRef.current = setTimeout(() => {
+      setScrollOffsetPx(0);
+    }, SCROLL_RETURN_DELAY);
+  }, [getBaseLineHeightPx]);
+
+  // Cleanup scroll return timer
+  useEffect(() => {
+    return () => clearTimeout(scrollReturnTimerRef.current);
+  }, []);
 
   // Update caret position based on current letter element
   const updateCaretPosition = useCallback(() => {
@@ -175,45 +258,57 @@ export default function Practice() {
       />
 
       {/* Words display with caret */}
-      <div className="words-wrapper">
+      <div className="words-wrapper" ref={wrapperRef} onWheel={handleWheel}>
         <div
-          id="caret"
-          ref={caretRef}
-          className={`${isTyping ? 'typing' : ''} ${isError ? 'error' : ''}`}
-        />
-        <div className="words" ref={wordsRef}>
-          {content.split('').map((char, index) => {
-            let className = 'letter';
-            if (index < currentIndex) {
-              className += ' correct';
-            } else if (index === currentIndex) {
-              className += ' current';
-              if (isError) {
-                className += ' incorrect';
-              }
-            }
+          className="words-content"
+          ref={wordsContentRef}
+          style={{ transform: `translateY(${translateYPx}px)` }}
+        >
+          <div
+            id="caret"
+            ref={caretRef}
+            className={`${isTyping ? 'typing' : ''} ${isError ? 'error' : ''}`}
+          />
+          <div className="words" ref={wordsRef}>
+            {lines.map((line, lineIdx) => (
+              <div className="line" key={lineIdx}>
+                {line.text.split('').map((char, charIdx) => {
+                  const index = line.startIndex + charIdx;
+                  let className = 'letter';
+                  if (index < currentIndex) {
+                    className += ' correct';
+                  } else if (index === currentIndex) {
+                    className += ' current';
+                    if (isError) {
+                      className += ' incorrect';
+                    }
+                  }
 
-            // Render special characters with symbols
-            let displayChar = char;
-            if (char === '\n') {
-              className += ' newline-symbol';
-              return (
-                <span key={index} className={className}>
-                  {'↵'}
-                  <br />
-                </span>
-              );
-            } else if (char === '\t') {
-              displayChar = '→   ';
-              className += ' tab-symbol';
-            }
+                  if (char === '\n') {
+                    className += ' newline-symbol';
+                    return (
+                      <span key={index} className={className}>
+                        {'↵'}
+                      </span>
+                    );
+                  } else if (char === '\t') {
+                    className += ' tab-symbol';
+                    return (
+                      <span key={index} className={className}>
+                        {'→   '}
+                      </span>
+                    );
+                  }
 
-            return (
-              <span key={index} className={className}>
-                {displayChar}
-              </span>
-            );
-          })}
+                  return (
+                    <span key={index} className={className}>
+                      {char}
+                    </span>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -72,9 +72,21 @@ export function initSampleData(): Promise<void> {
       content: 'array.map(x => x * 2)\narray.filter(x => x > 0)\narray.reduce((a, b) => a + b, 0)',
     },
     {
-      title: 'SQL 查询语句',
-      description: '基础 SQL 查询语法',
-      content: 'SELECT * FROM users WHERE id = 1;\nINSERT INTO users (name) VALUES ("test");',
+      title: 'SQL 查询',
+      description: '基础 SQL 查询',
+      content: `SELECT * FROM users WHERE id = 1;\nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      \nINSERT INTO users (name) VALUES ("test");
+      `,
     },
   ];
 
