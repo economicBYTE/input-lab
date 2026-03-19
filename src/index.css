@@ -1,0 +1,160 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+/* 文档列表 */
+.document-list {
+  padding: 16px 0;
+}
+
+.document-card {
+  height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.document-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 练习页面 */
+.practice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  min-height: 80vh;
+  cursor: text;
+}
+
+.stats-panel {
+  display: flex;
+  gap: 48px;
+  margin-bottom: 48px;
+  padding: 16px 32px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.char-display {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 24px;
+  line-height: 1.8;
+  background: #fff;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  max-width: 900px;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.char {
+  display: inline;
+  transition: all 0.1s;
+}
+
+.char.completed {
+  color: #999;
+}
+
+.char.current {
+  background: #e6f7ff;
+  border-bottom: 2px solid #1890ff;
+  padding: 2px 1px;
+}
+
+.char.current.error {
+  background: #fff2f0;
+  border-bottom-color: #ff4d4f;
+  color: #ff4d4f;
+  transform: scale(1.2);
+  display: inline-block;
+}
+
+.char.newline,
+.char.tab,
+.char.space {
+  color: #bbb;
+}
+
+.char.current.newline,
+.char.current.tab,
+.char.current.space {
+  color: #1890ff;
+}
+
+.char.current.error.newline,
+.char.current.error.tab,
+.char.current.error.space {
+  color: #ff4d4f;
+}
+
+.hint {
+  margin-top: 32px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 结果页面 */
+.result-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 24px;
+}
+
+.result-card {
+  max-width: 600px;
+  width: 100%;
+  padding: 24px;
+}
