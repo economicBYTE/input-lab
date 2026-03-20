@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import DocumentList from '@/pages/DocumentList';
 import Practice from '@/pages/Practice';
 import Result from '@/pages/Result';
+import History from '@/pages/History';
 
 type Theme = 'light' | 'dark';
 
@@ -37,6 +38,9 @@ function NavHeader({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
             <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
               documents
             </Link>
+            <Link to="/history" className={location.pathname === '/history' ? 'active' : ''}>
+              history
+            </Link>
           </div>
         )}
         <button className="theme-toggle" onClick={onToggleTheme}>
@@ -58,6 +62,7 @@ export default function App() {
           <Route path="/" element={<DocumentList />} />
           <Route path="/practice/:id" element={<Practice />} />
           <Route path="/result/:id" element={<Result />} />
+          <Route path="/history" element={<History />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -45,8 +45,20 @@ export const practiceRecordService = {
     return id;
   },
 
+  async getAll(): Promise<PracticeRecord[]> {
+    return db.practiceRecords.orderBy('startTime').reverse().toArray();
+  },
+
   async getByDocumentId(documentId: string): Promise<PracticeRecord[]> {
     return db.practiceRecords.where('documentId').equals(documentId).toArray();
+  },
+
+  async delete(id: string): Promise<void> {
+    await db.practiceRecords.delete(id);
+  },
+
+  async deleteByDocumentId(documentId: string): Promise<void> {
+    await db.practiceRecords.where('documentId').equals(documentId).delete();
   },
 };
 

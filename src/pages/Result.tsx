@@ -1,12 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePracticeStore } from '@/stores/practiceStore';
 import { practiceRecordService } from '@/services/db';
 
+const renderChar = (char: string) => {
+  if (char === ' ') return 'space';
+  if (char === '\n') return 'enter';
+  if (char === '\t') return 'tab';
+  return char;
+};
+
 export default function Result() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [saved, setSaved] = useState(false);
+  const savedRef = useRef(false);
 
   const {
     documentId,
@@ -14,11 +21,10 @@ export default function Result() {
     startTime,
     errorCount,
     totalKeystrokes,
-    errorChars,
+    errorDetails,
     reset,
   } = usePracticeStore();
 
-  // 用 useState 捕获结束时间，避免每次渲染重新计算
   const [endTime] = useState(() => Date.now());
   const duration = startTime ? endTime - startTime : 0;
   const durationSeconds = Math.round(duration / 1000);
@@ -35,9 +41,10 @@ export default function Result() {
       ? Math.round((errorCount / totalKeystrokes) * 1000) / 10
       : 0;
 
-  // Save practice record
+  // Save practice record (useRef survives StrictMode double-mount)
   useEffect(() => {
-    if (!saved && documentId && startTime) {
+    if (!savedRef.current && documentId && startTime) {
+      savedRef.current = true;
       practiceRecordService.save({
         documentId,
         startTime,
@@ -46,11 +53,10 @@ export default function Result() {
         errorCount,
         kpm,
         errorRate,
-        errorChars,
+        errorDetails,
       });
-      setSaved(true);
     }
-  }, [saved, documentId, startTime, endTime, content.length, errorCount, kpm, errorRate, errorChars]);
+  }, [documentId, startTime, endTime, content.length, errorCount, kpm, errorRate, errorDetails]);
 
   const handleRetry = () => {
     reset();
@@ -91,20 +97,20 @@ export default function Result() {
           </div>
         </div>
 
-        {errorChars.length > 0 && (
+        {errorDetails.length > 0 && (
           <div className="result-errors">
-            <div className="result-errors-title">error characters</div>
-            <div className="result-error-tags">
-              {errorChars.map((char, i) => (
-                <span key={i} className="result-error-tag">
-                  {char === ' '
-                    ? 'space'
-                    : char === '\n'
-                      ? 'enter'
-                      : char === '\t'
-                        ? 'tab'
-                        : char}
-                </span>
+            <div className="result-errors-title">error details</div>
+            <div className="error-detail-list">
+              {errorDetails.map((detail, i) => (
+                <div key={i} className="error-detail-item">
+                  <span className="error-detail-expected">{renderChar(detail.expected)}</span>
+                  <span className="error-detail-sep">:</span>
+                  <span className="error-detail-actuals">
+                    {detail.actual.map((c, j) => (
+                      <span key={j} className="error-detail-actual">{renderChar(c)}</span>
+                    ))}
+                  </span>
+                </div>
               ))}
             </div>
           </div>

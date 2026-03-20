@@ -8,6 +8,13 @@ export interface Document {
   updatedAt: number;
 }
 
+// 单次错误详情：期望字符 + 实际输入的错误字符序列
+export interface ErrorDetail {
+  expected: string;
+  actual: string[];
+  position: number;
+}
+
 // 练习记录（持久化）
 export interface PracticeRecord {
   id: string;
@@ -18,7 +25,7 @@ export interface PracticeRecord {
   errorCount: number;
   kpm: number;
   errorRate: number;
-  errorChars: string[];
+  errorDetails: ErrorDetail[];
 }
 
 // 练习状态（内存）
@@ -30,5 +37,6 @@ export interface PracticeState {
   totalKeystrokes: number;
   startTime: number | null;
   isError: boolean;
-  errorChars: string[];
+  errorDetails: ErrorDetail[];
+  currentErrorActual: string[]; // 当前错误位置累积的错误输入
 }

@@ -16,7 +16,8 @@ const initialState: PracticeState = {
   totalKeystrokes: 0,
   startTime: null,
   isError: false,
-  errorChars: [],
+  errorDetails: [],
+  currentErrorActual: [],
 };
 
 export const usePracticeStore = create<PracticeStore>((set, get) => ({
@@ -28,7 +29,7 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
   handleInput: (char) => {
     const state = get();
-    const { content, currentIndex, isError, errorChars } = state;
+    const { content, currentIndex, isError, errorDetails, currentErrorActual } = state;
 
     // 首次输入时开始计时
     const startTime = state.startTime ?? Date.now();
@@ -37,17 +38,25 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
     // 如果当前是错误状态，只接受正确字符
     if (isError) {
       if (char === targetChar) {
+        // 错误修正，保存完整的错误记录
+        const detail = { expected: targetChar, actual: currentErrorActual, position: currentIndex };
         const newIndex = currentIndex + 1;
         set({
           currentIndex: newIndex,
           isError: false,
           totalKeystrokes: state.totalKeystrokes + 1,
           startTime,
+          errorDetails: [...errorDetails, detail],
+          currentErrorActual: [],
         });
         return newIndex >= content.length;
       }
-      // 错误状态下继续输入错误，只增加击键数
-      set({ totalKeystrokes: state.totalKeystrokes + 1, startTime });
+      // 错误状态下继续输入错误，累积错误字符
+      set({
+        totalKeystrokes: state.totalKeystrokes + 1,
+        startTime,
+        currentErrorActual: [...currentErrorActual, char],
+      });
       return false;
     }
 
@@ -62,17 +71,13 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
       return newIndex >= content.length;
     }
 
-    // 输入错误
-    const newErrorChars = errorChars.includes(targetChar!)
-      ? errorChars
-      : [...errorChars, targetChar!];
-
+    // 输入错误，开始记录错误字符序列
     set({
       isError: true,
       errorCount: state.errorCount + 1,
-      errorChars: newErrorChars,
       totalKeystrokes: state.totalKeystrokes + 1,
       startTime,
+      currentErrorActual: [char],
     });
     return false;
   },

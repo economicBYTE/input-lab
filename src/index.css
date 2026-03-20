@@ -166,7 +166,6 @@ a:hover {
 .document-list-title {
   color: var(--sub-color);
   font-size: 0.9rem;
-  margin-bottom: 1.75rem;
   letter-spacing: 0.05em;
 }
 
@@ -443,19 +442,72 @@ a:hover {
   margin-bottom: 0.85rem;
 }
 
-.result-error-tags {
+/* ---- Error Detail Display ---- */
+
+.error-detail-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.result-error-tag {
+.error-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.error-detail-expected {
   background: var(--error-color);
   color: var(--bg-color);
-  padding: 0.3rem 0.85rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--roundness);
-  font-size: 1.05rem;
   font-weight: 600;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.error-detail-sep {
+  color: var(--sub-color);
+}
+
+.error-detail-actuals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.error-detail-actual {
+  background: var(--sub-alt-color);
+  color: var(--text-color);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+/* Compact error detail for history items */
+.error-detail-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: var(--sub-alt-color);
+  border: 1px solid var(--error-extra-color);
+  border-radius: 3px;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.error-detail-expected-sm {
+  color: var(--error-color);
+  font-weight: 600;
+}
+
+.error-detail-sep-sm {
+  color: var(--sub-color);
+}
+
+.error-detail-actual-sm {
+  color: var(--sub-color);
 }
 
 .result-actions {
@@ -492,6 +544,277 @@ a:hover {
 
 .btn-secondary:hover {
   background: var(--card-hover-bg);
+}
+
+/* ============ Document List Header ============ */
+
+.document-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+}
+
+.document-list-header .document-list-title {
+  margin-bottom: 0;
+}
+
+.btn-sm {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* ============ Document Card Actions ============ */
+
+.document-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+}
+
+.document-card-top .document-card-title {
+  margin-bottom: 0;
+}
+
+.document-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.document-card:hover .document-card-actions {
+  opacity: 1;
+}
+
+.card-action-btn {
+  background: none;
+  border: 1px solid var(--sub-color);
+  border-radius: var(--roundness);
+  color: var(--sub-color);
+  font-family: var(--font);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.card-action-btn:hover {
+  color: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.card-action-delete:hover,
+.card-action-delete.confirm {
+  color: var(--error-color);
+  border-color: var(--error-color);
+}
+
+/* ============ Modal ============ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--bg-color);
+  border: 2px solid var(--sub-color);
+  border-radius: var(--roundness);
+  padding: 2rem;
+  width: 90%;
+  max-width: 640px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============ Form ============ */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--sub-color);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  background: var(--sub-alt-color);
+  border: 2px solid transparent;
+  border-radius: var(--roundness);
+  color: var(--text-color);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--main-color);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* ============ History Page ============ */
+
+.history-page {
+  flex: 1;
+  padding: 1.5rem 0;
+}
+
+.history-header {
+  margin-bottom: 1.75rem;
+}
+
+.history-section-title {
+  font-size: 0.85rem;
+  color: var(--sub-color);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-error-summary {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: var(--sub-alt-color);
+  border-radius: var(--roundness);
+}
+
+.error-count {
+  font-size: 0.7rem;
+  color: var(--sub-color);
+  margin-left: 0.5rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-item {
+  position: relative;
+  background: var(--sub-alt-color);
+  border-radius: var(--roundness);
+  padding: 1.25rem 1.5rem;
+  transition: background 0.15s;
+}
+
+.history-item:hover {
+  background: var(--card-hover-bg);
+}
+
+.history-item-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.history-item-title {
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.history-item-title:hover {
+  color: var(--main-color);
+}
+
+.history-item-date {
+  font-size: 0.75rem;
+  color: var(--sub-color);
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.history-item-stats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.history-stat-label {
+  font-size: 0.7rem;
+  color: var(--sub-color);
+  text-transform: uppercase;
+}
+
+.history-stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--main-color);
+}
+
+.history-item-errors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.history-delete-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--sub-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+  padding: 0.2rem;
+}
+
+.history-item:hover .history-delete-btn {
+  opacity: 1;
+}
+
+.history-delete-btn:hover {
+  color: var(--error-color);
 }
 
 /* ============ Loading ============ */
