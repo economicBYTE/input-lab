@@ -1,8 +1,15 @@
+// 练习内容项
+export interface ContentItem {
+  type: 'text' | 'keypress';
+  tips?: string;               // 提示文字，为空不展示
+  content: string | string[];  // text→string, keypress→["ControlLeft","KeyC"]
+}
+
 // 文档
 export interface Document {
   id: string;
   title: string;
-  content: string;
+  content: ContentItem[];
   description?: string;
   createdAt: number;
   updatedAt: number;
@@ -12,7 +19,7 @@ export interface Document {
 export interface ErrorDetail {
   expected: string;
   actual: string[];
-  position: number;
+  position: number; // itemIndex
 }
 
 // 练习记录（持久化）
@@ -31,12 +38,39 @@ export interface PracticeRecord {
 // 练习状态（内存）
 export interface PracticeState {
   documentId: string;
-  content: string;
-  currentIndex: number;
+  items: ContentItem[];
+  currentItemIndex: number;
+  currentCharIndex: number;    // text 模式下当前项内字符偏移
   errorCount: number;
   totalKeystrokes: number;
   startTime: number | null;
   isError: boolean;
   errorDetails: ErrorDetail[];
-  currentErrorActual: string[]; // 当前错误位置累积的错误输入
+  currentErrorActual: string[];
+  pressedKeys: string[];       // keypress 模式：当前按下的键
+}
+
+// 辅助函数：计算 items 总字符数
+export function getTotalChars(items: ContentItem[]): number {
+  return items.reduce((sum, item) => {
+    if (item.type === 'text') {
+      return sum + (item.content as string).length;
+    }
+    // keypress 项算 1 个操作
+    return sum + 1;
+  }, 0);
+}
+
+// 辅助函数：计算全局字符偏移（用于进度计算）
+export function getGlobalCharIndex(items: ContentItem[], itemIndex: number, charIndex: number): number {
+  let total = 0;
+  for (let i = 0; i < itemIndex; i++) {
+    const item = items[i]!;
+    if (item.type === 'text') {
+      total += (item.content as string).length;
+    } else {
+      total += 1;
+    }
+  }
+  return total + charIndex;
 }

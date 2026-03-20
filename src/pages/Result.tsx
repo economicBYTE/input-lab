@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePracticeStore } from '@/stores/practiceStore';
 import { practiceRecordService } from '@/services/db';
+import { getTotalChars } from '@/types';
 
 const renderChar = (char: string) => {
   if (char === ' ') return 'space';
@@ -17,13 +18,15 @@ export default function Result() {
 
   const {
     documentId,
-    content,
+    items,
     startTime,
     errorCount,
     totalKeystrokes,
     errorDetails,
     reset,
   } = usePracticeStore();
+
+  const totalChars = getTotalChars(items);
 
   const [endTime] = useState(() => Date.now());
   const duration = startTime ? endTime - startTime : 0;
@@ -33,7 +36,7 @@ export default function Result() {
 
   const kpm =
     startTime && duration > 0
-      ? Math.round(content.length / (duration / 60000))
+      ? Math.round(totalChars / (duration / 60000))
       : 0;
 
   const errorRate =
@@ -41,7 +44,6 @@ export default function Result() {
       ? Math.round((errorCount / totalKeystrokes) * 1000) / 10
       : 0;
 
-  // Save practice record (useRef survives StrictMode double-mount)
   useEffect(() => {
     if (!savedRef.current && documentId && startTime) {
       savedRef.current = true;
@@ -49,14 +51,14 @@ export default function Result() {
         documentId,
         startTime,
         endTime,
-        totalChars: content.length,
+        totalChars,
         errorCount,
         kpm,
         errorRate,
         errorDetails,
       });
     }
-  }, [documentId, startTime, endTime, content.length, errorCount, kpm, errorRate, errorDetails]);
+  }, [documentId, startTime, endTime, totalChars, errorCount, kpm, errorRate, errorDetails]);
 
   const handleRetry = () => {
     reset();
@@ -93,7 +95,7 @@ export default function Result() {
           </div>
           <div className="result-stat">
             <div className="result-stat-label">chars</div>
-            <div className="result-stat-value">{content.length}</div>
+            <div className="result-stat-value">{totalChars}</div>
           </div>
         </div>
 

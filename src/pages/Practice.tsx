@@ -2,9 +2,80 @@ import { useEffect, useRef, useCallback, useState, useMemo, useLayoutEffect } fr
 import { useParams, useNavigate } from 'react-router-dom';
 import { documentService } from '@/services/db';
 import { usePracticeStore } from '@/stores/practiceStore';
+import type { ContentItem } from '@/types';
+import { getTotalChars, getGlobalCharIndex } from '@/types';
 
 const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
-const SCROLL_RETURN_DELAY = 5000; // 5s auto-return
+const SCROLL_RETURN_DELAY = 5000;
+
+// 将 KeyboardEvent.code 格式化为可读标签
+function formatKeyCode(code: string): string {
+  if (code.startsWith('Key')) return code.slice(3);
+  if (code.startsWith('Digit')) return code.slice(5);
+  const map: Record<string, string> = {
+    ControlLeft: 'Ctrl', ControlRight: 'Ctrl',
+    ShiftLeft: 'Shift', ShiftRight: 'Shift',
+    AltLeft: 'Alt', AltRight: 'Alt',
+    MetaLeft: 'Cmd', MetaRight: 'Cmd',
+    Space: 'Space', Enter: 'Enter', Tab: 'Tab',
+    Backspace: 'Bksp', Delete: 'Del', Escape: 'Esc',
+    ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
+    Slash: '/', Backslash: '\\', BracketLeft: '[', BracketRight: ']',
+    Semicolon: ';', Quote: "'", Comma: ',', Period: '.', Minus: '-', Equal: '=',
+    Backquote: '`',
+  };
+  return map[code] || code;
+}
+
+// 修饰键标准化（与 store 一致）
+const MODIFIER_PAIRS: Record<string, string> = {
+  ControlRight: 'ControlLeft',
+  ShiftRight: 'ShiftLeft',
+  AltRight: 'AltLeft',
+  MetaRight: 'MetaLeft',
+};
+function normalizeCode(code: string): string {
+  return MODIFIER_PAIRS[code] || code;
+}
+
+// Keypress item 渲染组件
+function KeypressItemRenderer({
+  item,
+  status,
+  pressedKeys,
+}: {
+  item: ContentItem;
+  status: 'completed' | 'active' | 'pending';
+  pressedKeys: string[];
+}) {
+  const keys = item.content as string[];
+  const normalizedPressed = new Set(pressedKeys.map(normalizeCode));
+
+  return (
+    <div className={`keypress-item keypress-${status}`}>
+      {item.tips && <span className="keypress-tips">{item.tips}</span>}
+      <div className="keypress-keys">
+        {keys.map((code, i) => {
+          let badgeClass = 'key-badge';
+          if (status === 'completed') {
+            badgeClass += ' correct';
+          } else if (status === 'active') {
+            const normalized = normalizeCode(code);
+            if (normalizedPressed.has(normalized)) {
+              badgeClass += ' pressed';
+            }
+          }
+          return (
+            <span key={i}>
+              {i > 0 && <span className="key-plus">+</span>}
+              <span className={badgeClass}>{formatKeyCode(code)}</span>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Practice() {
   const { id } = useParams<{ id: string }>();
@@ -21,42 +92,77 @@ export default function Practice() {
   const [translateYPx, setTranslateYPx] = useState(0);
 
   const {
-    content,
-    currentIndex,
+    items,
+    currentItemIndex,
+    currentCharIndex,
     isError,
     startTime,
     totalKeystrokes,
     errorCount,
+    pressedKeys,
   } = usePracticeStore();
 
-  // Split content into lines and compute char index ranges per line
+  const currentItemType = usePracticeStore((s) => {
+    if (s.currentItemIndex >= s.items.length) return null;
+    return s.items[s.currentItemIndex]!.type;
+  });
+
+  const totalChars = useMemo(() => getTotalChars(items), [items]);
+  const globalCharIndex = useMemo(
+    () => getGlobalCharIndex(items, currentItemIndex, currentCharIndex),
+    [items, currentItemIndex, currentCharIndex]
+  );
+
+  // 为 text items 构建行数据，包含 itemIndex 信息
   const lines = useMemo(() => {
-    if (!content) return [];
-    const result: { text: string; startIndex: number }[] = [];
-    let idx = 0;
-    const parts = content.split('\n');
-    parts.forEach((part, i) => {
-      const lineText = i < parts.length - 1 ? part + '\n' : part;
-      result.push({ text: lineText, startIndex: idx });
-      idx += lineText.length;
+    if (!items.length) return [];
+    const result: { text: string; globalStart: number; itemIndex: number; charOffset: number }[] = [];
+    let globalIdx = 0;
+
+    items.forEach((item, itemIdx) => {
+      if (item.type === 'text') {
+        const text = item.content as string;
+        const parts = text.split('\n');
+        let localOffset = 0;
+        parts.forEach((part, i) => {
+          const lineText = i < parts.length - 1 ? part + '\n' : part;
+          result.push({
+            text: lineText,
+            globalStart: globalIdx,
+            itemIndex: itemIdx,
+            charOffset: localOffset,
+          });
+          globalIdx += lineText.length;
+          localOffset += lineText.length;
+        });
+      } else {
+        // keypress item 占一个"位置"
+        result.push({
+          text: '',
+          globalStart: globalIdx,
+          itemIndex: itemIdx,
+          charOffset: 0,
+        });
+        globalIdx += 1;
+      }
     });
     return result;
-  }, [content]);
+  }, [items]);
 
-  // Determine which line the cursor is on
+  // 确定活动行索引
   const activeLineIndex = useMemo(() => {
     for (let i = lines.length - 1; i >= 0; i--) {
-      if (currentIndex >= lines[i]!.startIndex) return i;
+      if (globalCharIndex >= lines[i]!.globalStart) return i;
     }
     return 0;
-  }, [currentIndex, lines]);
+  }, [globalCharIndex, lines]);
 
-  // KPM calculation
+  // KPM
   const kpm = useCallback(() => {
-    if (!startTime || currentIndex === 0) return 0;
+    if (!startTime || globalCharIndex === 0) return 0;
     const minutes = (Date.now() - startTime) / 60000;
-    return minutes > 0 ? Math.round(currentIndex / minutes) : 0;
-  }, [startTime, currentIndex]);
+    return minutes > 0 ? Math.round(globalCharIndex / minutes) : 0;
+  }, [startTime, globalCharIndex]);
 
   const errorRate = useCallback(() => {
     if (totalKeystrokes === 0) return 0;
@@ -68,7 +174,11 @@ export default function Practice() {
     if (!id) return;
     documentService.getById(id).then((doc) => {
       if (doc) {
-        usePracticeStore.getState().init(doc.id, doc.content);
+        // 运行时防御性检查
+        const content = typeof doc.content === 'string'
+          ? [{ type: 'text' as const, content: doc.content }]
+          : doc.content;
+        usePracticeStore.getState().init(doc.id, content);
       } else {
         navigate('/');
       }
@@ -78,15 +188,51 @@ export default function Practice() {
   // Auto-focus
   useEffect(() => {
     inputRef.current?.focus();
-  }, [content]);
+  }, [items]);
 
-  // Compute translateY from DOM measurement
+  // Keypress 模式: window-level keydown/keyup
+  useEffect(() => {
+    if (currentItemType !== 'keypress') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      e.preventDefault();
+      markTyping();
+      const completed = usePracticeStore.getState().handleKeyDown(e.code);
+      if (completed) {
+        navigate(`/result/${id}`);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      e.preventDefault();
+      usePracticeStore.getState().handleKeyUp(e.code);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [currentItemType, id, navigate]);
+
+  // window.blur 清空 pressedKeys
+  useEffect(() => {
+    const handleBlur = () => {
+      usePracticeStore.getState().clearPressedKeys();
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, []);
+
+  // translateY
   useLayoutEffect(() => {
     const container = wordsContentRef.current;
     const wrapper = wrapperRef.current;
     if (!container || !wrapper) return;
 
-    const lineElements = container.querySelectorAll('.line');
+    const lineElements = container.querySelectorAll('.line, .keypress-item');
     const activeLine = lineElements[activeLineIndex] as HTMLElement | undefined;
     if (!activeLine) return;
 
@@ -95,52 +241,64 @@ export default function Practice() {
     const lineCenter = activeLine.offsetTop + activeLine.offsetHeight / 2;
 
     setTranslateYPx(viewportCenter - lineCenter + scrollOffsetPx);
-  }, [activeLineIndex, scrollOffsetPx, content, lines]);
+  }, [activeLineIndex, scrollOffsetPx, items, lines]);
 
-  // Reset scroll offset when typing moves to a new position
-  const prevIndexRef = useRef(currentIndex);
+  // Reset scroll offset when position changes
+  const prevGlobalRef = useRef(globalCharIndex);
   useEffect(() => {
-    if (currentIndex !== prevIndexRef.current) {
-      prevIndexRef.current = currentIndex;
+    if (globalCharIndex !== prevGlobalRef.current) {
+      prevGlobalRef.current = globalCharIndex;
       setScrollOffsetPx(0);
     }
-  }, [currentIndex]);
+  }, [globalCharIndex]);
 
-  // Get pixel height of one base line for wheel step size
   const getBaseLineHeightPx = useCallback(() => {
     const wrapper = wrapperRef.current;
-    if (!wrapper) return 48; // fallback
+    if (!wrapper) return 48;
     const fontSize = parseFloat(getComputedStyle(wrapper).fontSize);
-    return BASE_LINE_HEIGHT * fontSize / 1; // rem to px: 3.2 * rootFontSize
+    return BASE_LINE_HEIGHT * fontSize;
   }, []);
 
-  // Wheel handler for manual scrolling
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const step = getBaseLineHeightPx();
     const delta = e.deltaY > 0 ? -step : step;
     setScrollOffsetPx((prev) => prev + delta);
 
-    // Reset auto-return timer
     clearTimeout(scrollReturnTimerRef.current);
     scrollReturnTimerRef.current = setTimeout(() => {
       setScrollOffsetPx(0);
     }, SCROLL_RETURN_DELAY);
   }, [getBaseLineHeightPx]);
 
-  // Cleanup scroll return timer
   useEffect(() => {
     return () => clearTimeout(scrollReturnTimerRef.current);
   }, []);
 
-  // Update caret position based on current letter element
+  // Caret position
   const updateCaretPosition = useCallback(() => {
     const words = wordsRef.current;
     const caret = caretRef.current;
     if (!words || !caret) return;
 
+    // keypress 模式不需要 caret
+    if (currentItemType === 'keypress') {
+      caret.style.display = 'none';
+      return;
+    }
+    caret.style.display = '';
+
     const letters = words.querySelectorAll('.letter');
-    const currentLetter = letters[currentIndex] as HTMLElement | undefined;
+    // 计算全局 letter index
+    let globalLetterIndex = 0;
+    for (let i = 0; i < currentItemIndex; i++) {
+      if (items[i]?.type === 'text') {
+        globalLetterIndex += (items[i]!.content as string).length;
+      }
+    }
+    globalLetterIndex += currentCharIndex;
+
+    const currentLetter = letters[globalLetterIndex] as HTMLElement | undefined;
 
     if (currentLetter) {
       const wordsRect = words.getBoundingClientRect();
@@ -149,7 +307,6 @@ export default function Practice() {
       caret.style.top = `${letterRect.top - wordsRect.top}px`;
       caret.style.height = `${letterRect.height}px`;
     } else if (letters.length > 0) {
-      // Past last character — position after the last letter
       const lastLetter = letters[letters.length - 1] as HTMLElement;
       const wordsRect = words.getBoundingClientRect();
       const letterRect = lastLetter.getBoundingClientRect();
@@ -157,19 +314,17 @@ export default function Practice() {
       caret.style.top = `${letterRect.top - wordsRect.top}px`;
       caret.style.height = `${letterRect.height}px`;
     }
-  }, [currentIndex]);
+  }, [currentItemIndex, currentCharIndex, currentItemType, items]);
 
   useEffect(() => {
     updateCaretPosition();
-  }, [currentIndex, content, updateCaretPosition]);
+  }, [currentItemIndex, currentCharIndex, items, updateCaretPosition]);
 
-  // Recalculate on window resize
   useEffect(() => {
     window.addEventListener('resize', updateCaretPosition);
     return () => window.removeEventListener('resize', updateCaretPosition);
   }, [updateCaretPosition]);
 
-  // Typing state: stop blinking while typing, resume after idle
   const markTyping = useCallback(() => {
     setIsTyping(true);
     clearTimeout(typingTimerRef.current);
@@ -182,12 +337,12 @@ export default function Practice() {
     return () => clearTimeout(typingTimerRef.current);
   }, []);
 
-  // Handle character input
+  // Text input
   const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
     const char = input.value;
     input.value = '';
-    if (!char) return;
+    if (!char || currentItemType !== 'text') return;
 
     markTyping();
     const completed = usePracticeStore.getState().handleInput(char);
@@ -196,8 +351,8 @@ export default function Practice() {
     }
   };
 
-  // Handle special keys (Enter/Tab)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (currentItemType !== 'text') return;
     if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault();
       markTyping();
@@ -209,18 +364,94 @@ export default function Practice() {
     }
   };
 
-  // Click to focus
   const handleContainerClick = () => {
     inputRef.current?.focus();
   };
 
-  if (!content) {
+  if (!items.length) {
     return (
       <div className="center-container">
         <div className="loading-spinner" />
       </div>
     );
   }
+
+  // 渲染 items 混合内容
+  const renderItems = () => {
+    let globalTextCharIdx = 0;
+
+    return items.map((item, itemIdx) => {
+      if (item.type === 'keypress') {
+        let status: 'completed' | 'active' | 'pending' = 'pending';
+        if (itemIdx < currentItemIndex) status = 'completed';
+        else if (itemIdx === currentItemIndex) status = 'active';
+
+        return (
+          <KeypressItemRenderer
+            key={`kp-${itemIdx}`}
+            item={item}
+            status={status}
+            pressedKeys={itemIdx === currentItemIndex ? pressedKeys : []}
+          />
+        );
+      }
+
+      // text item: 按行渲染
+      const text = item.content as string;
+      const parts = text.split('\n');
+      const itemStartGlobalChar = globalTextCharIdx;
+      const renderedLines: JSX.Element[] = [];
+      let localOffset = 0;
+
+      parts.forEach((part, partIdx) => {
+        const lineText = partIdx < parts.length - 1 ? part + '\n' : part;
+        const lineStartGlobalChar = itemStartGlobalChar + localOffset;
+
+        renderedLines.push(
+          <div className="line" key={`${itemIdx}-${partIdx}`}>
+            {lineText.split('').map((char, charIdx) => {
+              const globalIdx = lineStartGlobalChar + charIdx;
+              const localCharIdx = localOffset + charIdx;
+              let className = 'letter';
+
+              // 判断字符状态
+              if (itemIdx < currentItemIndex) {
+                className += ' correct';
+              } else if (itemIdx === currentItemIndex) {
+                if (localCharIdx < currentCharIndex) {
+                  className += ' correct';
+                } else if (localCharIdx === currentCharIndex) {
+                  className += ' current';
+                  if (isError) className += ' incorrect';
+                }
+              }
+
+              if (char === '\n') {
+                className += ' newline-symbol';
+                return (
+                  <span key={globalIdx} className={className}>{'↵'}</span>
+                );
+              } else if (char === '\t') {
+                className += ' tab-symbol';
+                return (
+                  <span key={globalIdx} className={className}>{'→   '}</span>
+                );
+              }
+
+              return (
+                <span key={globalIdx} className={className}>{char}</span>
+              );
+            })}
+          </div>
+        );
+
+        localOffset += lineText.length;
+      });
+
+      globalTextCharIdx += text.length;
+      return <div key={`text-${itemIdx}`}>{renderedLines}</div>;
+    });
+  };
 
   return (
     <div className="practice-container" onClick={handleContainerClick}>
@@ -237,15 +468,12 @@ export default function Practice() {
         <div className="stat-item">
           <span className="stat-label">progress</span>
           <span className="stat-value">
-            {content.length > 0
-              ? Math.round((currentIndex / content.length) * 100)
-              : 0}
-            %
+            {totalChars > 0 ? Math.round((globalCharIndex / totalChars) * 100) : 0}%
           </span>
         </div>
       </div>
 
-      {/* Hidden input */}
+      {/* Hidden input for text mode */}
       <input
         ref={inputRef}
         className="hidden-input"
@@ -257,7 +485,7 @@ export default function Practice() {
         spellCheck={false}
       />
 
-      {/* Words display with caret */}
+      {/* Words display */}
       <div className="words-wrapper" ref={wrapperRef} onWheel={handleWheel}>
         <div
           className="words-content"
@@ -270,44 +498,7 @@ export default function Practice() {
             className={`${isTyping ? 'typing' : ''} ${isError ? 'error' : ''}`}
           />
           <div className="words" ref={wordsRef}>
-            {lines.map((line, lineIdx) => (
-              <div className="line" key={lineIdx}>
-                {line.text.split('').map((char, charIdx) => {
-                  const index = line.startIndex + charIdx;
-                  let className = 'letter';
-                  if (index < currentIndex) {
-                    className += ' correct';
-                  } else if (index === currentIndex) {
-                    className += ' current';
-                    if (isError) {
-                      className += ' incorrect';
-                    }
-                  }
-
-                  if (char === '\n') {
-                    className += ' newline-symbol';
-                    return (
-                      <span key={index} className={className}>
-                        {'↵'}
-                      </span>
-                    );
-                  } else if (char === '\t') {
-                    className += ' tab-symbol';
-                    return (
-                      <span key={index} className={className}>
-                        {'→   '}
-                      </span>
-                    );
-                  }
-
-                  return (
-                    <span key={index} className={className}>
-                      {char}
-                    </span>
-                  );
-                })}
-              </div>
-            ))}
+            {renderItems()}
           </div>
         </div>
       </div>
