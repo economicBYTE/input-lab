@@ -1,8 +1,12 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDocumentStore } from '@/stores/documentStore';
+import { useCategoryStore } from '@/stores/categoryStore';
 import type { Document, ContentItem } from '@/types';
 import { getTotalChars } from '@/types';
+import { validateDocumentJSON, generateUniqueTitle } from '@/utils/validateDocument';
+import type { DocumentJSON } from '@/utils/validateDocument';
+import { categoryService } from '@/services/db';
 
 // 将 KeyboardEvent.code 格式化为可读标签
 function formatKeyCode(code: string): string {
@@ -51,7 +55,6 @@ function KeyRecorder({ onRecord }: { onRecord: (keys: string[]) => void }) {
       e.stopPropagation();
       pressed.delete(e.code);
       if (pressed.size === 0 && maxKeys.length > 0) {
-        // 所有键释放，完成录入
         onRecord(maxKeys);
         setRecording(false);
       }
@@ -85,12 +88,11 @@ function KeyRecorder({ onRecord }: { onRecord: (keys: string[]) => void }) {
 interface DocFormData {
   title: string;
   description: string;
-  content: string; // 简单模式下的纯文本
+  content: string;
 }
 
 const emptyForm: DocFormData = { title: '', description: '', content: '' };
 
-// 从 ContentItem[] 提取纯文本（简单模式显示用）
 function extractTextFromItems(items: ContentItem[]): string {
   return items
     .filter((it) => it.type === 'text')
@@ -98,15 +100,24 @@ function extractTextFromItems(items: ContentItem[]): string {
     .join('');
 }
 
-// 检查 items 是否只有纯文本（判断是否需要高级模式）
 function isSimpleTextContent(items: ContentItem[]): boolean {
   return items.every((it) => it.type === 'text' && !it.tips);
+}
+
+// 预置文档目录项
+interface PresetIndex {
+  file: string;
+  title: string;
+  description: string;
+  category?: string;
 }
 
 export default function DocumentList() {
   const navigate = useNavigate();
   const { documents, loading, fetchDocuments, createDocument, updateDocument, deleteDocument } =
     useDocumentStore();
+  const { categories, fetchCategories, createCategory, updateCategory, deleteCategory } =
+    useCategoryStore();
 
   const [showModal, setShowModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
@@ -117,9 +128,54 @@ export default function DocumentList() {
   const [advancedMode, setAdvancedMode] = useState(false);
   const [advancedItems, setAdvancedItems] = useState<ContentItem[]>([]);
 
+  // 分类管理
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [categoryName, setCategoryName] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [confirmDeleteCategoryId, setConfirmDeleteCategoryId] = useState<string | null>(null);
+
+  // 分类折叠状态
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('collapsedCategories') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  // 预置文档
+  const [presetIndex, setPresetIndex] = useState<PresetIndex[]>([]);
+  const [showPresets, setShowPresets] = useState(false);
+  const [importingPreset, setImportingPreset] = useState<string | null>(null);
+
+  // 导入相关
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importConfirm, setImportConfirm] = useState<{ data: DocumentJSON; newTitle: string } | null>(null);
+
   useEffect(() => {
     fetchDocuments();
-  }, [fetchDocuments]);
+    fetchCategories();
+  }, [fetchDocuments, fetchCategories]);
+
+  // 加载预置文档目录
+  useEffect(() => {
+    fetch('/documents/index.json')
+      .then((r) => r.json())
+      .then((data: PresetIndex[]) => setPresetIndex(data))
+      .catch(() => {});
+  }, []);
+
+  // 持久化折叠状态
+  useEffect(() => {
+    localStorage.setItem('collapsedCategories', JSON.stringify(collapsedCategories));
+  }, [collapsedCategories]);
+
+  const toggleCollapse = (key: string) => {
+    setCollapsedCategories((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // ---- 文档 CRUD ----
 
   const openCreate = () => {
     setEditingDoc(null);
@@ -189,16 +245,22 @@ export default function DocumentList() {
     }
   };
 
-  // 高级模式：切换时同步数据
+  // ---- 分类选择 ----
+
+  const handleCategoryChange = async (docId: string, categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await updateDocument(docId, { categoryId: categoryId || undefined });
+  };
+
+  // ---- 高级编辑模式 ----
+
   const toggleAdvancedMode = () => {
     if (!advancedMode) {
-      // 简单 → 高级：将文本转为 items
       const items: ContentItem[] = form.content.trim()
         ? [{ type: 'text', content: form.content }]
         : [];
       setAdvancedItems(items);
     } else {
-      // 高级 → 简单：提取文本
       setForm((f) => ({ ...f, content: extractTextFromItems(advancedItems) }));
     }
     setAdvancedMode(!advancedMode);
@@ -225,6 +287,145 @@ export default function DocumentList() {
     updateAdvancedItem(index, { content: keys });
   }, []);
 
+  // ---- 分类管理 ----
+
+  const handleSaveCategory = async () => {
+    if (!categoryName.trim()) return;
+    if (editingCategoryId) {
+      await updateCategory(editingCategoryId, categoryName.trim());
+    } else {
+      await createCategory(categoryName.trim());
+    }
+    setCategoryName('');
+    setEditingCategoryId(null);
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (confirmDeleteCategoryId === id) {
+      await deleteCategory(id);
+      setConfirmDeleteCategoryId(null);
+    } else {
+      setConfirmDeleteCategoryId(id);
+      setTimeout(() => setConfirmDeleteCategoryId(null), 3000);
+    }
+  };
+
+  // ---- JSON 导入 ----
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const doImport = async (data: DocumentJSON, title: string) => {
+    // 如果有 category，自动创建或匹配
+    let categoryId: string | undefined;
+    if (data.category) {
+      const existing = await categoryService.findByName(data.category);
+      if (existing) {
+        categoryId = existing.id;
+      } else {
+        categoryId = await categoryService.create(data.category);
+        await fetchCategories();
+      }
+    }
+
+    await createDocument({
+      title,
+      description: data.description,
+      content: data.content,
+      categoryId,
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = ''; // reset for re-select
+
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const result = validateDocumentJSON(json);
+
+      if (!result.valid || !result.data) {
+        setImportError(result.error || '校验失败');
+        return;
+      }
+
+      const data = result.data;
+      const existingTitles = documents.map((d) => d.title);
+
+      if (existingTitles.includes(data.title)) {
+        const newTitle = generateUniqueTitle(data.title, existingTitles);
+        setImportConfirm({ data, newTitle });
+        return;
+      }
+
+      await doImport(data, data.title);
+    } catch {
+      setImportError('JSON 解析失败，请检查文件格式');
+    }
+  };
+
+  const confirmImport = async () => {
+    if (!importConfirm) return;
+    await doImport(importConfirm.data, importConfirm.newTitle);
+    setImportConfirm(null);
+  };
+
+  // ---- 预置文档导入 ----
+
+  const handlePresetImport = async (preset: PresetIndex) => {
+    setImportingPreset(preset.file);
+    try {
+      const resp = await fetch(`/documents/${preset.file}`);
+      const json = await resp.json();
+      const result = validateDocumentJSON(json);
+
+      if (!result.valid || !result.data) return;
+
+      const data = result.data;
+      const existingTitles = documents.map((d) => d.title);
+      const title = existingTitles.includes(data.title)
+        ? generateUniqueTitle(data.title, existingTitles)
+        : data.title;
+
+      await doImport(data, title);
+    } catch {
+      // silent fail for presets
+    } finally {
+      setImportingPreset(null);
+    }
+  };
+
+  const isPresetAdded = (preset: PresetIndex) => {
+    return documents.some((d) => d.title === preset.title);
+  };
+
+  // ---- 分组文档 ----
+
+  const groupedDocuments = () => {
+    const groups: { id: string; name: string; docs: Document[] }[] = [];
+
+    // 按分类分组
+    for (const cat of categories) {
+      const docs = documents.filter((d) => d.categoryId === cat.id);
+      if (docs.length > 0) {
+        groups.push({ id: cat.id, name: cat.name, docs });
+      }
+    }
+
+    // 未分类
+    const uncategorized = documents.filter(
+      (d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)
+    );
+    if (uncategorized.length > 0) {
+      groups.push({ id: '__uncategorized', name: '默认', docs: uncategorized });
+    }
+
+    return groups;
+  };
+
   if (loading) {
     return (
       <div className="center-container">
@@ -233,12 +434,51 @@ export default function DocumentList() {
     );
   }
 
+  const groups = groupedDocuments();
+  const hasCategories = categories.length > 0;
+
   return (
     <div className="document-list">
       <div className="document-list-header">
         <div className="document-list-title">select a document to practice</div>
-        <button className="btn btn-primary btn-sm" onClick={openCreate}>
-          + new
+        <div className="document-list-actions">
+          <button className="btn btn-secondary btn-sm" onClick={handleImportClick}>
+            import JSON
+          </button>
+          <button className="btn btn-primary btn-sm" onClick={openCreate}>
+            + new
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            className="hidden-input"
+            onChange={handleFileChange}
+          />
+        </div>
+      </div>
+
+      {/* 分类管理栏 */}
+      <div className="category-bar">
+        <div className="category-tags">
+          {categories.map((cat) => (
+            <span key={cat.id} className="category-tag" onClick={() => toggleCollapse(cat.id)}>
+              {cat.name}
+              <span className="category-tag-arrow">{collapsedCategories[cat.id] ? '▸' : '▾'}</span>
+            </span>
+          ))}
+          {documents.some((d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)) && (
+            <span className="category-tag" onClick={() => toggleCollapse('__uncategorized')}>
+              默认
+              <span className="category-tag-arrow">{collapsedCategories['__uncategorized'] ? '▸' : '▾'}</span>
+            </span>
+          )}
+        </div>
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={() => { setShowCategoryModal(true); setCategoryName(''); setEditingCategoryId(null); }}
+        >
+          manage categories
         </button>
       </div>
 
@@ -246,51 +486,194 @@ export default function DocumentList() {
         <div className="document-empty">
           no documents yet — click "+ new" to add practice content
         </div>
-      ) : (
-        <div className="document-grid">
-          {documents.map((doc) => {
-            const items = typeof doc.content === 'string'
-              ? [{ type: 'text' as const, content: doc.content }]
-              : doc.content;
-            return (
+      ) : hasCategories ? (
+        // 分组显示
+        <div className="document-groups">
+          {groups.map((group) => (
+            <div key={group.id} className="document-group">
               <div
-                key={doc.id}
-                className="document-card"
-                onClick={() => navigate(`/practice/${doc.id}`)}
+                className="document-group-header"
+                onClick={() => toggleCollapse(group.id)}
               >
-                <div className="document-card-top">
-                  <div className="document-card-title">{doc.title}</div>
-                  <div className="document-card-actions">
+                <span className="document-group-arrow">
+                  {collapsedCategories[group.id] ? '▸' : '▾'}
+                </span>
+                <span className="document-group-name">{group.name}</span>
+                <span className="document-group-count">{group.docs.length}</span>
+              </div>
+              {!collapsedCategories[group.id] && (
+                <div className="document-grid">
+                  {group.docs.map((doc) => (
+                    <DocumentCard
+                      key={doc.id}
+                      doc={doc}
+                      categories={categories}
+                      confirmDeleteId={confirmDeleteId}
+                      onNavigate={(id) => navigate(`/practice/${id}`)}
+                      onEdit={openEdit}
+                      onDelete={handleDelete}
+                      onCategoryChange={handleCategoryChange}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        // 无分类时平铺显示
+        <div className="document-grid">
+          {documents.map((doc) => (
+            <DocumentCard
+              key={doc.id}
+              doc={doc}
+              categories={categories}
+              confirmDeleteId={confirmDeleteId}
+              onNavigate={(id) => navigate(`/practice/${id}`)}
+              onEdit={openEdit}
+              onDelete={handleDelete}
+              onCategoryChange={handleCategoryChange}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 预置文档推荐区 */}
+      {presetIndex.length > 0 && (
+        <div className="preset-section">
+          <div
+            className="preset-section-header"
+            onClick={() => setShowPresets(!showPresets)}
+          >
+            <span className="preset-section-title">
+              {showPresets ? '▾' : '▸'} recommended documents
+            </span>
+          </div>
+          {showPresets && (
+            <div className="preset-grid">
+              {presetIndex.map((preset) => {
+                const added = isPresetAdded(preset);
+                return (
+                  <div key={preset.file} className="preset-card">
+                    <div className="preset-card-title">{preset.title}</div>
+                    <div className="preset-card-desc">{preset.description}</div>
+                    {preset.category && (
+                      <div className="preset-card-category">{preset.category}</div>
+                    )}
+                    <button
+                      className={`btn btn-sm ${added ? 'btn-secondary' : 'btn-primary'}`}
+                      onClick={() => !added && handlePresetImport(preset)}
+                      disabled={added || importingPreset === preset.file}
+                    >
+                      {added ? 'added' : importingPreset === preset.file ? 'adding...' : 'add'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 导入错误提示 */}
+      {importError && (
+        <div className="modal-overlay" onClick={() => setImportError(null)}>
+          <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">import failed</div>
+            <p className="import-error-text">{importError}</p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setImportError(null)}>
+                close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 导入重名确认 */}
+      {importConfirm && (
+        <div className="modal-overlay" onClick={() => setImportConfirm(null)}>
+          <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">title conflict</div>
+            <p className="import-confirm-text">
+              document "{importConfirm.data.title}" already exists. Import as "{importConfirm.newTitle}"?
+            </p>
+            <div className="modal-actions">
+              <button className="btn btn-primary" onClick={confirmImport}>
+                import
+              </button>
+              <button className="btn btn-secondary" onClick={() => setImportConfirm(null)}>
+                cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 分类管理 Modal */}
+      {showCategoryModal && (
+        <div className="modal-overlay" onClick={() => setShowCategoryModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">manage categories</div>
+            <div className="category-form">
+              <input
+                className="form-input"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                placeholder="category name"
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveCategory()}
+                autoFocus
+              />
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={handleSaveCategory}
+                disabled={!categoryName.trim()}
+              >
+                {editingCategoryId ? 'update' : 'add'}
+              </button>
+              {editingCategoryId && (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => { setEditingCategoryId(null); setCategoryName(''); }}
+                >
+                  cancel
+                </button>
+              )}
+            </div>
+            <div className="category-list">
+              {categories.map((cat) => (
+                <div key={cat.id} className="category-list-item">
+                  <span className="category-list-name">{cat.name}</span>
+                  <div className="category-list-actions">
                     <button
                       className="card-action-btn"
-                      onClick={(e) => openEdit(doc, e)}
-                      title="edit"
+                      onClick={() => { setEditingCategoryId(cat.id); setCategoryName(cat.name); }}
                     >
                       edit
                     </button>
                     <button
-                      className={`card-action-btn card-action-delete ${confirmDeleteId === doc.id ? 'confirm' : ''}`}
-                      onClick={(e) => handleDelete(doc.id, e)}
-                      title="delete"
+                      className={`card-action-btn card-action-delete ${confirmDeleteCategoryId === cat.id ? 'confirm' : ''}`}
+                      onClick={() => handleDeleteCategory(cat.id)}
                     >
-                      {confirmDeleteId === doc.id ? 'confirm?' : 'del'}
+                      {confirmDeleteCategoryId === cat.id ? 'confirm?' : 'del'}
                     </button>
                   </div>
                 </div>
-                {doc.description && (
-                  <div className="document-card-desc">{doc.description}</div>
-                )}
-                <div className="document-card-meta">
-                  {getTotalChars(items)} chars
-                  {items.some((it) => it.type === 'keypress') && ' · keypress'}
-                </div>
-              </div>
-            );
-          })}
+              ))}
+              {categories.length === 0 && (
+                <div className="category-empty">no categories yet</div>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowCategoryModal(false)}>
+                close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Modal */}
+      {/* 文档编辑 Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -425,6 +808,74 @@ export default function DocumentList() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ---- 文档卡片子组件 ----
+
+function DocumentCard({
+  doc,
+  categories,
+  confirmDeleteId,
+  onNavigate,
+  onEdit,
+  onDelete,
+  onCategoryChange,
+}: {
+  doc: Document;
+  categories: { id: string; name: string }[];
+  confirmDeleteId: string | null;
+  onNavigate: (id: string) => void;
+  onEdit: (doc: Document, e: React.MouseEvent) => void;
+  onDelete: (id: string, e: React.MouseEvent) => void;
+  onCategoryChange: (docId: string, categoryId: string, e: React.MouseEvent) => void;
+}) {
+  const items = typeof doc.content === 'string'
+    ? [{ type: 'text' as const, content: doc.content }]
+    : doc.content;
+
+  return (
+    <div className="document-card" onClick={() => onNavigate(doc.id)}>
+      <div className="document-card-title">{doc.title}</div>
+      {doc.description && (
+        <div className="document-card-desc">{doc.description}</div>
+      )}
+      <div className="document-card-meta">
+        {getTotalChars(items)} chars
+        {items.some((it) => it.type === 'keypress') && ' · keypress'}
+      </div>
+      <div className="document-card-bottom">
+        <div className="document-card-actions">
+          {categories.length > 0 && (
+            <select
+              className="category-select"
+              value={doc.categoryId || ''}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => onCategoryChange(doc.id, e.target.value, e as unknown as React.MouseEvent)}
+            >
+              <option value="">uncategorized</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          )}
+          <button
+            className="card-action-btn"
+            onClick={(e) => onEdit(doc, e)}
+            title="edit"
+          >
+            edit
+          </button>
+          <button
+            className={`card-action-btn card-action-delete ${confirmDeleteId === doc.id ? 'confirm' : ''}`}
+            onClick={(e) => onDelete(doc.id, e)}
+            title="delete"
+          >
+            {confirmDeleteId === doc.id ? 'confirm?' : 'del'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

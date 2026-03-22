@@ -1,0 +1,21 @@
+{
+  "title": "Git Log & Diff",
+  "description": "Viewing commit history, comparing changes, and inspecting code",
+  "category": "Git",
+  "content": [
+    { "type": "text", "tips": "查看完整提交日志", "content": "git log" },
+    { "type": "text", "tips": "单行简洁日志", "content": "git log --oneline" },
+    { "type": "text", "tips": "图形化显示所有分支日志", "content": "git log --oneline --graph --all" },
+    { "type": "text", "tips": "按作者筛选提交", "content": "git log --author=\"username\"" },
+    { "type": "text", "tips": "按日期范围筛选提交", "content": "git log --since=\"2024-01-01\" --until=\"2024-12-31\"" },
+    { "type": "text", "tips": "显示最近2次提交的详细差异", "content": "git log -p -2" },
+    { "type": "text", "tips": "显示每次提交的文件统计", "content": "git log --stat" },
+    { "type": "text", "tips": "查看工作区未暂存的差异", "content": "git diff" },
+    { "type": "text", "tips": "查看已暂存的差异", "content": "git diff --staged" },
+    { "type": "text", "tips": "比较两个分支的差异", "content": "git diff main..feature/login" },
+    { "type": "text", "tips": "比较最近3次提交的差异", "content": "git diff HEAD~3..HEAD" },
+    { "type": "text", "tips": "查看指定提交的详情", "content": "git show abc1234" },
+    { "type": "text", "tips": "逐行追溯文件修改者", "content": "git blame src/index.ts" },
+    { "type": "text", "tips": "按提交数统计贡献者", "content": "git shortlog -sn" }
+  ]
+}

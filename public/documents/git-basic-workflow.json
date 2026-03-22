@@ -1,0 +1,21 @@
+{
+  "title": "Git Basic Workflow",
+  "description": "Init, add, commit, push, pull — the daily Git workflow",
+  "category": "Git",
+  "content": [
+    { "type": "text", "tips": "初始化Git仓库", "content": "git init" },
+    { "type": "text", "tips": "克隆远程仓库到本地", "content": "git clone git@github.com:user/repo.git" },
+    { "type": "text", "tips": "查看工作区状态", "content": "git status" },
+    { "type": "text", "tips": "暂存所有变更", "content": "git add ." },
+    { "type": "text", "tips": "交互式选择暂存内容", "content": "git add -p" },
+    { "type": "text", "tips": "提交并写提交信息", "content": "git commit -m \"feat: add user login\"" },
+    { "type": "text", "tips": "修改最近一次提交", "content": "git commit --amend" },
+    { "type": "text", "tips": "添加远程仓库地址", "content": "git remote add origin git@github.com:user/repo.git" },
+    { "type": "text", "tips": "修改远程仓库URL", "content": "git remote set-url origin git@github.com:user/new-repo.git" },
+    { "type": "text", "tips": "查看远程仓库信息", "content": "git remote -v" },
+    { "type": "text", "tips": "首次推送并设置上游分支", "content": "git push -u origin main" },
+    { "type": "text", "tips": "推送到远程主分支", "content": "git push origin main" },
+    { "type": "text", "tips": "拉取远程主分支并合并", "content": "git pull origin main" },
+    { "type": "text", "tips": "仅获取远程更新不合并", "content": "git fetch origin" }
+  ]
+}

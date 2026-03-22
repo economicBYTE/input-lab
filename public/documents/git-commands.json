@@ -1,0 +1,23 @@
+{
+  "title": "Git Quick Reference",
+  "description": "Most frequently used Git commands in one place",
+  "category": "Git",
+  "content": [
+    { "type": "text", "tips": "初始化仓库", "content": "git init" },
+    { "type": "text", "tips": "克隆远程仓库", "content": "git clone git@github.com:user/repo.git" },
+    { "type": "text", "tips": "查看工作区状态", "content": "git status" },
+    { "type": "text", "tips": "暂存所有变更", "content": "git add ." },
+    { "type": "text", "tips": "提交并附带消息", "content": "git commit -m \"feat: initial commit\"" },
+    { "type": "text", "tips": "推送到远程主分支", "content": "git push origin main" },
+    { "type": "text", "tips": "拉取远程主分支", "content": "git pull origin main" },
+    { "type": "text", "tips": "列出所有分支", "content": "git branch -a" },
+    { "type": "text", "tips": "创建并切换新分支", "content": "git checkout -b feature/new" },
+    { "type": "text", "tips": "合并分支", "content": "git merge feature/new" },
+    { "type": "text", "tips": "图形化查看提交日志", "content": "git log --oneline --graph" },
+    { "type": "text", "tips": "暂存当前修改", "content": "git stash" },
+    { "type": "text", "tips": "恢复暂存的修改", "content": "git stash pop" },
+    { "type": "text", "tips": "查看已暂存的差异", "content": "git diff --staged" },
+    { "type": "text", "tips": "撤销最近一次提交(保留修改)", "content": "git reset HEAD~1" },
+    { "type": "text", "tips": "创建带注释的标签", "content": "git tag -a v1.0.0 -m \"release v1.0.0\"" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Git Branch & Merge",
+  "description": "Branch creation, switching, merging, rebasing, and cherry-pick",
+  "category": "Git",
+  "content": [
+    { "type": "text", "tips": "列出本地分支", "content": "git branch" },
+    { "type": "text", "tips": "列出所有分支(含远程)", "content": "git branch -a" },
+    { "type": "text", "tips": "创建新分支", "content": "git branch feature/login" },
+    { "type": "text", "tips": "安全删除已合并分支", "content": "git branch -d feature/login" },
+    { "type": "text", "tips": "强制删除分支", "content": "git branch -D feature/login" },
+    { "type": "text", "tips": "切换到main分支", "content": "git checkout main" },
+    { "type": "text", "tips": "创建并切换到新分支", "content": "git checkout -b feature/signup" },
+    { "type": "text", "tips": "切换分支(新语法)", "content": "git switch main" },
+    { "type": "text", "tips": "创建并切换分支(新语法)", "content": "git switch -c feature/dashboard" },
+    { "type": "text", "tips": "合并分支到当前分支", "content": "git merge feature/login" },
+    { "type": "text", "tips": "非快进合并(保留分支历史)", "content": "git merge --no-ff feature/login" },
+    { "type": "text", "tips": "变基到main分支", "content": "git rebase main" },
+    { "type": "text", "tips": "中止变基操作", "content": "git rebase --abort" },
+    { "type": "text", "tips": "拣选指定提交到当前分支", "content": "git cherry-pick abc1234" },
+    { "type": "text", "tips": "中止拣选操作", "content": "git cherry-pick --abort" }
+  ]
+}

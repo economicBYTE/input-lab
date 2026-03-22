@@ -1,0 +1,11 @@
+{
+  "title": "SQL 查询",
+  "description": "基础 SQL 查询语句",
+  "category": "SQL",
+  "content": [
+    { "type": "text", "tips": "按ID查询单条记录", "content": "SELECT * FROM users WHERE id = 1;" },
+    { "type": "text", "tips": "插入一条新记录", "content": "INSERT INTO users (name) VALUES (\"test\");" },
+    { "type": "text", "tips": "按ID更新记录", "content": "UPDATE users SET name = \"new\" WHERE id = 1;" },
+    { "type": "text", "tips": "按ID删除记录", "content": "DELETE FROM users WHERE id = 1;" }
+  ]
+}

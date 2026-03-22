@@ -5,12 +5,20 @@ export interface ContentItem {
   content: string | string[];  // text→string, keypress→["ControlLeft","KeyC"]
 }
 
+// 分类
+export interface Category {
+  id: string;
+  name: string;
+  order: number;
+}
+
 // 文档
 export interface Document {
   id: string;
   title: string;
   content: ContentItem[];
   description?: string;
+  categoryId?: string;
   createdAt: number;
   updatedAt: number;
 }

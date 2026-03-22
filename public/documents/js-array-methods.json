@@ -1,0 +1,10 @@
+{
+  "title": "JavaScript 数组方法",
+  "description": "JS 数组常用操作方法",
+  "category": "JavaScript",
+  "content": [
+    { "type": "text", "tips": "映射:对每个元素执行转换", "content": "array.map(x => x * 2)" },
+    { "type": "text", "tips": "过滤:筛选满足条件的元素", "content": "array.filter(x => x > 0)" },
+    { "type": "text", "tips": "归约:将数组合并为单个值", "content": "array.reduce((a, b) => a + b, 0)" }
+  ]
+}

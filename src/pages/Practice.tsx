@@ -6,7 +6,7 @@ import type { ContentItem } from '@/types';
 import { getTotalChars, getGlobalCharIndex } from '@/types';
 
 const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
-const SCROLL_RETURN_DELAY = 5000;
+const SCROLL_RETURN_DELAY = 3000;
 
 // 将 KeyboardEvent.code 格式化为可读标签
 function formatKeyCode(code: string): string {
@@ -90,6 +90,7 @@ export default function Practice() {
   const [isTyping, setIsTyping] = useState(false);
   const [scrollOffsetPx, setScrollOffsetPx] = useState(0);
   const [translateYPx, setTranslateYPx] = useState(0);
+  const [docInfo, setDocInfo] = useState<{ title: string; description?: string } | null>(null);
 
   const {
     items,
@@ -157,11 +158,21 @@ export default function Practice() {
     return 0;
   }, [globalCharIndex, lines]);
 
-  // KPM
-  const kpm = useCallback(() => {
-    if (!startTime || globalCharIndex === 0) return 0;
-    const minutes = (Date.now() - startTime) / 60000;
-    return minutes > 0 ? Math.round(globalCharIndex / minutes) : 0;
+  // KPM — 用定时器驱动实时更新
+  const [kpmValue, setKpmValue] = useState(0);
+
+  useEffect(() => {
+    if (!startTime) {
+      setKpmValue(0);
+      return;
+    }
+    const update = () => {
+      const minutes = (Date.now() - startTime) / 60000;
+      setKpmValue(minutes > 0 ? Math.round(globalCharIndex / minutes) : 0);
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
   }, [startTime, globalCharIndex]);
 
   const errorRate = useCallback(() => {
@@ -178,6 +189,7 @@ export default function Practice() {
         const content = typeof doc.content === 'string'
           ? [{ type: 'text' as const, content: doc.content }]
           : doc.content;
+        setDocInfo({ title: doc.title, description: doc.description });
         usePracticeStore.getState().init(doc.id, content);
       } else {
         navigate('/');
@@ -455,56 +467,70 @@ export default function Practice() {
 
   return (
     <div className="practice-container" onClick={handleContainerClick}>
-      {/* Stats */}
-      <div className="stats-panel">
-        <div className="stat-item">
-          <span className="stat-label">kpm</span>
-          <span className="stat-value">{kpm()}</span>
+      {/* Top bar: doc info left, stats right */}
+      <div className="practice-top-bar">
+        <div className="doc-info">
+          {docInfo && (
+            <>
+              <span className="doc-title">{docInfo.title}</span>
+              {docInfo.description && (
+                <span className="doc-description">{docInfo.description}</span>
+              )}
+            </>
+          )}
         </div>
-        <div className="stat-item">
-          <span className="stat-label">errors</span>
-          <span className="stat-value">{errorRate()}%</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-label">progress</span>
-          <span className="stat-value">
-            {totalChars > 0 ? Math.round((globalCharIndex / totalChars) * 100) : 0}%
-          </span>
-        </div>
-      </div>
-
-      {/* Hidden input for text mode */}
-      <input
-        ref={inputRef}
-        className="hidden-input"
-        onInput={handleInput}
-        onKeyDown={handleKeyDown}
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-      />
-
-      {/* Words display */}
-      <div className="words-wrapper" ref={wrapperRef} onWheel={handleWheel}>
-        <div
-          className="words-content"
-          ref={wordsContentRef}
-          style={{ transform: `translateY(${translateYPx}px)` }}
-        >
-          <div
-            id="caret"
-            ref={caretRef}
-            className={`${isTyping ? 'typing' : ''} ${isError ? 'error' : ''}`}
-          />
-          <div className="words" ref={wordsRef}>
-            {renderItems()}
+        <div className="stats-panel">
+          <div className="stat-item">
+            <span className="stat-label">kpm</span>
+            <span className="stat-value">{kpmValue}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">errors</span>
+            <span className="stat-value">{errorRate()}%</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">progress</span>
+            <span className="stat-value">
+              {totalChars > 0 ? Math.round((globalCharIndex / totalChars) * 100) : 0}%
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Start hint */}
-      {!startTime && <div className="hint">start typing...</div>}
+      <div className="practice-main">
+        {/* Hidden input for text mode */}
+        <input
+          ref={inputRef}
+          className="hidden-input"
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+
+        {/* Words display */}
+        <div className="words-wrapper" ref={wrapperRef} onWheel={handleWheel}>
+          <div
+            className="words-content"
+            ref={wordsContentRef}
+            style={{ transform: `translateY(${translateYPx}px)` }}
+          >
+            <div
+              id="caret"
+              ref={caretRef}
+              className={`${isTyping ? 'typing' : ''} ${isError ? 'error' : ''}`}
+            />
+            <div className="words" ref={wordsRef}>
+              {renderItems()}
+            </div>
+          </div>
+        </div>
+
+        {/* Start hint */}
+        {!startTime && <div className="hint">start typing...</div>}
+      </div>
     </div>
   );
 }

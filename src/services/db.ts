@@ -1,9 +1,10 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { Document, PracticeRecord, ContentItem } from '@/types';
+import type { Document, PracticeRecord, ContentItem, Category } from '@/types';
 
 const db = new Dexie('TypePracticeDB') as Dexie & {
   documents: EntityTable<Document, 'id'>;
   practiceRecords: EntityTable<PracticeRecord, 'id'>;
+  categories: EntityTable<Category, 'id'>;
 };
 
 db.version(1).stores({
@@ -21,6 +22,13 @@ db.version(2).stores({
       doc.content = [{ type: 'text', content: doc.content }] as ContentItem[];
     }
   });
+});
+
+// v3: add categories table, add categoryId index to documents
+db.version(3).stores({
+  documents: 'id, updatedAt, categoryId',
+  practiceRecords: 'id, documentId, startTime',
+  categories: 'id, order',
 });
 
 // 文档操作
@@ -74,6 +82,43 @@ export const practiceRecordService = {
   },
 };
 
+// 分类操作
+export const categoryService = {
+  async getAll(): Promise<Category[]> {
+    return db.categories.orderBy('order').toArray();
+  },
+
+  async create(name: string): Promise<string> {
+    const id = crypto.randomUUID();
+    const maxOrder = await db.categories.orderBy('order').last();
+    const order = (maxOrder?.order ?? -1) + 1;
+    await db.categories.add({ id, name, order });
+    return id;
+  },
+
+  async update(id: string, data: Partial<Category>): Promise<void> {
+    await db.categories.update(id, data);
+  },
+
+  async delete(id: string): Promise<void> {
+    // 将该分类下的文档设为默认分类
+    await db.documents.where('categoryId').equals(id).modify({ categoryId: undefined });
+    await db.categories.delete(id);
+  },
+
+  async reorder(ids: string[]): Promise<void> {
+    await db.transaction('rw', db.categories, async () => {
+      for (let i = 0; i < ids.length; i++) {
+        await db.categories.update(ids[i]!, { order: i });
+      }
+    });
+  },
+
+  async findByName(name: string): Promise<Category | undefined> {
+    return db.categories.filter(c => c.name === name).first();
+  },
+};
+
 // 初始化示例数据（带锁防止并发）
 let initPromise: Promise<void> | null = null;
 
@@ -114,7 +159,7 @@ export function initSampleData(): Promise<void> {
         { type: 'keypress', tips: '替换', content: ['ControlLeft', 'KeyH'] },
         { type: 'text', content: 'console.log("hello world")' },
         { type: 'keypress', tips: '注释切换', content: ['ControlLeft', 'Slash'] },
-        { type: 'keypress', tips: '格式化', content: ['ShiftLeft', 'Alt(Option)Left', 'KeyF'] },
+        { type: 'keypress', tips: '格式化', content: ['ShiftLeft', 'AltLeft', 'KeyF'] },
       ],
     },
   ];

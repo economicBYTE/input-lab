@@ -1,0 +1,22 @@
+{
+  "title": "Git Advanced Operations",
+  "description": "Interactive rebase, submodules, worktrees, bisect, and hooks",
+  "category": "Git",
+  "content": [
+    { "type": "text", "tips": "交互式变基最近3次提交", "content": "git rebase -i HEAD~3" },
+    { "type": "text", "tips": "继续变基(解决冲突后)", "content": "git rebase --continue" },
+    { "type": "text", "tips": "开始二分查找定位bug", "content": "git bisect start" },
+    { "type": "text", "tips": "标记当前提交为有bug", "content": "git bisect bad" },
+    { "type": "text", "tips": "标记指定提交为正常", "content": "git bisect good abc1234" },
+    { "type": "text", "tips": "结束二分查找回到原分支", "content": "git bisect reset" },
+    { "type": "text", "tips": "创建工作树(并行开发)", "content": "git worktree add ../hotfix hotfix/bug-123" },
+    { "type": "text", "tips": "列出所有工作树", "content": "git worktree list" },
+    { "type": "text", "tips": "移除工作树", "content": "git worktree remove ../hotfix" },
+    { "type": "text", "tips": "添加子模块", "content": "git submodule add git@github.com:user/lib.git libs/lib" },
+    { "type": "text", "tips": "递归初始化并更新子模块", "content": "git submodule update --init --recursive" },
+    { "type": "text", "tips": "清除未跟踪文件和目录", "content": "git clean -fd" },
+    { "type": "text", "tips": "从版本控制移除但保留本地文件", "content": "git rm --cached .env" },
+    { "type": "text", "tips": "安装Husky Git钩子", "content": "npx husky install" },
+    { "type": "text", "tips": "添加pre-commit钩子", "content": "npx husky add .husky/pre-commit \"npm test\"" }
+  ]
+}
