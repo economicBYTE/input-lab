@@ -2,16 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { PracticeRecord, Document, ErrorDetail } from '@/types';
 import { practiceRecordService, documentService } from '@/services/db';
-
-const renderChar = (char: string) => {
-  if (char === ' ') return 'space';
-  if (char === '\n') return 'enter';
-  if (char === '\t') return 'tab';
-  return char;
-};
+import { useT } from '@/locales';
 
 export default function History() {
   const navigate = useNavigate();
+  const t = useT();
   const [records, setRecords] = useState<PracticeRecord[]>([]);
   const [docMap, setDocMap] = useState<Record<string, Document>>({});
   const [loading, setLoading] = useState(true);
@@ -48,6 +43,13 @@ export default function History() {
     return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
   };
 
+  const renderChar = (char: string) => {
+    if (char === ' ') return t('result.space');
+    if (char === '\n') return t('result.enter');
+    if (char === '\t') return t('result.tab');
+    return char;
+  };
+
   // Aggregate: expected char → total error count across all records
   const errorCharStats: Record<string, { count: number; wrongChars: Set<string> }> = {};
   records.forEach((r) => {
@@ -75,13 +77,13 @@ export default function History() {
   return (
     <div className="history-page">
       <div className="history-header">
-        <div className="document-list-title">practice history</div>
+        <div className="document-list-title">{t('history.title')}</div>
       </div>
 
       {/* Error summary */}
       {sortedErrorChars.length > 0 && (
         <div className="history-error-summary">
-          <div className="history-section-title">most frequent errors</div>
+          <div className="history-section-title">{t('history.mostErrors')}</div>
           <div className="error-detail-list">
             {sortedErrorChars.slice(0, 10).map(([char, stat]) => (
               <div key={char} className="error-detail-item">
@@ -100,7 +102,7 @@ export default function History() {
       )}
 
       {records.length === 0 ? (
-        <div className="document-empty">no practice history yet</div>
+        <div className="document-empty">{t('history.empty')}</div>
       ) : (
         <div className="history-list">
           {records.map((r) => {
@@ -112,24 +114,24 @@ export default function History() {
                     className="history-item-title"
                     onClick={() => doc && navigate(`/practice/${doc.id}`)}
                   >
-                    {doc?.title || 'deleted document'}
+                    {doc?.title || t('history.deletedDoc')}
                   </div>
                 </div>
                 <div className="history-item-stats">
                   <span className="history-stat">
-                    <span className="history-stat-label">kpm</span>
+                    <span className="history-stat-label">{t('history.kpm')}</span>
                     <span className="history-stat-value">{r.kpm}</span>
                   </span>
                   <span className="history-stat">
-                    <span className="history-stat-label">errors</span>
+                    <span className="history-stat-label">{t('history.errors')}</span>
                     <span className="history-stat-value">{r.errorRate}%</span>
                   </span>
                   <span className="history-stat">
-                    <span className="history-stat-label">time</span>
+                    <span className="history-stat-label">{t('history.time')}</span>
                     <span className="history-stat-value">{formatTime(r.endTime - r.startTime)}</span>
                   </span>
                   <span className="history-stat">
-                    <span className="history-stat-label">chars</span>
+                    <span className="history-stat-label">{t('history.chars')}</span>
                     <span className="history-stat-value">{r.totalChars}</span>
                   </span>
                 </div>
@@ -150,7 +152,7 @@ export default function History() {
                 <button
                   className="history-delete-btn"
                   onClick={() => handleDelete(r.id)}
-                  title="delete record"
+                  title={t('history.deleteRecord')}
                 >
                   ×
                 </button>

@@ -3,18 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { usePracticeStore } from '@/stores/practiceStore';
 import { practiceRecordService } from '@/services/db';
 import { getTotalChars } from '@/types';
-
-const renderChar = (char: string) => {
-  if (char === ' ') return 'space';
-  if (char === '\n') return 'enter';
-  if (char === '\t') return 'tab';
-  return char;
-};
+import { useT } from '@/locales';
 
 export default function Result() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const savedRef = useRef(false);
+  const t = useT();
 
   const {
     documentId,
@@ -70,38 +65,45 @@ export default function Result() {
     navigate('/');
   };
 
+  const renderChar = (char: string) => {
+    if (char === ' ') return t('result.space');
+    if (char === '\n') return t('result.enter');
+    if (char === '\t') return t('result.tab');
+    return char;
+  };
+
   return (
     <div className="result-container">
       <div className="result-card">
-        <div className="result-title">practice complete</div>
+        <div className="result-title">{t('result.title')}</div>
 
         <div className="result-stats">
           <div className="result-stat">
-            <div className="result-stat-label">time</div>
+            <div className="result-stat-label">{t('result.time')}</div>
             <div className="result-stat-value">
               {minutes}:{seconds.toString().padStart(2, '0')}
             </div>
           </div>
           <div className="result-stat">
-            <div className="result-stat-label">kpm</div>
+            <div className="result-stat-label">{t('result.kpm')}</div>
             <div className="result-stat-value">{kpm}</div>
           </div>
           <div className="result-stat">
-            <div className="result-stat-label">errors</div>
+            <div className="result-stat-label">{t('result.errors')}</div>
             <div className="result-stat-value">
               {errorRate}
               <span className="unit">%</span>
             </div>
           </div>
           <div className="result-stat">
-            <div className="result-stat-label">chars</div>
+            <div className="result-stat-label">{t('result.chars')}</div>
             <div className="result-stat-value">{totalChars}</div>
           </div>
         </div>
 
         {errorDetails.length > 0 && (
           <div className="result-errors">
-            <div className="result-errors-title">error details</div>
+            <div className="result-errors-title">{t('result.errorDetails')}</div>
             <div className="error-detail-list">
               {errorDetails.map((detail, i) => (
                 <div key={i} className="error-detail-item">
@@ -120,10 +122,10 @@ export default function Result() {
 
         <div className="result-actions">
           <button className="btn btn-primary" onClick={handleRetry}>
-            retry
+            {t('result.retry')}
           </button>
           <button className="btn btn-secondary" onClick={handleBack}>
-            back
+            {t('result.back')}
           </button>
         </div>
       </div>

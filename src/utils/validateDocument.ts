@@ -1,4 +1,5 @@
 import type { ContentItem } from '@/types';
+import { getT } from '@/locales';
 
 export interface DocumentJSON {
   title: string;
@@ -14,59 +15,61 @@ export interface ValidationResult {
 }
 
 export function validateDocumentJSON(json: unknown): ValidationResult {
+  const t = getT();
+
   if (!json || typeof json !== 'object') {
-    return { valid: false, error: '无效的 JSON 格式' };
+    return { valid: false, error: t('validate.invalidJSON') };
   }
 
   const obj = json as Record<string, unknown>;
 
   // title
   if (!obj.title || typeof obj.title !== 'string' || !obj.title.trim()) {
-    return { valid: false, error: '缺少 title 字段或 title 为空' };
+    return { valid: false, error: t('validate.missingTitle') };
   }
 
   // description
   if (obj.description !== undefined && typeof obj.description !== 'string') {
-    return { valid: false, error: 'description 必须是字符串' };
+    return { valid: false, error: t('validate.descMustBeString') };
   }
 
   // category
   if (obj.category !== undefined && typeof obj.category !== 'string') {
-    return { valid: false, error: 'category 必须是字符串' };
+    return { valid: false, error: t('validate.categoryMustBeString') };
   }
 
   // content
   if (!Array.isArray(obj.content) || obj.content.length === 0) {
-    return { valid: false, error: 'content 必须是非空数组' };
+    return { valid: false, error: t('validate.contentMustBeArray') };
   }
 
   for (let i = 0; i < obj.content.length; i++) {
     const item = obj.content[i];
     if (!item || typeof item !== 'object') {
-      return { valid: false, error: `content[${i}] 不是有效的对象` };
+      return { valid: false, error: t('validate.invalidItem', { i }) };
     }
 
     const ci = item as Record<string, unknown>;
 
     if (ci.type !== 'text' && ci.type !== 'keypress') {
-      return { valid: false, error: `content[${i}].type 必须是 "text" 或 "keypress"` };
+      return { valid: false, error: t('validate.invalidType', { i }) };
     }
 
     if (ci.type === 'text') {
       if (typeof ci.content !== 'string' || !ci.content) {
-        return { valid: false, error: `content[${i}].content 必须是非空字符串（type 为 text）` };
+        return { valid: false, error: t('validate.textContentRequired', { i }) };
       }
     } else {
       if (!Array.isArray(ci.content) || ci.content.length === 0) {
-        return { valid: false, error: `content[${i}].content 必须是非空字符串数组（type 为 keypress）` };
+        return { valid: false, error: t('validate.keypressContentRequired', { i }) };
       }
       if (!ci.content.every((k: unknown) => typeof k === 'string')) {
-        return { valid: false, error: `content[${i}].content 数组中的元素必须都是字符串` };
+        return { valid: false, error: t('validate.keypressItemsMustBeString', { i }) };
       }
     }
 
     if (ci.tips !== undefined && typeof ci.tips !== 'string') {
-      return { valid: false, error: `content[${i}].tips 必须是字符串` };
+      return { valid: false, error: t('validate.tipsMustBeString', { i }) };
     }
   }
 

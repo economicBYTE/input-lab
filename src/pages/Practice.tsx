@@ -4,6 +4,7 @@ import { documentService } from '@/services/db';
 import { usePracticeStore } from '@/stores/practiceStore';
 import type { ContentItem } from '@/types';
 import { getTotalChars, getGlobalCharIndex } from '@/types';
+import { useT } from '@/locales';
 
 const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
 const SCROLL_RETURN_DELAY = 3000;
@@ -80,6 +81,7 @@ function KeypressItemRenderer({
 export default function Practice() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const wordsRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLDivElement>(null);
@@ -481,15 +483,15 @@ export default function Practice() {
         </div>
         <div className="stats-panel">
           <div className="stat-item">
-            <span className="stat-label">kpm</span>
+            <span className="stat-label">{t('practice.kpm')}</span>
             <span className="stat-value">{kpmValue}</span>
           </div>
           <div className="stat-item">
-            <span className="stat-label">errors</span>
+            <span className="stat-label">{t('practice.errors')}</span>
             <span className="stat-value">{errorRate()}%</span>
           </div>
           <div className="stat-item">
-            <span className="stat-label">progress</span>
+            <span className="stat-label">{t('practice.progress')}</span>
             <span className="stat-value">
               {totalChars > 0 ? Math.round((globalCharIndex / totalChars) * 100) : 0}%
             </span>
@@ -529,7 +531,7 @@ export default function Practice() {
         </div>
 
         {/* Start hint */}
-        {!startTime && <div className="hint">start typing...</div>}
+        {!startTime && <div className="hint">{t('practice.startHint')}</div>}
       </div>
     </div>
   );

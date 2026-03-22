@@ -7,6 +7,7 @@ import { getTotalChars } from '@/types';
 import { validateDocumentJSON, generateUniqueTitle } from '@/utils/validateDocument';
 import type { DocumentJSON } from '@/utils/validateDocument';
 import { categoryService } from '@/services/db';
+import { useT } from '@/locales';
 
 // 将 KeyboardEvent.code 格式化为可读标签
 function formatKeyCode(code: string): string {
@@ -30,6 +31,7 @@ function formatKeyCode(code: string): string {
 function KeyRecorder({ onRecord }: { onRecord: (keys: string[]) => void }) {
   const [recording, setRecording] = useState(false);
   const [keys, setKeys] = useState<string[]>([]);
+  const t = useT();
 
   const startRecording = () => {
     setRecording(true);
@@ -74,11 +76,11 @@ function KeyRecorder({ onRecord }: { onRecord: (keys: string[]) => void }) {
         <span className="key-recorder-hint">
           {keys.length > 0
             ? keys.map(formatKeyCode).join(' + ')
-            : 'press keys...'}
+            : t('key.pressKeys')}
         </span>
       ) : (
         <button className="btn btn-sm btn-secondary" onClick={startRecording} type="button">
-          record keys
+          {t('key.record')}
         </button>
       )}
     </div>
@@ -114,6 +116,7 @@ interface PresetIndex {
 
 export default function DocumentList() {
   const navigate = useNavigate();
+  const t = useT();
   const { documents, loading, fetchDocuments, createDocument, updateDocument, deleteDocument } =
     useDocumentStore();
   const { categories, fetchCategories, createCategory, updateCategory, deleteCategory } =
@@ -348,7 +351,7 @@ export default function DocumentList() {
       const result = validateDocumentJSON(json);
 
       if (!result.valid || !result.data) {
-        setImportError(result.error || '校验失败');
+        setImportError(result.error || t('import.validateFailed'));
         return;
       }
 
@@ -363,7 +366,7 @@ export default function DocumentList() {
 
       await doImport(data, data.title);
     } catch {
-      setImportError('JSON 解析失败，请检查文件格式');
+      setImportError(t('import.parseFailed'));
     }
   };
 
@@ -420,7 +423,7 @@ export default function DocumentList() {
       (d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)
     );
     if (uncategorized.length > 0) {
-      groups.push({ id: '__uncategorized', name: '默认', docs: uncategorized });
+      groups.push({ id: '__uncategorized', name: t('doc.defaultCategory'), docs: uncategorized });
     }
 
     return groups;
@@ -440,13 +443,13 @@ export default function DocumentList() {
   return (
     <div className="document-list">
       <div className="document-list-header">
-        <div className="document-list-title">select a document to practice</div>
+        <div className="document-list-title">{t('doc.selectTitle')}</div>
         <div className="document-list-actions">
           <button className="btn btn-secondary btn-sm" onClick={handleImportClick}>
-            import JSON
+            {t('doc.importJSON')}
           </button>
           <button className="btn btn-primary btn-sm" onClick={openCreate}>
-            + new
+            {t('doc.new')}
           </button>
           <input
             ref={fileInputRef}
@@ -469,7 +472,7 @@ export default function DocumentList() {
           ))}
           {documents.some((d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)) && (
             <span className="category-tag" onClick={() => toggleCollapse('__uncategorized')}>
-              默认
+              {t('doc.defaultCategory')}
               <span className="category-tag-arrow">{collapsedCategories['__uncategorized'] ? '▸' : '▾'}</span>
             </span>
           )}
@@ -478,13 +481,13 @@ export default function DocumentList() {
           className="btn btn-secondary btn-sm"
           onClick={() => { setShowCategoryModal(true); setCategoryName(''); setEditingCategoryId(null); }}
         >
-          manage categories
+          {t('category.manage')}
         </button>
       </div>
 
       {documents.length === 0 ? (
         <div className="document-empty">
-          no documents yet — click "+ new" to add practice content
+          {t('doc.emptyHint')}
         </div>
       ) : hasCategories ? (
         // 分组显示
@@ -546,7 +549,7 @@ export default function DocumentList() {
             onClick={() => setShowPresets(!showPresets)}
           >
             <span className="preset-section-title">
-              {showPresets ? '▾' : '▸'} recommended documents
+              {showPresets ? '▾' : '▸'} {t('doc.recommendedDocs')}
             </span>
           </div>
           {showPresets && (
@@ -565,7 +568,7 @@ export default function DocumentList() {
                       onClick={() => !added && handlePresetImport(preset)}
                       disabled={added || importingPreset === preset.file}
                     >
-                      {added ? 'added' : importingPreset === preset.file ? 'adding...' : 'add'}
+                      {added ? t('doc.added') : importingPreset === preset.file ? t('doc.adding') : t('doc.add')}
                     </button>
                   </div>
                 );
@@ -579,11 +582,11 @@ export default function DocumentList() {
       {importError && (
         <div className="modal-overlay" onClick={() => setImportError(null)}>
           <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">import failed</div>
+            <div className="modal-title">{t('import.failed')}</div>
             <p className="import-error-text">{importError}</p>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setImportError(null)}>
-                close
+                {t('import.close')}
               </button>
             </div>
           </div>
@@ -594,16 +597,16 @@ export default function DocumentList() {
       {importConfirm && (
         <div className="modal-overlay" onClick={() => setImportConfirm(null)}>
           <div className="modal-content modal-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">title conflict</div>
+            <div className="modal-title">{t('import.titleConflict')}</div>
             <p className="import-confirm-text">
-              document "{importConfirm.data.title}" already exists. Import as "{importConfirm.newTitle}"?
+              {t('import.conflictMsg', { title: importConfirm.data.title, newTitle: importConfirm.newTitle })}
             </p>
             <div className="modal-actions">
               <button className="btn btn-primary" onClick={confirmImport}>
-                import
+                {t('import.import')}
               </button>
               <button className="btn btn-secondary" onClick={() => setImportConfirm(null)}>
-                cancel
+                {t('import.cancel')}
               </button>
             </div>
           </div>
@@ -614,13 +617,13 @@ export default function DocumentList() {
       {showCategoryModal && (
         <div className="modal-overlay" onClick={() => setShowCategoryModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">manage categories</div>
+            <div className="modal-title">{t('category.manage')}</div>
             <div className="category-form">
               <input
                 className="form-input"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
-                placeholder="category name"
+                placeholder={t('category.name')}
                 onKeyDown={(e) => e.key === 'Enter' && handleSaveCategory()}
                 autoFocus
               />
@@ -629,14 +632,14 @@ export default function DocumentList() {
                 onClick={handleSaveCategory}
                 disabled={!categoryName.trim()}
               >
-                {editingCategoryId ? 'update' : 'add'}
+                {editingCategoryId ? t('category.update') : t('category.add')}
               </button>
               {editingCategoryId && (
                 <button
                   className="btn btn-secondary btn-sm"
                   onClick={() => { setEditingCategoryId(null); setCategoryName(''); }}
                 >
-                  cancel
+                  {t('category.cancel')}
                 </button>
               )}
             </div>
@@ -649,24 +652,24 @@ export default function DocumentList() {
                       className="card-action-btn"
                       onClick={() => { setEditingCategoryId(cat.id); setCategoryName(cat.name); }}
                     >
-                      edit
+                      {t('category.edit')}
                     </button>
                     <button
                       className={`card-action-btn card-action-delete ${confirmDeleteCategoryId === cat.id ? 'confirm' : ''}`}
                       onClick={() => handleDeleteCategory(cat.id)}
                     >
-                      {confirmDeleteCategoryId === cat.id ? 'confirm?' : 'del'}
+                      {confirmDeleteCategoryId === cat.id ? t('category.confirm') : t('category.del')}
                     </button>
                   </div>
                 </div>
               ))}
               {categories.length === 0 && (
-                <div className="category-empty">no categories yet</div>
+                <div className="category-empty">{t('category.empty')}</div>
               )}
             </div>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setShowCategoryModal(false)}>
-                close
+                {t('category.close')}
               </button>
             </div>
           </div>
@@ -677,24 +680,24 @@ export default function DocumentList() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-title">{editingDoc ? 'edit document' : 'new document'}</div>
+            <div className="modal-title">{editingDoc ? t('form.editDoc') : t('form.newDoc')}</div>
             <div className="form-group">
-              <label className="form-label">title</label>
+              <label className="form-label">{t('form.title')}</label>
               <input
                 className="form-input"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="e.g. Git Commands"
+                placeholder={t('form.titlePlaceholder')}
                 autoFocus
               />
             </div>
             <div className="form-group">
-              <label className="form-label">description (optional)</label>
+              <label className="form-label">{t('form.description')}</label>
               <input
                 className="form-input"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="short description"
+                placeholder={t('form.descPlaceholder')}
               />
             </div>
 
@@ -706,32 +709,32 @@ export default function DocumentList() {
                   onClick={() => advancedMode && toggleAdvancedMode()}
                   type="button"
                 >
-                  simple
+                  {t('form.simple')}
                 </button>
                 <button
                   className={`mode-toggle-btn ${advancedMode ? 'active' : ''}`}
                   onClick={() => !advancedMode && toggleAdvancedMode()}
                   type="button"
                 >
-                  advanced
+                  {t('form.advanced')}
                 </button>
               </div>
             </div>
 
             {!advancedMode ? (
               <div className="form-group">
-                <label className="form-label">content</label>
+                <label className="form-label">{t('form.content')}</label>
                 <textarea
                   className="form-textarea"
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
-                  placeholder="type the practice content here (English only)"
+                  placeholder={t('form.contentPlaceholder')}
                   rows={10}
                 />
               </div>
             ) : (
               <div className="form-group">
-                <label className="form-label">content items</label>
+                <label className="form-label">{t('form.contentItems')}</label>
                 <div className="advanced-items">
                   {advancedItems.map((item, idx) => (
                     <div key={idx} className="advanced-item">
@@ -750,14 +753,14 @@ export default function DocumentList() {
                           className="form-input form-input-sm"
                           value={item.tips || ''}
                           onChange={(e) => updateAdvancedItem(idx, { tips: e.target.value || undefined })}
-                          placeholder="tips (optional)"
+                          placeholder={t('form.tipsPlaceholder')}
                         />
                         {item.type === 'text' ? (
                           <textarea
                             className="form-textarea form-textarea-sm"
                             value={item.content as string}
                             onChange={(e) => updateAdvancedItem(idx, { content: e.target.value })}
-                            placeholder="text content"
+                            placeholder={t('form.textPlaceholder')}
                             rows={3}
                           />
                         ) : (
@@ -765,7 +768,7 @@ export default function DocumentList() {
                             <div className="keypress-edit-display">
                               {(item.content as string[]).length > 0
                                 ? (item.content as string[]).map(formatKeyCode).join(' + ')
-                                : 'no keys set'}
+                                : t('form.noKeysSet')}
                             </div>
                             <KeyRecorder onRecord={(keys) => handleKeyRecord(idx, keys)} />
                           </div>
@@ -780,14 +783,14 @@ export default function DocumentList() {
                     onClick={() => addAdvancedItem('text')}
                     type="button"
                   >
-                    + text
+                    {t('form.addText')}
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"
                     onClick={() => addAdvancedItem('keypress')}
                     type="button"
                   >
-                    + keypress
+                    {t('form.addKeypress')}
                   </button>
                 </div>
               </div>
@@ -799,10 +802,10 @@ export default function DocumentList() {
                 onClick={handleSave}
                 disabled={!form.title.trim() || (!advancedMode && !form.content.trim())}
               >
-                save
+                {t('form.save')}
               </button>
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                cancel
+                {t('form.cancel')}
               </button>
             </div>
           </div>
@@ -831,6 +834,7 @@ function DocumentCard({
   onDelete: (id: string, e: React.MouseEvent) => void;
   onCategoryChange: (docId: string, categoryId: string, e: React.MouseEvent) => void;
 }) {
+  const t = useT();
   const items = typeof doc.content === 'string'
     ? [{ type: 'text' as const, content: doc.content }]
     : doc.content;
@@ -842,8 +846,8 @@ function DocumentCard({
         <div className="document-card-desc">{doc.description}</div>
       )}
       <div className="document-card-meta">
-        {getTotalChars(items)} chars
-        {items.some((it) => it.type === 'keypress') && ' · keypress'}
+        {getTotalChars(items)} {t('doc.chars')}
+        {items.some((it) => it.type === 'keypress') && ` · ${t('doc.keypress')}`}
       </div>
       <div className="document-card-bottom">
         <div className="document-card-actions">
@@ -854,7 +858,7 @@ function DocumentCard({
               onClick={(e) => e.stopPropagation()}
               onChange={(e) => onCategoryChange(doc.id, e.target.value, e as unknown as React.MouseEvent)}
             >
-              <option value="">uncategorized</option>
+              <option value="">{t('doc.uncategorized')}</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
@@ -863,16 +867,16 @@ function DocumentCard({
           <button
             className="card-action-btn"
             onClick={(e) => onEdit(doc, e)}
-            title="edit"
+            title={t('doc.edit')}
           >
-            edit
+            {t('doc.edit')}
           </button>
           <button
             className={`card-action-btn card-action-delete ${confirmDeleteId === doc.id ? 'confirm' : ''}`}
             onClick={(e) => onDelete(doc.id, e)}
-            title="delete"
+            title={t('doc.del')}
           >
-            {confirmDeleteId === doc.id ? 'confirm?' : 'del'}
+            {confirmDeleteId === doc.id ? t('doc.confirm') : t('doc.del')}
           </button>
         </div>
       </div>
