@@ -112,6 +112,13 @@ const zh = {
   'validate.keypressContentRequired': 'content[{i}].content 必须是非空字符串数组（type 为 keypress）',
   'validate.keypressItemsMustBeString': 'content[{i}].content 数组中的元素必须都是字符串',
   'validate.tipsMustBeString': 'content[{i}].tips 必须是字符串',
+
+  // speed test
+  'speed.title': '随机速度测试',
+  'speed.description': '{count} 个随机字符速度练习',
+  'speed.errorBoost': '错误加强',
+  'speed.errorBoostTip': '将最近 5 次速测的错误字符加入练习',
+  'speed.start': '开始',
 } as const;
 
 export default zh;

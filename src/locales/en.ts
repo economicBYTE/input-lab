@@ -114,6 +114,13 @@ const en: Record<LocaleKeys, string> = {
   'validate.keypressContentRequired': 'content[{i}].content must be a non-empty string array (type is keypress)',
   'validate.keypressItemsMustBeString': 'content[{i}].content array elements must all be strings',
   'validate.tipsMustBeString': 'content[{i}].tips must be a string',
+
+  // speed test
+  'speed.title': 'Speed Test',
+  'speed.description': '{count} random characters speed practice',
+  'speed.errorBoost': 'error boost',
+  'speed.errorBoostTip': 'include error chars from last 5 speed tests',
+  'speed.start': 'start',
 };
 
 export default en;

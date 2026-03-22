@@ -5,6 +5,7 @@ import { usePracticeStore } from '@/stores/practiceStore';
 import type { ContentItem } from '@/types';
 import { getTotalChars, getGlobalCharIndex } from '@/types';
 import { useT } from '@/locales';
+import { SPEED_TEST_ID, generateSpeedTestContent, DEFAULT_CHAR_COUNT } from '@/utils/speedTest';
 
 const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
 const SCROLL_RETURN_DELAY = 3000;
@@ -182,9 +183,19 @@ export default function Practice() {
     return Math.round((errorCount / totalKeystrokes) * 1000) / 10;
   }, [errorCount, totalKeystrokes]);
 
-  // Load document
+  // Load document or generate speed test
   useEffect(() => {
     if (!id) return;
+
+    if (id === SPEED_TEST_ID) {
+      const boost = localStorage.getItem('speedTestBoost') === '1';
+      const count = parseInt(localStorage.getItem('speedTestCount') || '', 10) || DEFAULT_CHAR_COUNT;
+      generateSpeedTestContent(boost, count).then((content) => {
+        usePracticeStore.getState().init(SPEED_TEST_ID, content);
+      });
+      return;
+    }
+
     documentService.getById(id).then((doc) => {
       if (doc) {
         // 运行时防御性检查
@@ -421,41 +432,51 @@ export default function Practice() {
         const lineText = partIdx < parts.length - 1 ? part + '\n' : part;
         const lineStartGlobalChar = itemStartGlobalChar + localOffset;
 
+        // 判断当前光标是否在这一行
+        const isActiveLine = itemIdx === currentItemIndex
+          && currentCharIndex >= localOffset
+          && currentCharIndex < localOffset + lineText.length;
+
         renderedLines.push(
-          <div className="line" key={`${itemIdx}-${partIdx}`}>
-            {lineText.split('').map((char, charIdx) => {
-              const globalIdx = lineStartGlobalChar + charIdx;
-              const localCharIdx = localOffset + charIdx;
-              let className = 'letter';
+          <div className="line-group" key={`${itemIdx}-${partIdx}`}>
+            <div className="line">
+              {lineText.split('').map((char, charIdx) => {
+                const globalIdx = lineStartGlobalChar + charIdx;
+                const localCharIdx = localOffset + charIdx;
+                let className = 'letter';
 
-              // 判断字符状态
-              if (itemIdx < currentItemIndex) {
-                className += ' correct';
-              } else if (itemIdx === currentItemIndex) {
-                if (localCharIdx < currentCharIndex) {
+                // 判断字符状态
+                if (itemIdx < currentItemIndex) {
                   className += ' correct';
-                } else if (localCharIdx === currentCharIndex) {
-                  className += ' current';
-                  if (isError) className += ' incorrect';
+                } else if (itemIdx === currentItemIndex) {
+                  if (localCharIdx < currentCharIndex) {
+                    className += ' correct';
+                  } else if (localCharIdx === currentCharIndex) {
+                    className += ' current';
+                    if (isError) className += ' incorrect';
+                  }
                 }
-              }
 
-              if (char === '\n') {
-                className += ' newline-symbol';
-                return (
-                  <span key={globalIdx} className={className}>{'↵'}</span>
-                );
-              } else if (char === '\t') {
-                className += ' tab-symbol';
-                return (
-                  <span key={globalIdx} className={className}>{'→   '}</span>
-                );
-              }
+                if (char === '\n') {
+                  className += ' newline-symbol';
+                  return (
+                    <span key={globalIdx} className={className}>{'↵'}</span>
+                  );
+                } else if (char === '\t') {
+                  className += ' tab-symbol';
+                  return (
+                    <span key={globalIdx} className={className}>{'→   '}</span>
+                  );
+                }
 
-              return (
-                <span key={globalIdx} className={className}>{char}</span>
-              );
-            })}
+                return (
+                  <span key={globalIdx} className={className}>{char}</span>
+                );
+              })}
+            </div>
+            {item.tips && isActiveLine && (
+              <div className="line-tips">{item.tips}</div>
+            )}
           </div>
         );
 
@@ -472,7 +493,12 @@ export default function Practice() {
       {/* Top bar: doc info left, stats right */}
       <div className="practice-top-bar">
         <div className="doc-info">
-          {docInfo && (
+          {id === SPEED_TEST_ID ? (
+            <>
+              <span className="doc-title">{t('speed.title')}</span>
+              <span className="doc-description">{t('speed.description', { count: totalChars })}</span>
+            </>
+          ) : docInfo && (
             <>
               <span className="doc-title">{docInfo.title}</span>
               {docInfo.description && (

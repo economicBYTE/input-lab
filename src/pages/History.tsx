@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { PracticeRecord, Document, ErrorDetail } from '@/types';
 import { practiceRecordService, documentService } from '@/services/db';
 import { useT } from '@/locales';
+import { SPEED_TEST_ID } from '@/utils/speedTest';
 
 export default function History() {
   const navigate = useNavigate();
@@ -112,9 +113,17 @@ export default function History() {
                 <div className="history-item-main">
                   <div
                     className="history-item-title"
-                    onClick={() => doc && navigate(`/practice/${doc.id}`)}
+                    onClick={() => {
+                      if (r.documentId === SPEED_TEST_ID) {
+                        navigate(`/practice/${SPEED_TEST_ID}`);
+                      } else if (doc) {
+                        navigate(`/practice/${doc.id}`);
+                      }
+                    }}
                   >
-                    {doc?.title || t('history.deletedDoc')}
+                    {r.documentId === SPEED_TEST_ID
+                      ? t('speed.title')
+                      : doc?.title || t('history.deletedDoc')}
                   </div>
                 </div>
                 <div className="history-item-stats">

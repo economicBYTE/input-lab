@@ -369,6 +369,14 @@ a:hover {
   min-height: 3.2rem; /* font-size 1.6rem × line-height 2, grows with wrapping */
 }
 
+.line-tips {
+  font-size: 0.85rem;
+  color: var(--sub-color);
+  opacity: 0.55;
+  line-height: 1.6;
+  padding-left: 0.2rem;
+}
+
 .words .letter {
   display: inline;
   transition: color 0.1s;
@@ -1080,6 +1088,74 @@ a:hover {
   margin-bottom: 1.25rem;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+/* ============ Speed Test Bar ============ */
+
+.speed-test-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  background: var(--sub-alt-color);
+  border-radius: var(--roundness);
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.speed-test-bar:hover {
+  border-color: var(--sub-color);
+}
+
+.speed-test-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.speed-test-title {
+  color: var(--main-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.speed-test-desc {
+  color: var(--sub-color);
+  font-size: 0.75rem;
+}
+
+.speed-test-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.speed-test-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--sub-color);
+  font-size: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.speed-test-toggle input[type="checkbox"] {
+  accent-color: var(--main-color);
+  cursor: pointer;
+}
+
+.speed-test-count {
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--sub-alt-color);
+  border-radius: 0.25rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.75rem;
+  cursor: pointer;
 }
 
 .category-tags {

@@ -8,6 +8,7 @@ import { validateDocumentJSON, generateUniqueTitle } from '@/utils/validateDocum
 import type { DocumentJSON } from '@/utils/validateDocument';
 import { categoryService } from '@/services/db';
 import { useT } from '@/locales';
+import { SPEED_TEST_ID, DEFAULT_CHAR_COUNT, MIN_CHAR_COUNT, MAX_CHAR_COUNT } from '@/utils/speedTest';
 
 // 将 KeyboardEvent.code 格式化为可读标签
 function formatKeyCode(code: string): string {
@@ -150,6 +151,10 @@ export default function DocumentList() {
   const [presetIndex, setPresetIndex] = useState<PresetIndex[]>([]);
   const [showPresets, setShowPresets] = useState(false);
   const [importingPreset, setImportingPreset] = useState<string | null>(null);
+
+  // 速度测试
+  const [speedTestBoost, setSpeedTestBoost] = useState(false);
+  const [speedTestCount, setSpeedTestCount] = useState(DEFAULT_CHAR_COUNT);
 
   // 导入相关
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -483,6 +488,46 @@ export default function DocumentList() {
         >
           {t('category.manage')}
         </button>
+      </div>
+
+      {/* 速度测试入口 */}
+      <div className="speed-test-bar">
+        <div className="speed-test-info">
+          <span className="speed-test-title">{t('speed.title')}</span>
+          <span className="speed-test-desc">{t('speed.description', { count: speedTestCount })}</span>
+        </div>
+        <div className="speed-test-actions">
+          <label className="speed-test-toggle" title={t('speed.errorBoostTip')}>
+            <input
+              type="checkbox"
+              checked={speedTestBoost}
+              onChange={(e) => setSpeedTestBoost(e.target.checked)}
+            />
+            {t('speed.errorBoost')}
+          </label>
+          <select
+            className="speed-test-count"
+            value={speedTestCount}
+            onChange={(e) => setSpeedTestCount(Number(e.target.value))}
+          >
+            {Array.from(
+              { length: (MAX_CHAR_COUNT - MIN_CHAR_COUNT) / 100 + 1 },
+              (_, i) => MIN_CHAR_COUNT + i * 100
+            ).map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              localStorage.setItem('speedTestBoost', speedTestBoost ? '1' : '0');
+              localStorage.setItem('speedTestCount', String(speedTestCount));
+              navigate(`/practice/${SPEED_TEST_ID}`);
+            }}
+          >
+            {t('speed.start')}
+          </button>
+        </div>
       </div>
 
       {documents.length === 0 ? (
