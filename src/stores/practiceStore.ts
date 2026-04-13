@@ -1,5 +1,26 @@
 import { create } from 'zustand';
-import type { PracticeState, ContentItem } from '@/types';
+import type { PracticeState, ContentItem, InputMode } from '@/types';
+
+const INPUT_MODE_KEY = 'practice.inputMode';
+
+function loadInputMode(): InputMode {
+  if (typeof localStorage === 'undefined') return 'free';
+  // 默认为 free（文档模式）；仅当显式存储为 strict 时使用 strict（速度模式）
+  return localStorage.getItem(INPUT_MODE_KEY) === 'strict' ? 'strict' : 'free';
+}
+
+function eqChar(a: string, b: string, caseInsensitive: boolean): boolean {
+  return caseInsensitive ? a.toLowerCase() === b.toLowerCase() : a === b;
+}
+
+// 判断 free 模式当前 typed 序列是否仍存在错误（不匹配字符或溢出）
+function freeHasError(typed: string[], target: string, caseInsensitive: boolean): boolean {
+  if (typed.length > target.length) return true;
+  for (let i = 0; i < typed.length; i++) {
+    if (!eqChar(typed[i]!, target[i]!, caseInsensitive)) return true;
+  }
+  return false;
+}
 
 // 修饰键标准化：左右统一
 const MODIFIER_PAIRS: Record<string, string> = {
@@ -13,9 +34,16 @@ function normalizeCode(code: string): string {
   return MODIFIER_PAIRS[code] || code;
 }
 
+const MODIFIER_CODES = new Set(['ControlLeft', 'ShiftLeft', 'AltLeft', 'MetaLeft']);
+
 interface PracticeStore extends PracticeState {
-  init: (documentId: string, items: ContentItem[]) => void;
+  caseInsensitive: boolean;
+  inputMode: InputMode;
+  setCaseInsensitive: (value: boolean) => void;
+  setInputMode: (mode: InputMode) => void;
+  init: (documentId: string, items: ContentItem[], options?: { caseInsensitive?: boolean }) => void;
   handleInput: (char: string) => boolean;
+  handleBackspace: () => void;
   handleKeyDown: (code: string) => boolean;
   handleKeyUp: (code: string) => void;
   clearPressedKeys: () => void;
@@ -35,13 +63,26 @@ const initialState: PracticeState = {
   errorDetails: [],
   currentErrorActual: [],
   pressedKeys: [],
+  freeTyped: [],
 };
 
 export const usePracticeStore = create<PracticeStore>((set, get) => ({
   ...initialState,
+  caseInsensitive: false,
+  inputMode: loadInputMode(),
 
-  init: (documentId, items) => {
-    set({ ...initialState, documentId, items });
+  setCaseInsensitive: (value) => set({ caseInsensitive: value }),
+
+  setInputMode: (mode) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(INPUT_MODE_KEY, mode);
+    }
+    // 切换模式时清除当前 item 的错误/缓冲，避免状态错乱
+    set({ inputMode: mode, isError: false, currentErrorActual: [], freeTyped: [] });
+  },
+
+  init: (documentId, items, options) => {
+    set({ ...initialState, documentId, items, caseInsensitive: options?.caseInsensitive ?? false });
   },
 
   currentItemType: () => {
@@ -52,7 +93,7 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
   handleInput: (char) => {
     const state = get();
-    const { items, currentItemIndex, currentCharIndex, isError, errorDetails, currentErrorActual } = state;
+    const { items, currentItemIndex, currentCharIndex, isError, errorDetails, currentErrorActual, inputMode, caseInsensitive } = state;
 
     if (currentItemIndex >= items.length) return true;
     const currentItem = items[currentItemIndex]!;
@@ -60,10 +101,47 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
     const text = currentItem.content as string;
     const startTime = state.startTime ?? Date.now();
-    const targetChar = text[currentCharIndex];
+
+    // ============ Free 模式：错误字符照常写入缓冲，需手动 Backspace 删除 ============
+    if (inputMode === 'free') {
+      const newTyped = [...state.freeTyped, char];
+      const pos = newTyped.length - 1;
+      const targetAtPos = text[pos] ?? '';
+      const matchedHere = pos < text.length && eqChar(char, targetAtPos, caseInsensitive);
+
+      // 完成条件：已输入长度等于目标长度且全部正确
+      if (newTyped.length === text.length && matchedHere && !freeHasError(state.freeTyped, text, caseInsensitive)) {
+        const newItemIndex = currentItemIndex + 1;
+        set({
+          currentItemIndex: newItemIndex,
+          currentCharIndex: 0,
+          freeTyped: [],
+          isError: false,
+          totalKeystrokes: state.totalKeystrokes + 1,
+          startTime,
+        });
+        return newItemIndex >= items.length;
+      }
+
+      // 未完成：写入缓冲，按需累计错误
+      const isMistake = !matchedHere;
+      set({
+        freeTyped: newTyped,
+        currentCharIndex: newTyped.length,
+        totalKeystrokes: state.totalKeystrokes + 1,
+        errorCount: isMistake ? state.errorCount + 1 : state.errorCount,
+        isError: freeHasError(newTyped, text, caseInsensitive),
+        startTime,
+      });
+      return false;
+    }
+
+    // ============ Strict 模式（默认）：错误字符不前进，必须正确才能继续 ============
+    const targetChar = text[currentCharIndex] ?? '';
+    const charMatch = eqChar(char, targetChar, caseInsensitive);
 
     if (isError) {
-      if (char === targetChar) {
+      if (charMatch) {
         const detail = { expected: targetChar, actual: currentErrorActual, position: currentItemIndex };
         const newCharIndex = currentCharIndex + 1;
         if (newCharIndex >= text.length) {
@@ -99,7 +177,7 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
     }
 
     // 正常状态
-    if (char === targetChar) {
+    if (charMatch) {
       const newCharIndex = currentCharIndex + 1;
       if (newCharIndex >= text.length) {
         const newItemIndex = currentItemIndex + 1;
@@ -128,6 +206,23 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
       currentErrorActual: [char],
     });
     return false;
+  },
+
+  handleBackspace: () => {
+    const state = get();
+    if (state.inputMode !== 'free') return;
+    if (state.currentItemIndex >= state.items.length) return;
+    const item = state.items[state.currentItemIndex]!;
+    if (item.type !== 'text') return;
+    if (state.freeTyped.length === 0) return;
+
+    const text = item.content as string;
+    const newTyped = state.freeTyped.slice(0, -1);
+    set({
+      freeTyped: newTyped,
+      currentCharIndex: newTyped.length,
+      isError: freeHasError(newTyped, text, state.caseInsensitive),
+    });
   },
 
   handleKeyDown: (code) => {
@@ -182,10 +277,15 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
     if (isMatch) {
       // 匹配成功，前进到下一个 item
       const newItemIndex = currentItemIndex + 1;
+      // 仅当下一项也是 keypress 时保留修饰键，否则清空避免残留
+      const nextItem = newItemIndex < items.length ? items[newItemIndex] : null;
+      const carryOverKeys = nextItem?.type === 'keypress'
+        ? newPressedKeys.filter(k => MODIFIER_CODES.has(k))
+        : [];
       const updates: Partial<PracticeState> = {
         currentItemIndex: newItemIndex,
         currentCharIndex: 0,
-        pressedKeys: [],
+        pressedKeys: carryOverKeys,
         totalKeystrokes: state.totalKeystrokes + 1,
         startTime,
       };
@@ -213,16 +313,27 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
   handleKeyUp: (code) => {
     const state = get();
+    const { items, currentItemIndex } = state;
     const normalizedCode = normalizeCode(code);
     const newPressedKeys = state.pressedKeys.filter(k => k !== normalizedCode);
 
-    // 全部释放且处于错误状态：重置，等待重新尝试
-    if (newPressedKeys.length === 0 && state.isError) {
-      set({
-        pressedKeys: [],
-        isError: false,
-        currentErrorActual: [],
-      });
+    if (!state.isError) {
+      set({ pressedKeys: newPressedKeys });
+      return;
+    }
+
+    // 错误状态：检查剩余按键是否已无多余键，若是则重置错误
+    if (newPressedKeys.length === 0) {
+      set({ pressedKeys: [], isError: false, currentErrorActual: [] });
+    } else if (currentItemIndex < items.length && items[currentItemIndex]!.type === 'keypress') {
+      const targetSet = new Set((items[currentItemIndex]!.content as string[]).map(normalizeCode));
+      const stillHasExtra = newPressedKeys.some(k => !targetSet.has(k));
+      if (!stillHasExtra) {
+        // 多余的键已全部松开，重置错误状态，保留有效按键继续匹配
+        set({ pressedKeys: newPressedKeys, isError: false, currentErrorActual: [] });
+      } else {
+        set({ pressedKeys: newPressedKeys });
+      }
     } else {
       set({ pressedKeys: newPressedKeys });
     }

@@ -131,36 +131,9 @@ export function initSampleData(): Promise<void> {
 
   const samples: Omit<Document, 'id' | 'createdAt' | 'updatedAt'>[] = [
     {
-      title: 'Git 基础命令',
-      description: '常用的 Git 版本控制命令',
-      content: [{ type: 'text', content: 'git init\ngit add .\ngit commit -m "message"\ngit push origin main' }],
-    },
-    {
-      title: 'JavaScript 数组方法',
-      description: 'JS 数组常用操作方法',
-      content: [{ type: 'text', content: 'array.map(x => x * 2)\narray.filter(x => x > 0)\narray.reduce((a, b) => a + b, 0)' }],
-    },
-    {
-      title: 'SQL 查询',
-      description: '基础 SQL 查询',
-      content: [{ type: 'text', content: 'SELECT * FROM users WHERE id = 1;\nINSERT INTO users (name) VALUES ("test");\nUPDATE users SET name = "new" WHERE id = 1;\nDELETE FROM users WHERE id = 1;' }],
-    },
-    {
-      title: '常用编辑器快捷键',
-      description: '练习 VS Code 常用快捷键组合',
-      content: [
-        { type: 'keypress', tips: '复制', content: ['ControlLeft', 'KeyC'] },
-        { type: 'keypress', tips: '粘贴', content: ['ControlLeft', 'KeyV'] },
-        { type: 'keypress', tips: '剪切', content: ['ControlLeft', 'KeyX'] },
-        { type: 'keypress', tips: '撤销', content: ['ControlLeft', 'KeyZ'] },
-        { type: 'keypress', tips: '保存', content: ['ControlLeft', 'KeyS'] },
-        { type: 'keypress', tips: '全选', content: ['ControlLeft', 'KeyA'] },
-        { type: 'keypress', tips: '查找', content: ['ControlLeft', 'KeyF'] },
-        { type: 'keypress', tips: '替换', content: ['ControlLeft', 'KeyH'] },
-        { type: 'text', content: 'console.log("hello world")' },
-        { type: 'keypress', tips: '注释切换', content: ['ControlLeft', 'Slash'] },
-        { type: 'keypress', tips: '格式化', content: ['ShiftLeft', 'AltLeft', 'KeyF'] },
-      ],
+      title: 'Welcome to TypePractice',
+      description: 'Get started with TypePractice',
+      content: [{ type: 'text', content: 'Welcome to TypePractice!\nBuild muscle memory for technical commands.\nImport your own documents or browse recommended ones.\nStart typing to begin your practice journey.\nGit, SQL, JavaScript and more - master them all!' }],
     },
   ];
 

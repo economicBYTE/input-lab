@@ -149,8 +149,10 @@ export default function DocumentList() {
 
   // 预置文档
   const [presetIndex, setPresetIndex] = useState<PresetIndex[]>([]);
-  const [showPresets, setShowPresets] = useState(false);
+  const [showPresets, setShowPresets] = useState(true);
   const [importingPreset, setImportingPreset] = useState<string | null>(null);
+  const [renamedPreset, setRenamedPreset] = useState<{ file: string; newTitle: string } | null>(null);
+  const [highlightDocId, setHighlightDocId] = useState<string | null>(null);
 
   // 速度测试
   const [speedTestBoost, setSpeedTestBoost] = useState(false);
@@ -337,12 +339,15 @@ export default function DocumentList() {
       }
     }
 
-    await createDocument({
+    const newId = await createDocument({
       title,
       description: data.description,
       content: data.content,
       categoryId,
+      caseInsensitive: data.caseInsensitive,
     });
+    setHighlightDocId(newId);
+    setTimeout(() => setHighlightDocId((prev) => prev === newId ? null : prev), 2500);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -394,20 +399,19 @@ export default function DocumentList() {
 
       const data = result.data;
       const existingTitles = documents.map((d) => d.title);
-      const title = existingTitles.includes(data.title)
-        ? generateUniqueTitle(data.title, existingTitles)
-        : data.title;
-
-      await doImport(data, title);
+      if (existingTitles.includes(data.title)) {
+        const newTitle = generateUniqueTitle(data.title, existingTitles);
+        setRenamedPreset({ file: preset.file, newTitle });
+        setTimeout(() => setRenamedPreset((prev) => prev?.file === preset.file ? null : prev), 3000);
+        await doImport(data, newTitle);
+      } else {
+        await doImport(data, data.title);
+      }
     } catch {
       // silent fail for presets
     } finally {
       setImportingPreset(null);
     }
-  };
-
-  const isPresetAdded = (preset: PresetIndex) => {
-    return documents.some((d) => d.title === preset.title);
   };
 
   // ---- 分组文档 ----
@@ -557,6 +561,7 @@ export default function DocumentList() {
                       doc={doc}
                       categories={categories}
                       confirmDeleteId={confirmDeleteId}
+                      isNew={highlightDocId === doc.id}
                       onNavigate={(id) => navigate(`/practice/${id}`)}
                       onEdit={openEdit}
                       onDelete={handleDelete}
@@ -577,6 +582,7 @@ export default function DocumentList() {
               doc={doc}
               categories={categories}
               confirmDeleteId={confirmDeleteId}
+              isNew={highlightDocId === doc.id}
               onNavigate={(id) => navigate(`/practice/${id}`)}
               onEdit={openEdit}
               onDelete={handleDelete}
@@ -599,25 +605,31 @@ export default function DocumentList() {
           </div>
           {showPresets && (
             <div className="preset-grid">
-              {presetIndex.map((preset) => {
-                const added = isPresetAdded(preset);
-                return (
+              {presetIndex.map((preset) => (
                   <div key={preset.file} className="preset-card">
                     <div className="preset-card-title">{preset.title}</div>
                     <div className="preset-card-desc">{preset.description}</div>
                     {preset.category && (
                       <div className="preset-card-category">{preset.category}</div>
                     )}
-                    <button
-                      className={`btn btn-sm ${added ? 'btn-secondary' : 'btn-primary'}`}
-                      onClick={() => !added && handlePresetImport(preset)}
-                      disabled={added || importingPreset === preset.file}
-                    >
-                      {added ? t('doc.added') : importingPreset === preset.file ? t('doc.adding') : t('doc.add')}
-                    </button>
+                    <div className="preset-card-bottom">
+                      {renamedPreset?.file === preset.file && (
+                        <span className="preset-renamed-tip">
+                          {t('doc.renamedTo', { title: renamedPreset.newTitle })}
+                        </span>
+                      )}
+                      <div className="preset-card-actions">
+                        <button
+                          className="card-action-btn"
+                          onClick={() => handlePresetImport(preset)}
+                          disabled={importingPreset === preset.file}
+                        >
+                          {importingPreset === preset.file ? t('doc.adding') : t('doc.add')}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                );
-              })}
+                ))}
             </div>
           )}
         </div>
@@ -866,6 +878,7 @@ function DocumentCard({
   doc,
   categories,
   confirmDeleteId,
+  isNew,
   onNavigate,
   onEdit,
   onDelete,
@@ -874,18 +887,26 @@ function DocumentCard({
   doc: Document;
   categories: { id: string; name: string }[];
   confirmDeleteId: string | null;
+  isNew?: boolean;
   onNavigate: (id: string) => void;
   onEdit: (doc: Document, e: React.MouseEvent) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
   onCategoryChange: (docId: string, categoryId: string, e: React.MouseEvent) => void;
 }) {
   const t = useT();
+  const cardRef = useRef<HTMLDivElement>(null);
   const items = typeof doc.content === 'string'
     ? [{ type: 'text' as const, content: doc.content }]
     : doc.content;
 
+  useEffect(() => {
+    if (isNew && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [isNew]);
+
   return (
-    <div className="document-card" onClick={() => onNavigate(doc.id)}>
+    <div ref={cardRef} className={`document-card${isNew ? ' document-card-new' : ''}`} onClick={() => onNavigate(doc.id)}>
       <div className="document-card-title">{doc.title}</div>
       {doc.description && (
         <div className="document-card-desc">{doc.description}</div>

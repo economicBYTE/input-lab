@@ -19,6 +19,7 @@ export interface Document {
   content: ContentItem[];
   description?: string;
   categoryId?: string;
+  caseInsensitive?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -43,6 +44,11 @@ export interface PracticeRecord {
   errorDetails: ErrorDetail[];
 }
 
+// 输入模式
+// - strict: 错误字符不前进，必须输入正确字符才能继续（适合命令/快捷键肌肉记忆）
+// - free:   错误字符照常写入并标红，需手动 Backspace 删除（贴近真实文档输入）
+export type InputMode = 'strict' | 'free';
+
 // 练习状态（内存）
 export interface PracticeState {
   documentId: string;
@@ -56,6 +62,7 @@ export interface PracticeState {
   errorDetails: ErrorDetail[];
   currentErrorActual: string[];
   pressedKeys: string[];       // keypress 模式：当前按下的键
+  freeTyped: string[];         // free 模式下当前 text item 的实际输入缓冲（含错字与溢出）
 }
 
 // 辅助函数：计算 items 总字符数

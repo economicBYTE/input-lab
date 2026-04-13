@@ -1,45 +1,161 @@
 {
   "title": "Claude Code CLI Commands",
   "description": "Claude Code CLI core commands and essential flags for daily use",
-  "category": "Claude Code",
+  "category": "Claude",
   "content": [
     { "type": "text", "tips": "启动交互式会话", "content": "claude" },
-    { "type": "text", "tips": "带初始提示启动会话", "content": "claude \"explain this project\"" },
-    { "type": "text", "tips": "单次查询模式(不进入交互)", "content": "claude -p \"explain this function\"" },
-    { "type": "text", "tips": "管道输入内容给 Claude", "content": "cat logs.txt | claude -p \"explain\"" },
+    {
+      "type": "text",
+      "tips": "带初始提示启动会话",
+      "content": "claude \"explain this project\""
+    },
+    {
+      "type": "text",
+      "tips": "单次查询模式(不进入交互)",
+      "content": "claude -p \"explain this function\""
+    },
+    {
+      "type": "text",
+      "tips": "管道输入内容给 Claude",
+      "content": "cat logs.txt | claude -p \"explain\""
+    },
     { "type": "text", "tips": "继续最近的对话", "content": "claude -c" },
-    { "type": "text", "tips": "单次模式继续对话", "content": "claude -c -p \"Check for type errors\"" },
-    { "type": "text", "tips": "按名称恢复指定会话", "content": "claude -r \"auth-refactor\" \"Finish this PR\"" },
+    {
+      "type": "text",
+      "tips": "单次模式继续对话",
+      "content": "claude -c -p \"Check for type errors\""
+    },
+    {
+      "type": "text",
+      "tips": "按名称恢复指定会话",
+      "content": "claude -r \"auth-refactor\" \"Finish this PR\""
+    },
     { "type": "text", "tips": "更新 Claude Code", "content": "claude update" },
     { "type": "text", "tips": "查看版本号", "content": "claude -v" },
-    { "type": "text", "tips": "登录 Anthropic 账户", "content": "claude auth login" },
-    { "type": "text", "tips": "带邮箱和SSO登录", "content": "claude auth login --email user@example.com --sso" },
+    {
+      "type": "text",
+      "tips": "登录 Anthropic 账户",
+      "content": "claude auth login"
+    },
+    {
+      "type": "text",
+      "tips": "带邮箱和SSO登录",
+      "content": "claude auth login --email user@example.com --sso"
+    },
     { "type": "text", "tips": "登出账户", "content": "claude auth logout" },
     { "type": "text", "tips": "查看认证状态", "content": "claude auth status" },
     { "type": "text", "tips": "列出所有子代理", "content": "claude agents" },
     { "type": "text", "tips": "配置 MCP 服务器", "content": "claude mcp" },
-    { "type": "text", "tips": "启动远程控制会话", "content": "claude remote-control" },
-    { "type": "text", "tips": "指定模型运行", "content": "claude --model claude-sonnet-4-6" },
-    { "type": "text", "tips": "添加额外工作目录", "content": "claude --add-dir ../apps ../lib" },
-    { "type": "text", "tips": "使用指定代理", "content": "claude --agent my-custom-agent" },
-    { "type": "text", "tips": "计划模式(只读不写)", "content": "claude --permission-mode plan" },
-    { "type": "text", "tips": "限制可用工具", "content": "claude --tools \"Bash,Edit,Read\"" },
-    { "type": "text", "tips": "预授权特定工具", "content": "claude --allowedTools \"Bash(git log *)\" \"Read\"" },
-    { "type": "text", "tips": "JSON格式输出(脚本用)", "content": "claude -p \"query\" --output-format json" },
-    { "type": "text", "tips": "流式JSON输出", "content": "claude -p --output-format stream-json \"query\"" },
-    { "type": "text", "tips": "设置最大花费限制", "content": "claude -p --max-budget-usd 5.00 \"query\"" },
-    { "type": "text", "tips": "限制代理轮次", "content": "claude -p --max-turns 3 \"query\"" },
-    { "type": "text", "tips": "加载MCP配置文件", "content": "claude --mcp-config ./mcp.json" },
-    { "type": "text", "tips": "追加系统提示(保留默认)", "content": "claude --append-system-prompt \"Always use TypeScript\"" },
-    { "type": "text", "tips": "替换整个系统提示", "content": "claude --system-prompt \"You are a Python expert\"" },
-    { "type": "text", "tips": "从文件加载系统提示", "content": "claude --system-prompt-file ./prompts/code-review.txt" },
-    { "type": "text", "tips": "在git worktree中隔离运行", "content": "claude -w feature-auth" },
-    { "type": "text", "tips": "恢复PR关联的会话", "content": "claude --from-pr 123" },
-    { "type": "text", "tips": "启用调试模式", "content": "claude --debug \"api,mcp\"" },
+    {
+      "type": "text",
+      "tips": "启动远程控制会话",
+      "content": "claude remote-control"
+    },
+    {
+      "type": "text",
+      "tips": "指定模型运行",
+      "content": "claude --model claude-sonnet-4-6"
+    },
+    {
+      "type": "text",
+      "tips": "添加额外工作目录",
+      "content": "claude --add-dir ../apps ../lib"
+    },
+    {
+      "type": "text",
+      "tips": "使用指定代理",
+      "content": "claude --agent my-custom-agent"
+    },
+    {
+      "type": "text",
+      "tips": "计划模式(只读不写)",
+      "content": "claude --permission-mode plan"
+    },
+    {
+      "type": "text",
+      "tips": "限制可用工具",
+      "content": "claude --tools \"Bash,Edit,Read\""
+    },
+    {
+      "type": "text",
+      "tips": "预授权特定工具",
+      "content": "claude --allowedTools \"Bash(git log *)\" \"Read\""
+    },
+    {
+      "type": "text",
+      "tips": "JSON格式输出(脚本用)",
+      "content": "claude -p \"query\" --output-format json"
+    },
+    {
+      "type": "text",
+      "tips": "流式JSON输出",
+      "content": "claude -p --output-format stream-json \"query\""
+    },
+    {
+      "type": "text",
+      "tips": "设置最大花费限制",
+      "content": "claude -p --max-budget-usd 5.00 \"query\""
+    },
+    {
+      "type": "text",
+      "tips": "限制代理轮次",
+      "content": "claude -p --max-turns 3 \"query\""
+    },
+    {
+      "type": "text",
+      "tips": "加载MCP配置文件",
+      "content": "claude --mcp-config ./mcp.json"
+    },
+    {
+      "type": "text",
+      "tips": "追加系统提示(保留默认)",
+      "content": "claude --append-system-prompt \"Always use TypeScript\""
+    },
+    {
+      "type": "text",
+      "tips": "替换整个系统提示",
+      "content": "claude --system-prompt \"You are a Python expert\""
+    },
+    {
+      "type": "text",
+      "tips": "从文件加载系统提示",
+      "content": "claude --system-prompt-file ./prompts/code-review.txt"
+    },
+    {
+      "type": "text",
+      "tips": "在git worktree中隔离运行",
+      "content": "claude -w feature-auth"
+    },
+    {
+      "type": "text",
+      "tips": "恢复PR关联的会话",
+      "content": "claude --from-pr 123"
+    },
+    {
+      "type": "text",
+      "tips": "启用调试模式",
+      "content": "claude --debug \"api,mcp\""
+    },
     { "type": "text", "tips": "启用详细日志", "content": "claude --verbose" },
-    { "type": "text", "tips": "创建远程网络会话", "content": "claude --remote \"Fix the login bug\"" },
-    { "type": "text", "tips": "回传远程会话到本地", "content": "claude --teleport" },
-    { "type": "text", "tips": "启用Chrome浏览器集成", "content": "claude --chrome" },
-    { "type": "text", "tips": "设置回退模型", "content": "claude -p --fallback-model sonnet \"query\"" }
+    {
+      "type": "text",
+      "tips": "创建远程网络会话",
+      "content": "claude --remote \"Fix the login bug\""
+    },
+    {
+      "type": "text",
+      "tips": "回传远程会话到本地",
+      "content": "claude --teleport"
+    },
+    {
+      "type": "text",
+      "tips": "启用Chrome浏览器集成",
+      "content": "claude --chrome"
+    },
+    {
+      "type": "text",
+      "tips": "设置回退模型",
+      "content": "claude -p --fallback-model sonnet \"query\""
+    }
   ]
 }

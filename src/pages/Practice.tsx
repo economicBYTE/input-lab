@@ -104,6 +104,11 @@ export default function Practice() {
     totalKeystrokes,
     errorCount,
     pressedKeys,
+    freeTyped,
+    caseInsensitive,
+    setCaseInsensitive,
+    inputMode,
+    setInputMode,
   } = usePracticeStore();
 
   const currentItemType = usePracticeStore((s) => {
@@ -155,11 +160,22 @@ export default function Practice() {
 
   // 确定活动行索引
   const activeLineIndex = useMemo(() => {
+    // free 模式溢出时锁定在当前 item 的最后一行，避免 globalCharIndex 超出而跳到下一项
+    if (inputMode === 'free') {
+      const item = items[currentItemIndex];
+      if (item?.type === 'text' && freeTyped.length > (item.content as string).length) {
+        let lastIdx = -1;
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i]!.itemIndex === currentItemIndex) lastIdx = i;
+        }
+        if (lastIdx >= 0) return lastIdx;
+      }
+    }
     for (let i = lines.length - 1; i >= 0; i--) {
       if (globalCharIndex >= lines[i]!.globalStart) return i;
     }
     return 0;
-  }, [globalCharIndex, lines]);
+  }, [globalCharIndex, lines, inputMode, freeTyped, items, currentItemIndex]);
 
   // KPM — 用定时器驱动实时更新
   const [kpmValue, setKpmValue] = useState(0);
@@ -203,53 +219,99 @@ export default function Practice() {
           ? [{ type: 'text' as const, content: doc.content }]
           : doc.content;
         setDocInfo({ title: doc.title, description: doc.description });
-        usePracticeStore.getState().init(doc.id, content);
+        usePracticeStore.getState().init(doc.id, content, {
+          caseInsensitive: doc.caseInsensitive,
+        });
       } else {
         navigate('/');
       }
     });
   }, [id, navigate]);
 
-  // Auto-focus
+  // Auto-focus (初始加载)
   useEffect(() => {
     inputRef.current?.focus();
   }, [items]);
 
-  // Keypress 模式: window-level keydown/keyup
-  useEffect(() => {
-    if (currentItemType !== 'keypress') return;
+  const markTyping = useCallback(() => {
+    setIsTyping(true);
+    clearTimeout(typingTimerRef.current);
+    typingTimerRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 500);
+  }, []);
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat) return;
-      e.preventDefault();
-      markTyping();
-      const completed = usePracticeStore.getState().handleKeyDown(e.code);
-      if (completed) {
-        navigate(`/result/${id}`);
+  useEffect(() => {
+    return () => clearTimeout(typingTimerRef.current);
+  }, []);
+
+  // 统一键盘事件处理：始终挂载，handler 内从 store 实时读取模式
+  // 彻底消除 useEffect 异步切换导致的事件真空期
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const store = usePracticeStore.getState();
+      const type = store.currentItemType();
+
+      if (type === 'keypress') {
+        // 必须始终 preventDefault，否则 repeat 事件会让浏览器处理原生快捷键
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.repeat) return; // store 的 pressedKeys.includes 已处理去重
+        inputRef.current?.blur();
+        markTyping();
+        const completed = store.handleKeyDown(e.code);
+        if (completed) navigate(`/result/${id}`);
+      } else if (type === 'text') {
+        const inputFocused = document.activeElement === inputRef.current;
+        if (!inputFocused) inputRef.current?.focus();
+
+        if (e.key === 'Backspace') {
+          // Free 模式下 Backspace 删除已输入的错字；Strict 模式下吃掉 Backspace 避免浏览器返回上一页
+          if (store.inputMode === 'free') {
+            e.preventDefault();
+            markTyping();
+            store.handleBackspace();
+          } else {
+            e.preventDefault();
+          }
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+          e.preventDefault();
+          markTyping();
+          const char = e.key === 'Enter' ? '\n' : '\t';
+          const completed = store.handleInput(char);
+          if (completed) navigate(`/result/${id}`);
+        } else if (!inputFocused && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          // input 未聚焦时直接处理普通字符，避免首键丢失
+          e.preventDefault();
+          markTyping();
+          const completed = store.handleInput(e.key);
+          if (completed) navigate(`/result/${id}`);
+        }
       }
     };
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      e.preventDefault();
-      usePracticeStore.getState().handleKeyUp(e.code);
+    const onKeyUp = (e: KeyboardEvent) => {
+      const store = usePracticeStore.getState();
+      if (store.currentItemType() === 'keypress') {
+        e.preventDefault();
+        e.stopPropagation();
+        store.handleKeyUp(e.code);
+      }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [currentItemType, id, navigate]);
-
-  // window.blur 清空 pressedKeys
-  useEffect(() => {
-    const handleBlur = () => {
+    const onBlur = () => {
       usePracticeStore.getState().clearPressedKeys();
     };
-    window.addEventListener('blur', handleBlur);
-    return () => window.removeEventListener('blur', handleBlur);
-  }, []);
+
+    window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('keyup', onKeyUp, true);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown, true);
+      window.removeEventListener('keyup', onKeyUp, true);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, [id, navigate, markTyping]);
 
   // translateY
   useLayoutEffect(() => {
@@ -284,7 +346,7 @@ export default function Practice() {
     return BASE_LINE_HEIGHT * fontSize;
   }, []);
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
+  const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const step = getBaseLineHeightPx();
     const delta = e.deltaY > 0 ? -step : step;
@@ -295,6 +357,14 @@ export default function Practice() {
       setScrollOffsetPx(0);
     }, SCROLL_RETURN_DELAY);
   }, [getBaseLineHeightPx]);
+
+  // 使用原生事件监听器注册 wheel，以便 passive: false 允许 preventDefault
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    wrapper.addEventListener('wheel', handleWheel, { passive: false });
+    return () => wrapper.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
 
   useEffect(() => {
     return () => clearTimeout(scrollReturnTimerRef.current);
@@ -323,6 +393,27 @@ export default function Practice() {
     }
     globalLetterIndex += currentCharIndex;
 
+    const currentItem = items[currentItemIndex];
+    const targetLen = currentItem?.type === 'text' ? (currentItem.content as string).length : 0;
+    // free 模式下若发生溢出（currentCharIndex 已超出目标长度），caret 贴在最后一个溢出 letter 之后
+    const isOverflowCaret = inputMode === 'free'
+      && currentItem?.type === 'text'
+      && currentCharIndex > targetLen;
+
+    if (isOverflowCaret) {
+      // 最后一个 letter 索引 = 之前 items 的 text 字符总数 + 当前 item 已有的 letter 数（含溢出）- 1
+      const lastIdx = globalLetterIndex - 1;
+      const lastLetter = letters[lastIdx] as HTMLElement | undefined;
+      if (lastLetter) {
+        const wordsRect = words.getBoundingClientRect();
+        const letterRect = lastLetter.getBoundingClientRect();
+        caret.style.left = `${letterRect.right - wordsRect.left}px`;
+        caret.style.top = `${letterRect.top - wordsRect.top}px`;
+        caret.style.height = `${letterRect.height}px`;
+        return;
+      }
+    }
+
     const currentLetter = letters[globalLetterIndex] as HTMLElement | undefined;
 
     if (currentLetter) {
@@ -339,7 +430,7 @@ export default function Practice() {
       caret.style.top = `${letterRect.top - wordsRect.top}px`;
       caret.style.height = `${letterRect.height}px`;
     }
-  }, [currentItemIndex, currentCharIndex, currentItemType, items]);
+  }, [currentItemIndex, currentCharIndex, currentItemType, items, inputMode]);
 
   useEffect(() => {
     updateCaretPosition();
@@ -350,42 +441,17 @@ export default function Practice() {
     return () => window.removeEventListener('resize', updateCaretPosition);
   }, [updateCaretPosition]);
 
-  const markTyping = useCallback(() => {
-    setIsTyping(true);
-    clearTimeout(typingTimerRef.current);
-    typingTimerRef.current = setTimeout(() => {
-      setIsTyping(false);
-    }, 500);
-  }, []);
-
-  useEffect(() => {
-    return () => clearTimeout(typingTimerRef.current);
-  }, []);
-
-  // Text input
+  // Text input — 仅处理 onInput 事件（Enter/Tab 由统一 keydown 处理）
   const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
     const char = input.value;
     input.value = '';
-    if (!char || currentItemType !== 'text') return;
+    if (!char) return;
 
     markTyping();
     const completed = usePracticeStore.getState().handleInput(char);
     if (completed) {
       navigate(`/result/${id}`);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (currentItemType !== 'text') return;
-    if (e.key === 'Enter' || e.key === 'Tab') {
-      e.preventDefault();
-      markTyping();
-      const char = e.key === 'Enter' ? '\n' : '\t';
-      const completed = usePracticeStore.getState().handleInput(char);
-      if (completed) {
-        navigate(`/result/${id}`);
-      }
     }
   };
 
@@ -428,14 +494,19 @@ export default function Practice() {
       const renderedLines: JSX.Element[] = [];
       let localOffset = 0;
 
+      const isCurrent = itemIdx === currentItemIndex;
+      const useFree = isCurrent && inputMode === 'free';
+      const cursorPos = useFree ? freeTyped.length : currentCharIndex;
+
       parts.forEach((part, partIdx) => {
         const lineText = partIdx < parts.length - 1 ? part + '\n' : part;
         const lineStartGlobalChar = itemStartGlobalChar + localOffset;
+        const isLastPart = partIdx === parts.length - 1;
 
-        // 判断当前光标是否在这一行
-        const isActiveLine = itemIdx === currentItemIndex
-          && currentCharIndex >= localOffset
-          && currentCharIndex < localOffset + lineText.length;
+        // 判断当前光标是否在这一行（在 free 模式下若发生溢出，最后一行视为活动行）
+        const inLineRange = cursorPos >= localOffset && cursorPos < localOffset + lineText.length;
+        const overflowOnLastLine = useFree && isLastPart && freeTyped.length > text.length;
+        const isActiveLine = isCurrent && (inLineRange || overflowOnLastLine);
 
         renderedLines.push(
           <div className="line-group" key={`${itemIdx}-${partIdx}`}>
@@ -444,16 +515,36 @@ export default function Practice() {
                 const globalIdx = lineStartGlobalChar + charIdx;
                 const localCharIdx = localOffset + charIdx;
                 let className = 'letter';
+                let display: string = char;
 
-                // 判断字符状态
                 if (itemIdx < currentItemIndex) {
                   className += ' correct';
-                } else if (itemIdx === currentItemIndex) {
-                  if (localCharIdx < currentCharIndex) {
-                    className += ' correct';
-                  } else if (localCharIdx === currentCharIndex) {
-                    className += ' current';
-                    if (isError) className += ' incorrect';
+                } else if (isCurrent) {
+                  if (useFree) {
+                    if (localCharIdx < freeTyped.length) {
+                      const typed = freeTyped[localCharIdx]!;
+                      const matches = caseInsensitive
+                        ? typed.toLowerCase() === char.toLowerCase()
+                        : typed === char;
+                      if (matches) {
+                        className += ' correct';
+                      } else {
+                        className += ' incorrect';
+                        // 替换为实际输入字符（控制字符例外，保留目标视觉以维持行布局）
+                        if (char !== '\n' && char !== '\t' && typed !== '\n' && typed !== '\t') {
+                          display = typed;
+                        }
+                      }
+                    } else if (localCharIdx === freeTyped.length) {
+                      className += ' current';
+                    }
+                  } else {
+                    if (localCharIdx < currentCharIndex) {
+                      className += ' correct';
+                    } else if (localCharIdx === currentCharIndex) {
+                      className += ' current';
+                      if (isError) className += ' incorrect';
+                    }
                   }
                 }
 
@@ -470,7 +561,18 @@ export default function Practice() {
                 }
 
                 return (
-                  <span key={globalIdx} className={className}>{char}</span>
+                  <span key={globalIdx} className={className}>{display}</span>
+                );
+              })}
+              {/* Free 模式溢出字符：仅在当前 item 的最后一行末尾追加 */}
+              {overflowOnLastLine && freeTyped.slice(text.length).map((typed, i) => {
+                let display = typed;
+                if (typed === '\n') display = '↵';
+                else if (typed === '\t') display = '→   ';
+                return (
+                  <span key={`overflow-${i}`} className="letter incorrect overflow">
+                    {display}
+                  </span>
                 );
               })}
             </div>
@@ -531,7 +633,6 @@ export default function Practice() {
           ref={inputRef}
           className="hidden-input"
           onInput={handleInput}
-          onKeyDown={handleKeyDown}
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
@@ -539,7 +640,7 @@ export default function Practice() {
         />
 
         {/* Words display */}
-        <div className="words-wrapper" ref={wrapperRef} onWheel={handleWheel}>
+        <div className="words-wrapper" ref={wrapperRef}>
           <div
             className="words-content"
             ref={wordsContentRef}
@@ -558,6 +659,34 @@ export default function Practice() {
 
         {/* Start hint */}
         {!startTime && <div className="hint">{t('practice.startHint')}</div>}
+      </div>
+
+      <div className="practice-bottom-bar" onClick={(e) => e.stopPropagation()}>
+        <div className="toggle-group" title={t('practice.mode.tip')}>
+          <button
+            type="button"
+            className={`toggle-btn ${inputMode === 'free' ? 'active' : ''}`}
+            onClick={() => setInputMode('free')}
+          >
+            {t('practice.mode.free')}
+          </button>
+          <button
+            type="button"
+            className={`toggle-btn ${inputMode === 'strict' ? 'active' : ''}`}
+            onClick={() => setInputMode('strict')}
+          >
+            {t('practice.mode.strict')}
+          </button>
+        </div>
+        <div className="toggle-group">
+          <button
+            type="button"
+            className={`toggle-btn ${caseInsensitive ? 'active' : ''}`}
+            onClick={() => setCaseInsensitive(!caseInsensitive)}
+          >
+            {t('practice.caseInsensitive')}
+          </button>
+        </div>
       </div>
     </div>
   );

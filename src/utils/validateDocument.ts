@@ -5,6 +5,7 @@ export interface DocumentJSON {
   title: string;
   description?: string;
   category?: string;
+  caseInsensitive?: boolean;
   content: ContentItem[];
 }
 
@@ -79,6 +80,7 @@ export function validateDocumentJSON(json: unknown): ValidationResult {
       title: (obj.title as string).trim(),
       description: obj.description ? (obj.description as string).trim() : undefined,
       category: obj.category ? (obj.category as string).trim() : undefined,
+      caseInsensitive: obj.caseInsensitive === true ? true : undefined,
       content: obj.content as ContentItem[],
     },
   };

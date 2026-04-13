@@ -12,9 +12,9 @@ const zh = {
   'doc.defaultCategory': '默认',
   'doc.emptyHint': '还没有文档 — 点击 "+ 新建" 添加练习内容',
   'doc.recommendedDocs': '推荐文档',
-  'doc.added': '已添加',
   'doc.adding': '添加中...',
   'doc.add': '添加',
+  'doc.renamedTo': '已添加，重命名为: {title}',
   'doc.chars': '字符',
   'doc.keypress': '按键',
   'doc.uncategorized': '未分类',
@@ -75,6 +75,10 @@ const zh = {
   'practice.kpm': 'kpm',
   'practice.errors': '错误',
   'practice.progress': '进度',
+  'practice.caseInsensitive': '忽略大小写',
+  'practice.mode.strict': '速度模式',
+  'practice.mode.free': '文档模式',
+  'practice.mode.tip': '速度：错字不前进 / 文档：错字标红需 Backspace 删除',
 
   // result
   'result.title': '练习完成',

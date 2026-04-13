@@ -14,9 +14,9 @@ const en: Record<LocaleKeys, string> = {
   'doc.defaultCategory': 'default',
   'doc.emptyHint': 'no documents yet — click "+ new" to add practice content',
   'doc.recommendedDocs': 'recommended documents',
-  'doc.added': 'added',
   'doc.adding': 'adding...',
   'doc.add': 'add',
+  'doc.renamedTo': 'added as: {title}',
   'doc.chars': 'chars',
   'doc.keypress': 'keypress',
   'doc.uncategorized': 'uncategorized',
@@ -77,6 +77,10 @@ const en: Record<LocaleKeys, string> = {
   'practice.kpm': 'kpm',
   'practice.errors': 'errors',
   'practice.progress': 'progress',
+  'practice.caseInsensitive': 'Ignore Case',
+  'practice.mode.strict': 'Speed',
+  'practice.mode.free': 'Document',
+  'practice.mode.tip': 'Speed: cannot advance on error / Document: error chars stay until Backspace',
 
   // result
   'result.title': 'practice complete',
