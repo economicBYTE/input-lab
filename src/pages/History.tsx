@@ -4,6 +4,12 @@ import type { PracticeRecord, Document, ErrorDetail } from '@/types';
 import { practiceRecordService, documentService } from '@/services/db';
 import { useT } from '@/locales';
 import { SPEED_TEST_ID } from '@/utils/speedTest';
+import {
+  ERROR_PRACTICE_ID,
+  collectAllErrorChars,
+  collectErrorCharsFromDetails,
+  saveErrorPracticeConfig,
+} from '@/utils/errorPractice';
 
 export default function History() {
   const navigate = useNavigate();
@@ -67,6 +73,36 @@ export default function History() {
 
   const sortedErrorChars = Object.entries(errorCharStats).sort((a, b) => b[1].count - a[1].count);
 
+  const startAllErrorPractice = async () => {
+    const chars = await collectAllErrorChars();
+    if (chars.length === 0) return;
+    saveErrorPracticeConfig({
+      scope: 'all',
+      title: t('history.errorPractice.allTitle'),
+      description: t('history.errorPractice.description', { count: chars.length }),
+      chars,
+    });
+    navigate(`/practice/${ERROR_PRACTICE_ID}`);
+  };
+
+  const startRecordErrorPractice = (record: PracticeRecord) => {
+    const chars = collectErrorCharsFromDetails(record.errorDetails || []);
+    if (chars.length === 0) return;
+    const sourceTitle =
+      record.documentId === SPEED_TEST_ID
+        ? t('speed.title')
+        : docMap[record.documentId]?.title || t('history.deletedDoc');
+    saveErrorPracticeConfig({
+      scope: 'record',
+      sourceDocumentId: record.documentId,
+      sourceRecordId: record.id,
+      title: t('history.errorPractice.boostTitle', { title: sourceTitle }),
+      description: t('history.errorPractice.description', { count: chars.length }),
+      chars,
+    });
+    navigate(`/practice/${ERROR_PRACTICE_ID}`);
+  };
+
   if (loading) {
     return (
       <div className="center-container">
@@ -84,7 +120,17 @@ export default function History() {
       {/* Error summary */}
       {sortedErrorChars.length > 0 && (
         <div className="history-error-summary">
-          <div className="history-section-title">{t('history.mostErrors')}</div>
+          <div className="history-section-header">
+            <div className="history-section-title">{t('history.mostErrors')}</div>
+            <button
+              type="button"
+              className="error-practice-btn"
+              onClick={startAllErrorPractice}
+              title={t('history.errorPractice.allTip')}
+            >
+              {t('history.errorPractice.practiceAll')}
+            </button>
+          </div>
           <div className="error-detail-list">
             {sortedErrorChars.slice(0, 10).map(([char, stat]) => (
               <div key={char} className="error-detail-item">
@@ -116,6 +162,9 @@ export default function History() {
                     onClick={() => {
                       if (r.documentId === SPEED_TEST_ID) {
                         navigate(`/practice/${SPEED_TEST_ID}`);
+                      } else if (r.documentId === ERROR_PRACTICE_ID) {
+                        // 错字练习无固定来源，引导用户从入口重新发起
+                        navigate('/history');
                       } else if (doc) {
                         navigate(`/practice/${doc.id}`);
                       }
@@ -123,6 +172,8 @@ export default function History() {
                   >
                     {r.documentId === SPEED_TEST_ID
                       ? t('speed.title')
+                      : r.documentId === ERROR_PRACTICE_ID
+                      ? t('history.errorPractice.recordTitle')
                       : doc?.title || t('history.deletedDoc')}
                   </div>
                 </div>
@@ -155,6 +206,15 @@ export default function History() {
                         ))}
                       </span>
                     ))}
+                    {collectErrorCharsFromDetails(r.errorDetails).length > 0 && (
+                      <button
+                        type="button"
+                        className="error-practice-btn error-practice-btn-sm"
+                        onClick={() => startRecordErrorPractice(r)}
+                      >
+                        {t('history.errorPractice.boost')}
+                      </button>
+                    )}
                   </div>
                 )}
                 <div className="history-item-date">{formatDate(r.startTime)}</div>

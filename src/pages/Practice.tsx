@@ -6,6 +6,11 @@ import type { ContentItem } from '@/types';
 import { getTotalChars, getGlobalCharIndex } from '@/types';
 import { useT } from '@/locales';
 import { SPEED_TEST_ID, generateSpeedTestContent, DEFAULT_CHAR_COUNT } from '@/utils/speedTest';
+import {
+  ERROR_PRACTICE_ID,
+  loadErrorPracticeConfig,
+  generateErrorPracticeContent,
+} from '@/utils/errorPractice';
 
 const BASE_LINE_HEIGHT = 3.2; // rem: font-size 1.6rem × line-height 2
 const SCROLL_RETURN_DELAY = 3000;
@@ -209,6 +214,18 @@ export default function Practice() {
       generateSpeedTestContent(boost, count).then((content) => {
         usePracticeStore.getState().init(SPEED_TEST_ID, content);
       });
+      return;
+    }
+
+    if (id === ERROR_PRACTICE_ID) {
+      const config = loadErrorPracticeConfig();
+      if (!config || config.chars.length === 0) {
+        navigate('/history');
+        return;
+      }
+      const content = generateErrorPracticeContent(config.chars);
+      setDocInfo({ title: config.title, description: config.description });
+      usePracticeStore.getState().init(ERROR_PRACTICE_ID, content);
       return;
     }
 

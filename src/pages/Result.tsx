@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePracticeStore } from '@/stores/practiceStore';
-import { practiceRecordService } from '@/services/db';
+import { practiceRecordService, documentService } from '@/services/db';
 import { getTotalChars } from '@/types';
 import { useT } from '@/locales';
+import { SPEED_TEST_ID } from '@/utils/speedTest';
+import {
+  ERROR_PRACTICE_ID,
+  collectErrorCharsFromDetails,
+  saveErrorPracticeConfig,
+} from '@/utils/errorPractice';
 
 export default function Result() {
   const { id } = useParams<{ id: string }>();
@@ -65,6 +71,31 @@ export default function Result() {
     navigate('/');
   };
 
+  const boostChars = collectErrorCharsFromDetails(errorDetails);
+  const canBoost = boostChars.length > 0;
+
+  const handleErrorBoost = async () => {
+    if (!canBoost) return;
+    let sourceTitle = '';
+    if (documentId === SPEED_TEST_ID) {
+      sourceTitle = t('speed.title');
+    } else if (documentId && documentId !== ERROR_PRACTICE_ID) {
+      const doc = await documentService.getById(documentId);
+      sourceTitle = doc?.title || t('history.deletedDoc');
+    } else {
+      sourceTitle = t('history.errorPractice.recordTitle');
+    }
+    saveErrorPracticeConfig({
+      scope: 'record',
+      sourceDocumentId: documentId,
+      title: t('history.errorPractice.boostTitle', { title: sourceTitle }),
+      description: t('history.errorPractice.description', { count: boostChars.length }),
+      chars: boostChars,
+    });
+    reset();
+    navigate(`/practice/${ERROR_PRACTICE_ID}`);
+  };
+
   const renderChar = (char: string) => {
     if (char === ' ') return t('result.space');
     if (char === '\n') return t('result.enter');
@@ -124,6 +155,11 @@ export default function Result() {
           <button className="btn btn-primary" onClick={handleRetry}>
             {t('result.retry')}
           </button>
+          {canBoost && (
+            <button className="btn btn-secondary" onClick={handleErrorBoost}>
+              {t('history.errorPractice.boost')}
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={handleBack}>
             {t('result.back')}
           </button>

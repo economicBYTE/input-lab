@@ -857,6 +857,41 @@ a:hover {
   border-radius: var(--roundness);
 }
 
+.history-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.history-section-header .history-section-title {
+  margin-bottom: 0;
+}
+
+.error-practice-btn {
+  background: transparent;
+  border: 1px solid var(--main-color);
+  color: var(--main-color);
+  padding: 0.25rem 0.85rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+}
+
+.error-practice-btn:hover {
+  background: var(--main-color);
+  color: var(--bg-color);
+}
+
+.error-practice-btn-sm {
+  padding: 0.15rem 0.6rem;
+  font-size: 0.7rem;
+  margin-left: auto;
+}
+
 .error-count {
   font-size: 0.7rem;
   color: var(--sub-color);

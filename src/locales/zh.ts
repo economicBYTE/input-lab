@@ -103,6 +103,13 @@ const zh = {
   'history.chars': '字符',
   'history.empty': '暂无练习记录',
   'history.deleteRecord': '删除记录',
+  'history.errorPractice.allTitle': '常错字符练习',
+  'history.errorPractice.allTip': '将所有记录中最常出错的字符组合生成专项练习',
+  'history.errorPractice.practiceAll': '练习这些字符',
+  'history.errorPractice.boost': '错误加强练习',
+  'history.errorPractice.boostTitle': '错误加强 - {title}',
+  'history.errorPractice.description': '聚焦 {count} 个错字的专项练习',
+  'history.errorPractice.recordTitle': '错字练习',
 
   // validation
   'validate.invalidJSON': '无效的 JSON 格式',

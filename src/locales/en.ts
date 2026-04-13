@@ -105,6 +105,13 @@ const en: Record<LocaleKeys, string> = {
   'history.chars': 'chars',
   'history.empty': 'no practice history yet',
   'history.deleteRecord': 'delete record',
+  'history.errorPractice.allTitle': 'frequent error practice',
+  'history.errorPractice.allTip': 'Generate focused drills from your most frequent error chars across all records',
+  'history.errorPractice.practiceAll': 'practice these',
+  'history.errorPractice.boost': 'error boost',
+  'history.errorPractice.boostTitle': 'error boost - {title}',
+  'history.errorPractice.description': 'focused drill on {count} error chars',
+  'history.errorPractice.recordTitle': 'error drill',
 
   // validation
   'validate.invalidJSON': 'Invalid JSON format',
