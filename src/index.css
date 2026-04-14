@@ -70,6 +70,26 @@ a:hover {
   flex-direction: column;
 }
 
+/* ============ Footer ============ */
+
+.site-footer {
+  margin-top: auto;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--sub-color);
+}
+
+.site-footer .beian-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.site-footer .beian-link:hover {
+  color: var(--text-color);
+}
+
 /* ============ Header / Nav ============ */
 
 .nav-header {

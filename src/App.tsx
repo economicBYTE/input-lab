@@ -10,7 +10,7 @@ type Theme = 'light' | 'dark';
 
 function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || 'dark';
+    return (localStorage.getItem('theme') as Theme) || 'light';
   });
 
   useEffect(() => {
@@ -57,6 +57,21 @@ function NavHeader({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () =
   );
 }
 
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <a
+        className="beian-link"
+        href="https://beian.miit.gov.cn/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        蜀ICP备2023022921号-7
+      </a>
+    </footer>
+  );
+}
+
 export default function App() {
   const { theme, toggle } = useTheme();
 
@@ -70,6 +85,7 @@ export default function App() {
           <Route path="/result/:id" element={<Result />} />
           <Route path="/history" element={<History />} />
         </Routes>
+        <SiteFooter />
       </div>
     </BrowserRouter>
   );
