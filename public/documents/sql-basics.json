@@ -1,0 +1,57 @@
+{
+  "title": "SQL 基础练习",
+  "description": "通过具体示例练习 SQL 基础：查询、过滤、聚合、增删改与数据类型",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "查询所有列", "content": "SELECT * FROM users;" },
+    { "type": "text", "tips": "查询指定列", "content": "SELECT id, name, email FROM users;" },
+    { "type": "text", "tips": "列起别名", "content": "SELECT name AS user_name, age AS user_age FROM users;" },
+    { "type": "text", "tips": "DISTINCT 去重", "content": "SELECT DISTINCT city FROM users;" },
+    { "type": "text", "tips": "多列组合去重", "content": "SELECT DISTINCT city, country FROM users;" },
+
+    { "type": "text", "tips": "等值过滤", "content": "SELECT * FROM users WHERE age = 18;" },
+    { "type": "text", "tips": "不等于过滤", "content": "SELECT * FROM users WHERE status <> 'active';" },
+    { "type": "text", "tips": "大于过滤", "content": "SELECT * FROM orders WHERE amount > 100;" },
+    { "type": "text", "tips": "小于等于过滤", "content": "SELECT * FROM orders WHERE amount <= 500;" },
+    { "type": "text", "tips": "AND 多条件", "content": "SELECT * FROM users WHERE age >= 18 AND city = 'Beijing';" },
+    { "type": "text", "tips": "OR 多条件", "content": "SELECT * FROM users WHERE city = 'Beijing' OR city = 'Shanghai';" },
+    { "type": "text", "tips": "LIKE 前缀匹配", "content": "SELECT * FROM users WHERE name LIKE 'Tom%';" },
+    { "type": "text", "tips": "LIKE 包含匹配", "content": "SELECT * FROM products WHERE title LIKE '%phone%';" },
+    { "type": "text", "tips": "IN 集合匹配", "content": "SELECT * FROM users WHERE id IN (1, 2, 3, 5);" },
+    { "type": "text", "tips": "NOT IN 集合排除", "content": "SELECT * FROM users WHERE status NOT IN ('banned', 'deleted');" },
+    { "type": "text", "tips": "BETWEEN 区间过滤", "content": "SELECT * FROM orders WHERE amount BETWEEN 100 AND 500;" },
+    { "type": "text", "tips": "日期区间过滤", "content": "SELECT * FROM orders WHERE created_at BETWEEN '2026-01-01' AND '2026-03-31';" },
+    { "type": "text", "tips": "判断为 NULL", "content": "SELECT * FROM users WHERE email IS NULL;" },
+    { "type": "text", "tips": "判断不为 NULL", "content": "SELECT * FROM users WHERE phone IS NOT NULL;" },
+
+    { "type": "text", "tips": "升序排序", "content": "SELECT * FROM users ORDER BY age ASC;" },
+    { "type": "text", "tips": "降序排序", "content": "SELECT * FROM orders ORDER BY created_at DESC;" },
+    { "type": "text", "tips": "多列排序", "content": "SELECT * FROM users ORDER BY city ASC, age DESC;" },
+    { "type": "text", "tips": "LIMIT 取前 N 条", "content": "SELECT * FROM users ORDER BY id DESC LIMIT 10;" },
+    { "type": "text", "tips": "LIMIT 分页", "content": "SELECT * FROM users ORDER BY id LIMIT 20 OFFSET 40;" },
+
+    { "type": "text", "tips": "统计行数", "content": "SELECT COUNT(*) FROM users;" },
+    { "type": "text", "tips": "统计非空列", "content": "SELECT COUNT(email) FROM users;" },
+    { "type": "text", "tips": "求和", "content": "SELECT SUM(amount) FROM orders;" },
+    { "type": "text", "tips": "求平均", "content": "SELECT AVG(price) FROM products;" },
+    { "type": "text", "tips": "最大值与最小值", "content": "SELECT MAX(price), MIN(price) FROM products;" },
+    { "type": "text", "tips": "GROUP BY 分组统计", "content": "SELECT city, COUNT(*) FROM users GROUP BY city;" },
+    { "type": "text", "tips": "GROUP BY 多列", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
+    { "type": "text", "tips": "GROUP BY 求总额", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "HAVING 过滤分组", "content": "SELECT city, COUNT(*) AS c FROM users GROUP BY city HAVING c > 10;" },
+    { "type": "text", "tips": "WHERE 与 HAVING 配合", "content": "SELECT user_id, SUM(amount) AS total FROM orders WHERE status = 'paid' GROUP BY user_id HAVING total > 1000;" },
+
+    { "type": "text", "tips": "插入单条记录", "content": "INSERT INTO users (name, age, email) VALUES ('Tom', 25, 'tom@example.com');" },
+    { "type": "text", "tips": "插入多条记录", "content": "INSERT INTO users (name, age) VALUES ('Alice', 22), ('Bob', 30), ('Carol', 28);" },
+    { "type": "text", "tips": "按条件更新", "content": "UPDATE users SET status = 'active' WHERE id = 1;" },
+    { "type": "text", "tips": "更新多个字段", "content": "UPDATE users SET name = 'Tom', age = 26 WHERE id = 1;" },
+    { "type": "text", "tips": "条件删除（务必带 WHERE）", "content": "DELETE FROM users WHERE id = 1;" },
+    { "type": "text", "tips": "按状态批量删除", "content": "DELETE FROM users WHERE status = 'deleted';" },
+
+    { "type": "text", "tips": "建表：数字类型", "content": "CREATE TABLE products (id INT PRIMARY KEY, stock INT, price DECIMAL(10,2), rating FLOAT);" },
+    { "type": "text", "tips": "建表：字符类型", "content": "CREATE TABLE users (id INT, code CHAR(8), name VARCHAR(50), bio TEXT);" },
+    { "type": "text", "tips": "建表：日期时间", "content": "CREATE TABLE logs (id INT, log_date DATE, log_time DATETIME, created_at TIMESTAMP);" },
+    { "type": "text", "tips": "建表：布尔字段", "content": "CREATE TABLE users (id INT, is_active TINYINT(1) DEFAULT 1);" }
+  ]
+}

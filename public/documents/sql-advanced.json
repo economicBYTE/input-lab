@@ -1,0 +1,59 @@
+{
+  "title": "SQL 进阶练习",
+  "description": "SQL 进阶：多表 JOIN、子查询、复杂条件、聚合分组、分页优化、索引与 EXPLAIN",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "INNER JOIN 内连接", "content": "SELECT u.name, o.amount FROM users u INNER JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "INNER JOIN 简写", "content": "SELECT u.name, o.amount FROM users u JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "LEFT JOIN 左连接", "content": "SELECT u.name, o.amount FROM users u LEFT JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "LEFT JOIN 查找无订单用户", "content": "SELECT u.name FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE o.id IS NULL;" },
+    { "type": "text", "tips": "RIGHT JOIN 右连接", "content": "SELECT u.name, o.amount FROM users u RIGHT JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "CROSS JOIN 交叉连接", "content": "SELECT a.color, b.size FROM colors a CROSS JOIN sizes b;" },
+    { "type": "text", "tips": "三表 JOIN", "content": "SELECT u.name, p.title, o.amount FROM users u JOIN orders o ON u.id = o.user_id JOIN products p ON o.product_id = p.id;" },
+    { "type": "text", "tips": "JOIN 加额外条件", "content": "SELECT u.name, o.amount FROM users u JOIN orders o ON u.id = o.user_id AND o.status = 'paid';" },
+    { "type": "text", "tips": "自连接查询上下级", "content": "SELECT e.name, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;" },
+
+    { "type": "text", "tips": "单行子查询 =", "content": "SELECT * FROM orders WHERE user_id = (SELECT id FROM users WHERE name = 'Tom');" },
+    { "type": "text", "tips": "子查询取最大值", "content": "SELECT * FROM products WHERE price = (SELECT MAX(price) FROM products);" },
+    { "type": "text", "tips": "IN 多行子查询", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE amount > 1000);" },
+    { "type": "text", "tips": "NOT IN 子查询", "content": "SELECT * FROM users WHERE id NOT IN (SELECT user_id FROM orders);" },
+    { "type": "text", "tips": "EXISTS 相关子查询", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "NOT EXISTS 子查询", "content": "SELECT * FROM users u WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "ANY 子查询", "content": "SELECT * FROM products WHERE price > ANY (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "ALL 子查询", "content": "SELECT * FROM products WHERE price > ALL (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "FROM 子句中的子查询", "content": "SELECT t.user_id, t.total FROM (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) t WHERE t.total > 1000;" },
+
+    { "type": "text", "tips": "AND 与 OR 组合", "content": "SELECT * FROM users WHERE age >= 18 AND (city = 'Beijing' OR city = 'Shanghai');" },
+    { "type": "text", "tips": "NOT 取反", "content": "SELECT * FROM users WHERE NOT (status = 'banned' OR status = 'deleted');" },
+    { "type": "text", "tips": "括号控制优先级", "content": "SELECT * FROM orders WHERE (status = 'paid' OR status = 'shipped') AND amount > 100;" },
+    { "type": "text", "tips": "CASE WHEN 在 SELECT 中", "content": "SELECT name, CASE WHEN age < 18 THEN 'minor' WHEN age < 60 THEN 'adult' ELSE 'senior' END AS age_group FROM users;" },
+    { "type": "text", "tips": "CASE WHEN 在 ORDER BY 中", "content": "SELECT * FROM orders ORDER BY CASE status WHEN 'paid' THEN 1 WHEN 'pending' THEN 2 ELSE 3 END;" },
+
+    { "type": "text", "tips": "多字段 GROUP BY", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
+    { "type": "text", "tips": "SUM + CASE 条件计数", "content": "SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count FROM users;" },
+    { "type": "text", "tips": "多状态计数", "content": "SELECT SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) AS paid, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending FROM orders;" },
+    { "type": "text", "tips": "条件求和", "content": "SELECT user_id, SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid_total FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "HAVING 过滤聚合结果", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id HAVING total > 1000 ORDER BY total DESC;" },
+    { "type": "text", "tips": "WITH ROLLUP 小计", "content": "SELECT city, COUNT(*) FROM users GROUP BY city WITH ROLLUP;" },
+
+    { "type": "text", "tips": "多字段排序", "content": "SELECT * FROM orders ORDER BY created_at DESC, amount ASC;" },
+    { "type": "text", "tips": "NULL 排序在最后", "content": "SELECT * FROM users ORDER BY last_login DESC, id ASC;" },
+    { "type": "text", "tips": "LIMIT offset, size", "content": "SELECT * FROM users ORDER BY id LIMIT 20, 10;" },
+    { "type": "text", "tips": "LIMIT OFFSET 写法", "content": "SELECT * FROM users ORDER BY id LIMIT 10 OFFSET 20;" },
+    { "type": "text", "tips": "大表分页优化（基于游标）", "content": "SELECT * FROM users WHERE id > 10000 ORDER BY id ASC LIMIT 20;" },
+    { "type": "text", "tips": "覆盖索引子查询分页", "content": "SELECT * FROM orders o JOIN (SELECT id FROM orders ORDER BY id LIMIT 100000, 20) t ON o.id = t.id;" },
+
+    { "type": "text", "tips": "创建单列索引", "content": "CREATE INDEX idx_users_email ON users(email);" },
+    { "type": "text", "tips": "创建联合索引", "content": "CREATE INDEX idx_orders_user_status ON orders(user_id, status);" },
+    { "type": "text", "tips": "创建唯一索引", "content": "CREATE UNIQUE INDEX uk_users_email ON users(email);" },
+    { "type": "text", "tips": "建表时定义主键索引", "content": "CREATE TABLE logs (id BIGINT PRIMARY KEY AUTO_INCREMENT, content TEXT);" },
+    { "type": "text", "tips": "查看表索引", "content": "SHOW INDEX FROM users;" },
+    { "type": "text", "tips": "删除索引", "content": "DROP INDEX idx_users_email ON users;" },
+
+    { "type": "text", "tips": "EXPLAIN 查看执行计划", "content": "EXPLAIN SELECT * FROM users WHERE email = 'tom@example.com';" },
+    { "type": "text", "tips": "EXPLAIN JOIN 执行计划", "content": "EXPLAIN SELECT u.name FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" },
+    { "type": "text", "tips": "EXPLAIN 分析格式", "content": "EXPLAIN FORMAT=JSON SELECT * FROM orders WHERE user_id = 1;" },
+    { "type": "text", "tips": "ANALYZE 实际执行分析", "content": "EXPLAIN ANALYZE SELECT COUNT(*) FROM orders WHERE created_at > '2026-01-01';" }
+  ]
+}

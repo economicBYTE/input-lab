@@ -60,9 +60,39 @@
     "category": "SQL"
   },
   {
+    "file": "sql-basics.json",
+    "title": "SQL 基础练习",
+    "description": "通过具体示例练习 SQL 基础：查询、过滤、聚合、增删改与数据类型",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-functions.json",
+    "title": "SQL 函数基础",
+    "description": "SQL 常用函数练习：字符串、数值、日期、聚合、条件与类型转换函数的多种写法",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-advanced.json",
+    "title": "SQL 进阶练习",
+    "description": "SQL 进阶：多表 JOIN、子查询、复杂条件、聚合分组、分页优化、索引与 EXPLAIN",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-expert.json",
+    "title": "SQL 高级实战",
+    "description": "SQL 高级：窗口函数、CTE、透视、性能优化、事务与锁、存储过程与触发器",
+    "category": "SQL"
+  },
+  {
     "file": "vscode-shortcuts.json",
     "title": "VSCode 快捷键 (Mac)",
     "description": "VS Code macOS 常用快捷键：编辑、导航、搜索、代码折叠",
+    "category": "快捷键"
+  },
+  {
+    "file": "chrome-mac-shortcuts.json",
+    "title": "Mac Chrome 浏览器快捷键",
+    "description": "macOS Chrome 浏览器常用快捷键：标签页、窗口、功能、地址栏与网页操作",
     "category": "快捷键"
   },
   {
