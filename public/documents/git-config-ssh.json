@@ -7,6 +7,7 @@
     { "type": "text", "tips": "设置全局邮箱", "content": "git config --global user.email \"your_email@example.com\"" },
     { "type": "text", "tips": "设置默认编辑器为vim", "content": "git config --global core.editor \"vim\"" },
     { "type": "text", "tips": "设置默认分支名为main", "content": "git config --global init.defaultBranch main" },
+    { "type": "text", "tips": "设置pull默认使用rebase", "content": "git config --global pull.rebase true" },
     { "type": "text", "tips": "查看所有配置项", "content": "git config --list" },
     { "type": "text", "tips": "查看已有SSH密钥", "content": "ls -al ~/.ssh" },
     { "type": "text", "tips": "生成ed25519 SSH密钥", "content": "ssh-keygen -t ed25519 -C \"your_email@example.com\"" },
