@@ -8,7 +8,7 @@ import { validateDocumentJSON, generateUniqueTitle } from '@/utils/validateDocum
 import type { DocumentJSON } from '@/utils/validateDocument';
 import { categoryService } from '@/services/db';
 import { useT } from '@/locales';
-import { SPEED_TEST_ID, DEFAULT_CHAR_COUNT, MIN_CHAR_COUNT, MAX_CHAR_COUNT } from '@/utils/speedTest';
+import { SPEED_TEST_ID, DEFAULT_CHAR_COUNT, SPEED_TEST_OPTIONS } from '@/utils/speedTest';
 
 // 将 KeyboardEvent.code 格式化为可读标签
 function formatKeyCode(code: string): string {
@@ -156,7 +156,10 @@ export default function DocumentList() {
 
   // 速度测试
   const [speedTestBoost, setSpeedTestBoost] = useState(false);
-  const [speedTestCount, setSpeedTestCount] = useState(DEFAULT_CHAR_COUNT);
+  const [speedTestCount, setSpeedTestCount] = useState(() => {
+    const v = parseInt(localStorage.getItem('speedTestCount') || '', 10);
+    return (SPEED_TEST_OPTIONS as readonly number[]).includes(v) ? v : DEFAULT_CHAR_COUNT;
+  });
 
   // 导入相关
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -514,10 +517,7 @@ export default function DocumentList() {
             value={speedTestCount}
             onChange={(e) => setSpeedTestCount(Number(e.target.value))}
           >
-            {Array.from(
-              { length: (MAX_CHAR_COUNT - MIN_CHAR_COUNT) / 100 + 1 },
-              (_, i) => MIN_CHAR_COUNT + i * 100
-            ).map((n) => (
+            {SPEED_TEST_OPTIONS.map((n) => (
               <option key={n} value={n}>{n}</option>
             ))}
           </select>

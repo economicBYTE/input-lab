@@ -4,7 +4,14 @@ import { practiceRecordService } from '@/services/db';
 export const SPEED_TEST_ID = '__speed-test';
 export const DEFAULT_CHAR_COUNT = 1000;
 export const MIN_CHAR_COUNT = 100;
-export const MAX_CHAR_COUNT = 5000;
+export const MAX_CHAR_COUNT = 8000;
+// 阶梯式可选字数：[100..400] 步进 100，[400..1200] 步进 200，[1200..2400] 步进 400，[2400..8000] 步进 800
+export const SPEED_TEST_OPTIONS = [
+  100, 200, 300, 400,
+  600, 800, 1000, 1200,
+  1600, 2000, 2400,
+  3200, 4000, 4800, 5600, 6400, 7200, 8000,
+] as const;
 const LINE_LENGTH = 50;
 const ERROR_BOOST_PER_CHAR = 15;
 const MAX_ERROR_CHARS = 10;
