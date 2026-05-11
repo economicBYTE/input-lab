@@ -549,7 +549,8 @@ export default function Practice() {
                         className += ' incorrect';
                         // 替换为实际输入字符（控制字符例外，保留目标视觉以维持行布局）
                         if (char !== '\n' && char !== '\t' && typed !== '\n' && typed !== '\t') {
-                          display = typed;
+                          // 空格无可见笔画，红色不可见，用 ␣ 占位以显示错误
+                          display = typed === ' ' ? '_' : typed;
                         }
                       }
                     } else if (localCharIdx === freeTyped.length) {
@@ -586,6 +587,7 @@ export default function Practice() {
                 let display = typed;
                 if (typed === '\n') display = '↵';
                 else if (typed === '\t') display = '→   ';
+                else if (typed === ' ') display = '_';
                 return (
                   <span key={`overflow-${i}`} className="letter incorrect overflow">
                     {display}
