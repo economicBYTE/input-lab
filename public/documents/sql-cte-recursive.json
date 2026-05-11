@@ -1,0 +1,13 @@
+{
+  "title": "SQL CTE 与递归查询 (CTE & Recursive)",
+  "description": "SQL 工作流系列 (13/16)：WITH、多个 CTE、WITH RECURSIVE、序列生成、树结构与层级员工查询",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "CTE 基础用法", "content": "WITH high_value AS (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id HAVING total > 1000) SELECT u.name, h.total FROM users u JOIN high_value h ON u.id = h.user_id;" },
+    { "type": "text", "tips": "多个 CTE 组合", "content": "WITH paid AS (SELECT * FROM orders WHERE status = 'paid'), top_users AS (SELECT user_id, SUM(amount) AS total FROM paid GROUP BY user_id) SELECT * FROM top_users ORDER BY total DESC LIMIT 10;" },
+    { "type": "text", "tips": "递归 CTE 生成序列", "content": "WITH RECURSIVE seq AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM seq WHERE n < 10) SELECT * FROM seq;" },
+    { "type": "text", "tips": "递归 CTE 查询层级结构", "content": "WITH RECURSIVE tree AS (SELECT id, name, parent_id FROM departments WHERE parent_id IS NULL UNION ALL SELECT d.id, d.name, d.parent_id FROM departments d JOIN tree t ON d.parent_id = t.id) SELECT * FROM tree;" },
+    { "type": "text", "tips": "递归查询下属员工", "content": "WITH RECURSIVE subs AS (SELECT id, name, manager_id FROM employees WHERE id = 1 UNION ALL SELECT e.id, e.name, e.manager_id FROM employees e JOIN subs s ON e.manager_id = s.id) SELECT * FROM subs;" }
+  ]
+}

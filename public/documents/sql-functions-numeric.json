@@ -1,6 +1,6 @@
 {
-  "title": "SQL 数值与类型转换函数",
-  "description": "SQL 函数系列 (2/4)：ROUND、CEIL、ABS、POWER 等数值函数与 CAST/CONVERT 类型转换",
+  "title": "SQL 数值与类型转换函数 (Numeric & Cast)",
+  "description": "SQL 工作流系列 (5/16)：ROUND、CEIL、FLOOR、ABS、POWER 等数值函数，以及 CAST/CONVERT 类型转换",
   "category": "SQL",
   "caseInsensitive": true,
   "content": [

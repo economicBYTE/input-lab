@@ -1,0 +1,18 @@
+{
+  "title": "SQL 聚合分组 (Aggregate & Group)",
+  "description": "SQL 工作流系列 (2/16)：COUNT、SUM、AVG、MAX、MIN、GROUP BY 与 HAVING，用于统计和分组报表",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "统计行数", "content": "SELECT COUNT(*) FROM users;" },
+    { "type": "text", "tips": "统计非空列", "content": "SELECT COUNT(email) FROM users;" },
+    { "type": "text", "tips": "求和", "content": "SELECT SUM(amount) FROM orders;" },
+    { "type": "text", "tips": "求平均", "content": "SELECT AVG(price) FROM products;" },
+    { "type": "text", "tips": "最大值与最小值", "content": "SELECT MAX(price), MIN(price) FROM products;" },
+    { "type": "text", "tips": "GROUP BY 分组统计", "content": "SELECT city, COUNT(*) FROM users GROUP BY city;" },
+    { "type": "text", "tips": "GROUP BY 多列", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
+    { "type": "text", "tips": "GROUP BY 求总额", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "HAVING 过滤分组", "content": "SELECT city, COUNT(*) AS c FROM users GROUP BY city HAVING c > 10;" },
+    { "type": "text", "tips": "WHERE 与 HAVING 配合", "content": "SELECT user_id, SUM(amount) AS total FROM orders WHERE status = 'paid' GROUP BY user_id HAVING total > 1000;" }
+  ]
+}

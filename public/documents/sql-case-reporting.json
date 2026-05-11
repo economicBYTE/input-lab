@@ -1,0 +1,19 @@
+{
+  "title": "SQL 条件报表 (CASE & Reporting)",
+  "description": "SQL 工作流系列 (10/16)：复杂布尔条件、CASE WHEN、条件计数、条件求和与 ROLLUP 报表写法",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "AND 与 OR 组合", "content": "SELECT * FROM users WHERE age >= 18 AND (city = 'Beijing' OR city = 'Shanghai');" },
+    { "type": "text", "tips": "NOT 取反", "content": "SELECT * FROM users WHERE NOT (status = 'banned' OR status = 'deleted');" },
+    { "type": "text", "tips": "括号控制优先级", "content": "SELECT * FROM orders WHERE (status = 'paid' OR status = 'shipped') AND amount > 100;" },
+    { "type": "text", "tips": "CASE WHEN 在 SELECT 中", "content": "SELECT name, CASE WHEN age < 18 THEN 'minor' WHEN age < 60 THEN 'adult' ELSE 'senior' END AS age_group FROM users;" },
+    { "type": "text", "tips": "CASE WHEN 在 ORDER BY 中", "content": "SELECT * FROM orders ORDER BY CASE status WHEN 'paid' THEN 1 WHEN 'pending' THEN 2 ELSE 3 END;" },
+    { "type": "text", "tips": "多字段 GROUP BY", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
+    { "type": "text", "tips": "SUM + CASE 条件计数", "content": "SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count FROM users;" },
+    { "type": "text", "tips": "多状态计数", "content": "SELECT SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) AS paid, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending FROM orders;" },
+    { "type": "text", "tips": "条件求和", "content": "SELECT user_id, SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid_total FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "HAVING 过滤聚合结果", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id HAVING total > 1000 ORDER BY total DESC;" },
+    { "type": "text", "tips": "WITH ROLLUP 小计", "content": "SELECT city, COUNT(*) FROM users GROUP BY city WITH ROLLUP;" }
+  ]
+}

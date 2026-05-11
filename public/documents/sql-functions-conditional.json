@@ -1,6 +1,6 @@
 {
-  "title": "SQL 聚合与条件函数",
-  "description": "SQL 函数系列 (4/4)：COUNT/SUM/AVG/MAX/MIN 聚合，以及 IF/CASE/COALESCE 条件函数",
+  "title": "SQL 聚合与条件函数 (Aggregate & Conditional)",
+  "description": "SQL 工作流系列 (7/16)：COUNT/SUM/AVG/MAX/MIN、GROUP_CONCAT，以及 IF/IFNULL/COALESCE/CASE 条件函数",
   "category": "SQL",
   "caseInsensitive": true,
   "content": [

@@ -1,0 +1,18 @@
+{
+  "title": "SQL 写入与建表基础 (DML & DDL)",
+  "description": "SQL 工作流系列 (3/16)：INSERT、UPDATE、DELETE 与 CREATE TABLE 常见字段类型，补齐基础读写闭环",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "插入单条记录", "content": "INSERT INTO users (name, age, email) VALUES ('Tom', 25, 'tom@example.com');" },
+    { "type": "text", "tips": "插入多条记录", "content": "INSERT INTO users (name, age) VALUES ('Alice', 22), ('Bob', 30), ('Carol', 28);" },
+    { "type": "text", "tips": "按条件更新", "content": "UPDATE users SET status = 'active' WHERE id = 1;" },
+    { "type": "text", "tips": "更新多个字段", "content": "UPDATE users SET name = 'Tom', age = 26 WHERE id = 1;" },
+    { "type": "text", "tips": "条件删除(务必带 WHERE)", "content": "DELETE FROM users WHERE id = 1;" },
+    { "type": "text", "tips": "按状态批量删除", "content": "DELETE FROM users WHERE status = 'deleted';" },
+    { "type": "text", "tips": "建表：数字类型", "content": "CREATE TABLE products (id INT PRIMARY KEY, stock INT, price DECIMAL(10,2), rating FLOAT);" },
+    { "type": "text", "tips": "建表：字符类型", "content": "CREATE TABLE users (id INT, code CHAR(8), name VARCHAR(50), bio TEXT);" },
+    { "type": "text", "tips": "建表：日期时间", "content": "CREATE TABLE logs (id INT, log_date DATE, log_time DATETIME, created_at TIMESTAMP);" },
+    { "type": "text", "tips": "建表：布尔字段", "content": "CREATE TABLE users (id INT, is_active TINYINT(1) DEFAULT 1);" }
+  ]
+}

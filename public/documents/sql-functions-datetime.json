@@ -1,6 +1,6 @@
 {
-  "title": "SQL 日期时间函数",
-  "description": "SQL 函数系列 (3/4)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期处理函数",
+  "title": "SQL 日期时间函数 (Date & Time)",
+  "description": "SQL 工作流系列 (6/16)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期时间处理函数",
   "category": "SQL",
   "caseInsensitive": true,
   "content": [

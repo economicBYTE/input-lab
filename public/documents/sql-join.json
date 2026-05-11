@@ -1,0 +1,17 @@
+{
+  "title": "SQL 多表连接 (JOIN)",
+  "description": "SQL 工作流系列 (8/16)：INNER JOIN、LEFT JOIN、RIGHT JOIN、CROSS JOIN、自连接与三表连接",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "INNER JOIN 内连接", "content": "SELECT u.name, o.amount FROM users u INNER JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "INNER JOIN 简写", "content": "SELECT u.name, o.amount FROM users u JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "LEFT JOIN 左连接", "content": "SELECT u.name, o.amount FROM users u LEFT JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "LEFT JOIN 查找无订单用户", "content": "SELECT u.name FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE o.id IS NULL;" },
+    { "type": "text", "tips": "RIGHT JOIN 右连接", "content": "SELECT u.name, o.amount FROM users u RIGHT JOIN orders o ON u.id = o.user_id;" },
+    { "type": "text", "tips": "CROSS JOIN 交叉连接", "content": "SELECT a.color, b.size FROM colors a CROSS JOIN sizes b;" },
+    { "type": "text", "tips": "三表 JOIN", "content": "SELECT u.name, p.title, o.amount FROM users u JOIN orders o ON u.id = o.user_id JOIN products p ON o.product_id = p.id;" },
+    { "type": "text", "tips": "JOIN 加额外条件", "content": "SELECT u.name, o.amount FROM users u JOIN orders o ON u.id = o.user_id AND o.status = 'paid';" },
+    { "type": "text", "tips": "自连接查询上下级", "content": "SELECT e.name, m.name AS manager FROM employees e LEFT JOIN employees m ON e.manager_id = m.id;" }
+  ]
+}

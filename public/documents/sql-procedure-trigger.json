@@ -1,0 +1,15 @@
+{
+  "title": "SQL 存储过程与触发器 (Procedure & Trigger)",
+  "description": "SQL 工作流系列 (16/16)：创建、调用、删除存储过程，以及 INSERT/UPDATE 触发器的基础写法",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "创建简单存储过程", "content": "CREATE PROCEDURE get_user_orders(IN uid INT) BEGIN SELECT * FROM orders WHERE user_id = uid; END;" },
+    { "type": "text", "tips": "带输出参数的存储过程", "content": "CREATE PROCEDURE count_orders(IN uid INT, OUT total INT) BEGIN SELECT COUNT(*) INTO total FROM orders WHERE user_id = uid; END;" },
+    { "type": "text", "tips": "调用存储过程", "content": "CALL get_user_orders(1);" },
+    { "type": "text", "tips": "删除存储过程", "content": "DROP PROCEDURE IF EXISTS get_user_orders;" },
+    { "type": "text", "tips": "创建插入触发器", "content": "CREATE TRIGGER trg_user_log AFTER INSERT ON users FOR EACH ROW INSERT INTO user_logs(user_id, action) VALUES (NEW.id, 'created');" },
+    { "type": "text", "tips": "更新前触发器", "content": "CREATE TRIGGER trg_order_audit BEFORE UPDATE ON orders FOR EACH ROW INSERT INTO order_history(order_id, old_status, new_status) VALUES (OLD.id, OLD.status, NEW.status);" },
+    { "type": "text", "tips": "删除触发器", "content": "DROP TRIGGER IF EXISTS trg_user_log;" }
+  ]
+}

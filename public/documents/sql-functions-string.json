@@ -1,6 +1,6 @@
 {
-  "title": "SQL 字符串函数",
-  "description": "SQL 函数系列 (1/4)：CONCAT、SUBSTRING、TRIM、REPLACE 等字符串处理函数",
+  "title": "SQL 字符串函数 (String Functions)",
+  "description": "SQL 工作流系列 (4/16)：CONCAT、SUBSTRING、TRIM、REPLACE、LPAD/RPAD、INSTR/LOCATE 等字符串处理函数",
   "category": "SQL",
   "caseInsensitive": true,
   "content": [

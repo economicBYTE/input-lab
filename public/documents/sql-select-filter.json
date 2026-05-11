@@ -1,0 +1,32 @@
+{
+  "title": "SQL 查询与过滤 (Select & Filter)",
+  "description": "SQL 工作流系列 (1/16)：SELECT、WHERE、LIKE、IN、BETWEEN、NULL、ORDER BY 与 LIMIT，先掌握最常用查询骨架",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "查询所有列", "content": "SELECT * FROM users;" },
+    { "type": "text", "tips": "查询指定列", "content": "SELECT id, name, email FROM users;" },
+    { "type": "text", "tips": "列起别名", "content": "SELECT name AS user_name, age AS user_age FROM users;" },
+    { "type": "text", "tips": "DISTINCT 去重", "content": "SELECT DISTINCT city FROM users;" },
+    { "type": "text", "tips": "多列组合去重", "content": "SELECT DISTINCT city, country FROM users;" },
+    { "type": "text", "tips": "等值过滤", "content": "SELECT * FROM users WHERE age = 18;" },
+    { "type": "text", "tips": "不等于过滤", "content": "SELECT * FROM users WHERE status <> 'active';" },
+    { "type": "text", "tips": "大于过滤", "content": "SELECT * FROM orders WHERE amount > 100;" },
+    { "type": "text", "tips": "小于等于过滤", "content": "SELECT * FROM orders WHERE amount <= 500;" },
+    { "type": "text", "tips": "AND 多条件", "content": "SELECT * FROM users WHERE age >= 18 AND city = 'Beijing';" },
+    { "type": "text", "tips": "OR 多条件", "content": "SELECT * FROM users WHERE city = 'Beijing' OR city = 'Shanghai';" },
+    { "type": "text", "tips": "LIKE 前缀匹配", "content": "SELECT * FROM users WHERE name LIKE 'Tom%';" },
+    { "type": "text", "tips": "LIKE 包含匹配", "content": "SELECT * FROM products WHERE title LIKE '%phone%';" },
+    { "type": "text", "tips": "IN 集合匹配", "content": "SELECT * FROM users WHERE id IN (1, 2, 3, 5);" },
+    { "type": "text", "tips": "NOT IN 集合排除", "content": "SELECT * FROM users WHERE status NOT IN ('banned', 'deleted');" },
+    { "type": "text", "tips": "BETWEEN 区间过滤", "content": "SELECT * FROM orders WHERE amount BETWEEN 100 AND 500;" },
+    { "type": "text", "tips": "日期区间过滤", "content": "SELECT * FROM orders WHERE created_at BETWEEN '2026-01-01' AND '2026-03-31';" },
+    { "type": "text", "tips": "判断为 NULL", "content": "SELECT * FROM users WHERE email IS NULL;" },
+    { "type": "text", "tips": "判断不为 NULL", "content": "SELECT * FROM users WHERE phone IS NOT NULL;" },
+    { "type": "text", "tips": "升序排序", "content": "SELECT * FROM users ORDER BY age ASC;" },
+    { "type": "text", "tips": "降序排序", "content": "SELECT * FROM orders ORDER BY created_at DESC;" },
+    { "type": "text", "tips": "多列排序", "content": "SELECT * FROM users ORDER BY city ASC, age DESC;" },
+    { "type": "text", "tips": "LIMIT 取前 N 条", "content": "SELECT * FROM users ORDER BY id DESC LIMIT 10;" },
+    { "type": "text", "tips": "LIMIT 分页", "content": "SELECT * FROM users ORDER BY id LIMIT 20 OFFSET 40;" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "SQL 子查询 (Subquery)",
+  "description": "SQL 工作流系列 (9/16)：标量子查询、IN/NOT IN、EXISTS/NOT EXISTS、ANY/ALL 与 FROM 子查询",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "单行子查询 =", "content": "SELECT * FROM orders WHERE user_id = (SELECT id FROM users WHERE name = 'Tom');" },
+    { "type": "text", "tips": "子查询取最大值", "content": "SELECT * FROM products WHERE price = (SELECT MAX(price) FROM products);" },
+    { "type": "text", "tips": "IN 多行子查询", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE amount > 1000);" },
+    { "type": "text", "tips": "NOT IN 子查询", "content": "SELECT * FROM users WHERE id NOT IN (SELECT user_id FROM orders);" },
+    { "type": "text", "tips": "EXISTS 相关子查询", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "NOT EXISTS 子查询", "content": "SELECT * FROM users u WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "ANY 子查询", "content": "SELECT * FROM products WHERE price > ANY (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "ALL 子查询", "content": "SELECT * FROM products WHERE price > ALL (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "FROM 子句中的子查询", "content": "SELECT t.user_id, t.total FROM (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) t WHERE t.total > 1000;" }
+  ]
+}

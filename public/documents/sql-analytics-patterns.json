@@ -1,0 +1,18 @@
+{
+  "title": "SQL 分析查询模式 (Analytics Patterns)",
+  "description": "SQL 工作流系列 (14/16)：EXISTS vs IN、JOIN 替代子查询、透视表、覆盖索引、前缀索引与慢查询分析",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "EXISTS 判断存在(推荐大表)", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id AND o.status = 'paid');" },
+    { "type": "text", "tips": "IN 子查询(小结果集)", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM vip_list);" },
+    { "type": "text", "tips": "JOIN 替代子查询", "content": "SELECT DISTINCT u.* FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" },
+    { "type": "text", "tips": "CASE 实现透视表", "content": "SELECT user_id, SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid, SUM(CASE WHEN status = 'refund' THEN amount ELSE 0 END) AS refund FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "月度统计透视", "content": "SELECT product_id, SUM(CASE WHEN MONTH(created_at) = 1 THEN amount ELSE 0 END) AS jan, SUM(CASE WHEN MONTH(created_at) = 2 THEN amount ELSE 0 END) AS feb FROM orders GROUP BY product_id;" },
+    { "type": "text", "tips": "避免 SELECT *，指定列", "content": "SELECT id, name, email FROM users WHERE status = 'active';" },
+    { "type": "text", "tips": "创建覆盖索引", "content": "CREATE INDEX idx_cover ON orders(user_id, status, amount);" },
+    { "type": "text", "tips": "创建前缀索引", "content": "CREATE INDEX idx_name_prefix ON users(name(10));" },
+    { "type": "text", "tips": "FORCE INDEX 强制走索引", "content": "SELECT * FROM orders FORCE INDEX (idx_user_id) WHERE user_id = 100;" },
+    { "type": "text", "tips": "EXPLAIN 分析慢查询", "content": "EXPLAIN SELECT u.name FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" }
+  ]
+}
