@@ -1,0 +1,22 @@
+{
+  "title": "SQL 数值与类型转换函数",
+  "description": "SQL 函数系列 (2/4)：ROUND、CEIL、ABS、POWER 等数值函数与 CAST/CONVERT 类型转换",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "ROUND 四舍五入", "content": "SELECT ROUND(3.14159);" },
+    { "type": "text", "tips": "ROUND 保留小数位", "content": "SELECT ROUND(3.14159, 2);" },
+    { "type": "text", "tips": "CEIL 向上取整", "content": "SELECT CEIL(3.14);" },
+    { "type": "text", "tips": "FLOOR 向下取整", "content": "SELECT FLOOR(3.99);" },
+    { "type": "text", "tips": "TRUNCATE 截断小数", "content": "SELECT TRUNCATE(3.14159, 2);" },
+    { "type": "text", "tips": "ABS 绝对值", "content": "SELECT ABS(-42);" },
+    { "type": "text", "tips": "MOD 取余", "content": "SELECT MOD(10, 3);" },
+    { "type": "text", "tips": "MOD 运算符写法", "content": "SELECT 10 % 3 AS remainder;" },
+    { "type": "text", "tips": "POWER 幂运算", "content": "SELECT POWER(2, 10);" },
+    { "type": "text", "tips": "SQRT 平方根", "content": "SELECT SQRT(144);" },
+    { "type": "text", "tips": "RAND 随机数", "content": "SELECT RAND();" },
+    { "type": "text", "tips": "CAST 类型转换", "content": "SELECT CAST('123' AS UNSIGNED);" },
+    { "type": "text", "tips": "CAST 转 DECIMAL", "content": "SELECT CAST(price AS DECIMAL(10,2)) FROM products;" },
+    { "type": "text", "tips": "CONVERT 类型转换", "content": "SELECT CONVERT('2026-04-14', DATE);" }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "title": "SQL 字符串函数",
+  "description": "SQL 函数系列 (1/4)：CONCAT、SUBSTRING、TRIM、REPLACE 等字符串处理函数",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "CONCAT 字符串拼接", "content": "SELECT CONCAT('Hello', ' ', 'World') AS greeting;" },
+    { "type": "text", "tips": "CONCAT 拼接列", "content": "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM users;" },
+    { "type": "text", "tips": "CONCAT_WS 指定分隔符拼接", "content": "SELECT CONCAT_WS('-', '2026', '04', '14') AS date_str;" },
+    { "type": "text", "tips": "LENGTH 字节长度", "content": "SELECT LENGTH('hello world');" },
+    { "type": "text", "tips": "CHAR_LENGTH 字符长度", "content": "SELECT CHAR_LENGTH(name) FROM users WHERE id = 1;" },
+    { "type": "text", "tips": "UPPER 转大写", "content": "SELECT UPPER(email) FROM users;" },
+    { "type": "text", "tips": "LOWER 转小写", "content": "SELECT LOWER('HELLO') AS lower_text;" },
+    { "type": "text", "tips": "SUBSTRING 截取从指定位置", "content": "SELECT SUBSTRING('abcdefg', 2);" },
+    { "type": "text", "tips": "SUBSTRING 截取指定长度", "content": "SELECT SUBSTRING('abcdefg', 2, 3);" },
+    { "type": "text", "tips": "SUBSTR 等价写法", "content": "SELECT SUBSTR(name, 1, 3) FROM users;" },
+    { "type": "text", "tips": "LEFT 取左侧字符", "content": "SELECT LEFT('abcdefg', 3);" },
+    { "type": "text", "tips": "RIGHT 取右侧字符", "content": "SELECT RIGHT('abcdefg', 3);" },
+    { "type": "text", "tips": "REPLACE 替换字符串", "content": "SELECT REPLACE('hello world', 'world', 'SQL');" },
+    { "type": "text", "tips": "TRIM 去除两侧空格", "content": "SELECT TRIM('  hello  ');" },
+    { "type": "text", "tips": "LTRIM 去除左侧空格", "content": "SELECT LTRIM('   hello');" },
+    { "type": "text", "tips": "RTRIM 去除右侧空格", "content": "SELECT RTRIM('hello   ');" },
+    { "type": "text", "tips": "LPAD 左侧补齐", "content": "SELECT LPAD('5', 3, '0');" },
+    { "type": "text", "tips": "RPAD 右侧补齐", "content": "SELECT RPAD('abc', 6, '*');" },
+    { "type": "text", "tips": "INSTR 查找子串位置", "content": "SELECT INSTR('hello world', 'world');" },
+    { "type": "text", "tips": "LOCATE 等价写法", "content": "SELECT LOCATE('o', 'hello world', 5);" },
+    { "type": "text", "tips": "REVERSE 字符串反转", "content": "SELECT REVERSE('abcdef');" }
+  ]
+}

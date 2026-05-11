@@ -1,0 +1,23 @@
+{
+  "title": "SQL 日期时间函数",
+  "description": "SQL 函数系列 (3/4)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期处理函数",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "NOW 当前日期时间", "content": "SELECT NOW();" },
+    { "type": "text", "tips": "CURDATE 当前日期", "content": "SELECT CURDATE();" },
+    { "type": "text", "tips": "CURTIME 当前时间", "content": "SELECT CURTIME();" },
+    { "type": "text", "tips": "DATE_FORMAT 格式化日期", "content": "SELECT DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s');" },
+    { "type": "text", "tips": "DATE_FORMAT 自定义格式", "content": "SELECT DATE_FORMAT(created_at, '%Y/%m/%d') FROM orders;" },
+    { "type": "text", "tips": "DATE_ADD 增加天数", "content": "SELECT DATE_ADD(NOW(), INTERVAL 7 DAY);" },
+    { "type": "text", "tips": "DATE_ADD 增加月份", "content": "SELECT DATE_ADD('2026-04-14', INTERVAL 1 MONTH);" },
+    { "type": "text", "tips": "DATE_SUB 减少天数", "content": "SELECT DATE_SUB(CURDATE(), INTERVAL 30 DAY);" },
+    { "type": "text", "tips": "DATEDIFF 相差天数", "content": "SELECT DATEDIFF('2026-12-31', '2026-01-01');" },
+    { "type": "text", "tips": "YEAR 提取年", "content": "SELECT YEAR(created_at) FROM orders;" },
+    { "type": "text", "tips": "MONTH 提取月", "content": "SELECT MONTH('2026-04-14');" },
+    { "type": "text", "tips": "DAY 提取日", "content": "SELECT DAY(NOW());" },
+    { "type": "text", "tips": "EXTRACT 提取部分", "content": "SELECT EXTRACT(YEAR FROM NOW());" },
+    { "type": "text", "tips": "UNIX_TIMESTAMP 转时间戳", "content": "SELECT UNIX_TIMESTAMP('2026-04-14 12:00:00');" },
+    { "type": "text", "tips": "FROM_UNIXTIME 时间戳转日期", "content": "SELECT FROM_UNIXTIME(1700000000);" }
+  ]
+}

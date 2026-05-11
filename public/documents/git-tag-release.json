@@ -1,6 +1,6 @@
 {
-  "title": "Git Tag & Release",
-  "description": "Creating tags, managing releases, and semantic versioning",
+  "title": "Git 标签与发布 (Tag & Release)",
+  "description": "Git 系列发布流程：创建、删除、查看、推送 tag，并练习检出指定版本标签",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "列出所有标签", "content": "git tag" },

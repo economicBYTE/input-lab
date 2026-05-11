@@ -1,6 +1,6 @@
 {
-  "title": "Git Log & Diff",
-  "description": "Viewing commit history, comparing changes, and inspecting code",
+  "title": "Git 历史与差异 (Log & Diff)",
+  "description": "Git 系列代码审查：log/show/diff/blame/shortlog，用于查看历史、定位变更与比较分支",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "查看完整提交日志", "content": "git log" },

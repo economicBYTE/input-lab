@@ -1,6 +1,6 @@
 {
-  "title": "Git Branch & Merge",
-  "description": "Branch creation, switching, merging, rebasing, and cherry-pick",
+  "title": "Git 分支与合并 (Branch & Merge)",
+  "description": "Git 系列分支协作：branch/switch/checkout、merge、rebase、cherry-pick 与分支删除",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "列出本地分支", "content": "git branch" },

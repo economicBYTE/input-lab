@@ -1,6 +1,6 @@
 {
-  "title": "Git Stash & Restore",
-  "description": "Temporarily shelve changes, undo commits, and restore files",
+  "title": "Git 暂存与撤销 (Stash & Restore)",
+  "description": "Git 系列变更恢复：stash、restore、reset、revert、reflog，覆盖临时保存与撤销操作",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "暂存当前工作区修改", "content": "git stash" },

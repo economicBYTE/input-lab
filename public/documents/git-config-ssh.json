@@ -1,6 +1,6 @@
 {
-  "title": "Git Config & SSH Setup",
-  "description": "Git global config, SSH key generation, and GitHub authentication",
+  "title": "Git 配置与 SSH 认证 (Config & SSH)",
+  "description": "Git 系列基础配置：用户名/邮箱、默认编辑器、默认分支、pull rebase、SSH key 与 GitHub 连接测试",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "设置全局用户名", "content": "git config --global user.name \"your_username\"" },

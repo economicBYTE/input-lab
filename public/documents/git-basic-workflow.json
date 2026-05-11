@@ -1,6 +1,6 @@
 {
-  "title": "Git Basic Workflow",
-  "description": "Init, add, commit, push, pull — the daily Git workflow",
+  "title": "Git 日常工作流 (Basic Workflow)",
+  "description": "Git 系列日常高频：init/clone、status/add/commit、remote、push/pull/fetch 等基础协作流程",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "初始化Git仓库", "content": "git init" },

@@ -1,6 +1,6 @@
 {
-  "title": "Git Advanced Operations",
-  "description": "Interactive rebase, submodules, worktrees, bisect, and hooks",
+  "title": "Git 进阶工具 (Advanced Operations)",
+  "description": "Git 系列进阶操作：interactive rebase、bisect、worktree、submodule、clean、hooks 等复杂场景",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "交互式变基最近3次提交", "content": "git rebase -i HEAD~3" },

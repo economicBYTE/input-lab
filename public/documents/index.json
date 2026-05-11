@@ -1,50 +1,56 @@
 [
   {
     "file": "git-commands.json",
-    "title": "Git Quick Reference",
-    "description": "32 essential Git commands for daily work — start here to build muscle memory",
+    "title": "Git 速查总览 (Quick Reference)",
+    "description": "Git 系列总览：覆盖配置、初始化、提交、远程、分支、差异、撤销、stash 与 tag 的高频命令，适合先建立整体手感",
     "category": "Git"
   },
   {
     "file": "git-config-ssh.json",
-    "title": "Git Config & SSH Setup",
-    "description": "Git global config, SSH key generation, and GitHub authentication",
+    "title": "Git 配置与 SSH 认证 (Config & SSH)",
+    "description": "Git 系列基础配置：用户名/邮箱、默认编辑器、默认分支、pull rebase、SSH key 与 GitHub 连接测试",
     "category": "Git"
   },
   {
     "file": "git-basic-workflow.json",
-    "title": "Git Basic Workflow",
-    "description": "Init, add, commit, push, pull — the daily Git workflow",
+    "title": "Git 日常工作流 (Basic Workflow)",
+    "description": "Git 系列日常高频：init/clone、status/add/commit、remote、push/pull/fetch 等基础协作流程",
     "category": "Git"
   },
   {
     "file": "git-branch-merge.json",
-    "title": "Git Branch & Merge",
-    "description": "Branch creation, switching, merging, rebasing, and cherry-pick",
+    "title": "Git 分支与合并 (Branch & Merge)",
+    "description": "Git 系列分支协作：branch/switch/checkout、merge、rebase、cherry-pick 与分支删除",
+    "category": "Git"
+  },
+  {
+    "file": "git-conflict-resolution.json",
+    "title": "Git 冲突解决 (Conflict Resolution)",
+    "description": "Git 系列冲突处理：定位冲突文件、查看 ours/theirs 差异、选择版本、标记解决，并继续或中止 merge/rebase/cherry-pick/revert",
     "category": "Git"
   },
   {
     "file": "git-log-diff.json",
-    "title": "Git Log & Diff",
-    "description": "Viewing commit history, comparing changes, and inspecting code",
+    "title": "Git 历史与差异 (Log & Diff)",
+    "description": "Git 系列代码审查：log/show/diff/blame/shortlog，用于查看历史、定位变更与比较分支",
     "category": "Git"
   },
   {
     "file": "git-stash-restore.json",
-    "title": "Git Stash & Restore",
-    "description": "Temporarily shelve changes, undo commits, and restore files",
+    "title": "Git 暂存与撤销 (Stash & Restore)",
+    "description": "Git 系列变更恢复：stash、restore、reset、revert、reflog，覆盖临时保存与撤销操作",
     "category": "Git"
   },
   {
     "file": "git-tag-release.json",
-    "title": "Git Tag & Release",
-    "description": "Creating tags, managing releases, and semantic versioning",
+    "title": "Git 标签与发布 (Tag & Release)",
+    "description": "Git 系列发布流程：创建、删除、查看、推送 tag，并练习检出指定版本标签",
     "category": "Git"
   },
   {
     "file": "git-advanced.json",
-    "title": "Git Advanced Operations",
-    "description": "Interactive rebase, submodules, worktrees, bisect, and hooks",
+    "title": "Git 进阶工具 (Advanced Operations)",
+    "description": "Git 系列进阶操作：interactive rebase、bisect、worktree、submodule、clean、hooks 等复杂场景",
     "category": "Git"
   },
   {
@@ -66,9 +72,27 @@
     "category": "SQL"
   },
   {
-    "file": "sql-functions.json",
-    "title": "SQL 函数基础",
-    "description": "SQL 常用函数练习：字符串、数值、日期、聚合、条件与类型转换函数的多种写法",
+    "file": "sql-functions-string.json",
+    "title": "SQL 字符串函数",
+    "description": "SQL 函数系列 (1/4)：CONCAT、SUBSTRING、TRIM、REPLACE 等字符串处理函数",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-functions-numeric.json",
+    "title": "SQL 数值与类型转换函数",
+    "description": "SQL 函数系列 (2/4)：ROUND、CEIL、ABS、POWER 等数值函数与 CAST/CONVERT 类型转换",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-functions-datetime.json",
+    "title": "SQL 日期时间函数",
+    "description": "SQL 函数系列 (3/4)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期处理函数",
+    "category": "SQL"
+  },
+  {
+    "file": "sql-functions-conditional.json",
+    "title": "SQL 聚合与条件函数",
+    "description": "SQL 函数系列 (4/4)：COUNT/SUM/AVG/MAX/MIN 聚合，以及 IF/CASE/COALESCE 条件函数",
     "category": "SQL"
   },
   {

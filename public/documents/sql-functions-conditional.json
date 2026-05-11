@@ -1,0 +1,23 @@
+{
+  "title": "SQL 聚合与条件函数",
+  "description": "SQL 函数系列 (4/4)：COUNT/SUM/AVG/MAX/MIN 聚合，以及 IF/CASE/COALESCE 条件函数",
+  "category": "SQL",
+  "caseInsensitive": true,
+  "content": [
+    { "type": "text", "tips": "COUNT 全部行数", "content": "SELECT COUNT(*) FROM users;" },
+    { "type": "text", "tips": "COUNT DISTINCT 去重计数", "content": "SELECT COUNT(DISTINCT city) FROM users;" },
+    { "type": "text", "tips": "SUM 条件求和", "content": "SELECT SUM(amount) FROM orders WHERE status = 'paid';" },
+    { "type": "text", "tips": "AVG 平均值保留2位", "content": "SELECT ROUND(AVG(price), 2) FROM products;" },
+    { "type": "text", "tips": "MAX 最大值", "content": "SELECT MAX(created_at) FROM logs;" },
+    { "type": "text", "tips": "MIN 最小值", "content": "SELECT MIN(price) FROM products;" },
+    { "type": "text", "tips": "GROUP_CONCAT 分组拼接", "content": "SELECT user_id, GROUP_CONCAT(tag) FROM user_tags GROUP BY user_id;" },
+    { "type": "text", "tips": "GROUP_CONCAT 自定义分隔符", "content": "SELECT GROUP_CONCAT(name SEPARATOR ' | ') FROM users;" },
+    { "type": "text", "tips": "IF 条件判断", "content": "SELECT IF(age >= 18, 'adult', 'minor') FROM users;" },
+    { "type": "text", "tips": "IFNULL 空值替换", "content": "SELECT IFNULL(email, 'unknown') FROM users;" },
+    { "type": "text", "tips": "NULLIF 相等返回NULL", "content": "SELECT NULLIF(score, 0) FROM exams;" },
+    { "type": "text", "tips": "COALESCE 多值取首个非空", "content": "SELECT COALESCE(nickname, name, 'guest') FROM users;" },
+    { "type": "text", "tips": "CASE WHEN 简单判断", "content": "SELECT CASE WHEN age < 18 THEN 'minor' ELSE 'adult' END FROM users;" },
+    { "type": "text", "tips": "CASE WHEN 多分支", "content": "SELECT CASE WHEN score >= 90 THEN 'A' WHEN score >= 60 THEN 'B' ELSE 'C' END FROM exams;" },
+    { "type": "text", "tips": "CASE 字段匹配", "content": "SELECT CASE status WHEN 1 THEN 'active' WHEN 0 THEN 'inactive' ELSE 'unknown' END FROM users;" }
+  ]
+}

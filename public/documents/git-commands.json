@@ -1,6 +1,6 @@
 {
-  "title": "Git Quick Reference",
-  "description": "32 essential Git commands for daily work — start here to build muscle memory",
+  "title": "Git 速查总览 (Quick Reference)",
+  "description": "Git 系列总览：覆盖配置、初始化、提交、远程、分支、差异、撤销、stash 与 tag 的高频命令，适合先建立整体手感",
   "category": "Git",
   "content": [
     { "type": "text", "tips": "设置全局用户名", "content": "git config --global user.name \"your_name\"" },
