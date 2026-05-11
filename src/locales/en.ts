@@ -14,6 +14,7 @@ const en: Record<LocaleKeys, string> = {
   'doc.defaultCategory': 'default',
   'doc.emptyHint': 'no documents yet — click "+ new" to add practice content',
   'doc.recommendedDocs': 'recommended documents',
+  'doc.allCategories': 'all',
   'doc.adding': 'adding...',
   'doc.add': 'add',
   'doc.renamedTo': 'added as: {title}',

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useCategoryStore } from '@/stores/categoryStore';
@@ -138,14 +138,9 @@ export default function DocumentList() {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [confirmDeleteCategoryId, setConfirmDeleteCategoryId] = useState<string | null>(null);
 
-  // 分类折叠状态
-  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('collapsedCategories') || '{}');
-    } catch {
-      return {};
-    }
-  });
+  // 已添加文档分类筛选：null = 全部，'__uncategorized' = 未分类，其他 = categoryId
+  const UNCATEGORIZED_KEY = '__uncategorized';
+  const [selectedDocCategory, setSelectedDocCategory] = useState<string | null>(null);
 
   // 预置文档
   const [presetIndex, setPresetIndex] = useState<PresetIndex[]>([]);
@@ -153,6 +148,33 @@ export default function DocumentList() {
   const [importingPreset, setImportingPreset] = useState<string | null>(null);
   const [renamedPreset, setRenamedPreset] = useState<{ file: string; newTitle: string } | null>(null);
   const [highlightDocId, setHighlightDocId] = useState<string | null>(null);
+  // 推荐文档分类筛选：null = 全部
+  const [selectedPresetCategory, setSelectedPresetCategory] = useState<string | null>(null);
+
+  // 推荐文档分类列表（保留 index.json 首次出现的顺序，附计数）
+  const presetCategories = useMemo(() => {
+    const order: string[] = [];
+    const counts = new Map<string, number>();
+    for (const p of presetIndex) {
+      const cat = p.category ?? '';
+      if (!cat) continue;
+      if (!counts.has(cat)) order.push(cat);
+      counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    }
+    return order.map((name) => ({ name, count: counts.get(name)! }));
+  }, [presetIndex]);
+
+  // 按分类排序 + 应用筛选
+  const visiblePresets = useMemo(() => {
+    const orderMap = new Map(presetCategories.map((c, i) => [c.name, i]));
+    const sorted = [...presetIndex].sort((a, b) => {
+      const ao = orderMap.get(a.category ?? '') ?? Infinity;
+      const bo = orderMap.get(b.category ?? '') ?? Infinity;
+      return ao - bo;
+    });
+    if (selectedPresetCategory === null) return sorted;
+    return sorted.filter((p) => p.category === selectedPresetCategory);
+  }, [presetIndex, presetCategories, selectedPresetCategory]);
 
   // 速度测试
   const [speedTestBoost, setSpeedTestBoost] = useState(false);
@@ -179,14 +201,34 @@ export default function DocumentList() {
       .catch(() => {});
   }, []);
 
-  // 持久化折叠状态
-  useEffect(() => {
-    localStorage.setItem('collapsedCategories', JSON.stringify(collapsedCategories));
-  }, [collapsedCategories]);
+  // 已添加文档：分类查找表（用于卡片角标显示分类名）
+  const categoryNameMap = useMemo(
+    () => new Map(categories.map((c) => [c.id, c.name])),
+    [categories]
+  );
 
-  const toggleCollapse = (key: string) => {
-    setCollapsedCategories((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  // 各分类下的文档计数
+  const docCategoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    let uncategorized = 0;
+    for (const d of documents) {
+      if (d.categoryId && categoryNameMap.has(d.categoryId)) {
+        counts.set(d.categoryId, (counts.get(d.categoryId) ?? 0) + 1);
+      } else {
+        uncategorized += 1;
+      }
+    }
+    return { byCategory: counts, uncategorized };
+  }, [documents, categoryNameMap]);
+
+  // 应用筛选
+  const filteredDocuments = useMemo(() => {
+    if (selectedDocCategory === null) return documents;
+    if (selectedDocCategory === UNCATEGORIZED_KEY) {
+      return documents.filter((d) => !d.categoryId || !categoryNameMap.has(d.categoryId));
+    }
+    return documents.filter((d) => d.categoryId === selectedDocCategory);
+  }, [documents, selectedDocCategory, categoryNameMap]);
 
   // ---- 文档 CRUD ----
 
@@ -417,30 +459,6 @@ export default function DocumentList() {
     }
   };
 
-  // ---- 分组文档 ----
-
-  const groupedDocuments = () => {
-    const groups: { id: string; name: string; docs: Document[] }[] = [];
-
-    // 按分类分组
-    for (const cat of categories) {
-      const docs = documents.filter((d) => d.categoryId === cat.id);
-      if (docs.length > 0) {
-        groups.push({ id: cat.id, name: cat.name, docs });
-      }
-    }
-
-    // 未分类
-    const uncategorized = documents.filter(
-      (d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)
-    );
-    if (uncategorized.length > 0) {
-      groups.push({ id: '__uncategorized', name: t('doc.defaultCategory'), docs: uncategorized });
-    }
-
-    return groups;
-  };
-
   if (loading) {
     return (
       <div className="center-container">
@@ -448,9 +466,6 @@ export default function DocumentList() {
       </div>
     );
   }
-
-  const groups = groupedDocuments();
-  const hasCategories = categories.length > 0;
 
   return (
     <div className="document-list">
@@ -473,29 +488,52 @@ export default function DocumentList() {
         </div>
       </div>
 
-      {/* 分类管理栏 */}
-      <div className="category-bar">
-        <div className="category-tags">
-          {categories.map((cat) => (
-            <span key={cat.id} className="category-tag" onClick={() => toggleCollapse(cat.id)}>
-              {cat.name}
-              <span className="category-tag-arrow">{collapsedCategories[cat.id] ? '▸' : '▾'}</span>
-            </span>
-          ))}
-          {documents.some((d) => !d.categoryId || !categories.some((c) => c.id === d.categoryId)) && (
-            <span className="category-tag" onClick={() => toggleCollapse('__uncategorized')}>
-              {t('doc.defaultCategory')}
-              <span className="category-tag-arrow">{collapsedCategories['__uncategorized'] ? '▸' : '▾'}</span>
-            </span>
-          )}
+      {/* 分类筛选栏 */}
+      {documents.length > 0 && (
+        <div className="category-bar">
+          <div className="filter-bar">
+            <button
+              type="button"
+              className={`filter-tag${selectedDocCategory === null ? ' active' : ''}`}
+              onClick={() => setSelectedDocCategory(null)}
+            >
+              {t('doc.allCategories')}
+              <span className="filter-count">{documents.length}</span>
+            </button>
+            {categories.map((cat) => {
+              const n = docCategoryCounts.byCategory.get(cat.id) ?? 0;
+              if (n === 0) return null;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`filter-tag${selectedDocCategory === cat.id ? ' active' : ''}`}
+                  onClick={() => setSelectedDocCategory(cat.id)}
+                >
+                  {cat.name}
+                  <span className="filter-count">{n}</span>
+                </button>
+              );
+            })}
+            {docCategoryCounts.uncategorized > 0 && (
+              <button
+                type="button"
+                className={`filter-tag${selectedDocCategory === UNCATEGORIZED_KEY ? ' active' : ''}`}
+                onClick={() => setSelectedDocCategory(UNCATEGORIZED_KEY)}
+              >
+                {t('doc.defaultCategory')}
+                <span className="filter-count">{docCategoryCounts.uncategorized}</span>
+              </button>
+            )}
+          </div>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => { setShowCategoryModal(true); setCategoryName(''); setEditingCategoryId(null); }}
+          >
+            {t('category.manage')}
+          </button>
         </div>
-        <button
-          className="btn btn-secondary btn-sm"
-          onClick={() => { setShowCategoryModal(true); setCategoryName(''); setEditingCategoryId(null); }}
-        >
-          {t('category.manage')}
-        </button>
-      </div>
+      )}
 
       {/* 速度测试入口 */}
       <div className="speed-test-bar">
@@ -538,49 +576,14 @@ export default function DocumentList() {
         <div className="document-empty">
           {t('doc.emptyHint')}
         </div>
-      ) : hasCategories ? (
-        // 分组显示
-        <div className="document-groups">
-          {groups.map((group) => (
-            <div key={group.id} className="document-group">
-              <div
-                className="document-group-header"
-                onClick={() => toggleCollapse(group.id)}
-              >
-                <span className="document-group-arrow">
-                  {collapsedCategories[group.id] ? '▸' : '▾'}
-                </span>
-                <span className="document-group-name">{group.name}</span>
-                <span className="document-group-count">{group.docs.length}</span>
-              </div>
-              {!collapsedCategories[group.id] && (
-                <div className="document-grid">
-                  {group.docs.map((doc) => (
-                    <DocumentCard
-                      key={doc.id}
-                      doc={doc}
-                      categories={categories}
-                      confirmDeleteId={confirmDeleteId}
-                      isNew={highlightDocId === doc.id}
-                      onNavigate={(id) => navigate(`/practice/${id}`)}
-                      onEdit={openEdit}
-                      onDelete={handleDelete}
-                      onCategoryChange={handleCategoryChange}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
       ) : (
-        // 无分类时平铺显示
         <div className="document-grid">
-          {documents.map((doc) => (
+          {filteredDocuments.map((doc) => (
             <DocumentCard
               key={doc.id}
               doc={doc}
               categories={categories}
+              categoryName={doc.categoryId ? categoryNameMap.get(doc.categoryId) : undefined}
               confirmDeleteId={confirmDeleteId}
               isNew={highlightDocId === doc.id}
               onNavigate={(id) => navigate(`/practice/${id}`)}
@@ -604,14 +607,38 @@ export default function DocumentList() {
             </span>
           </div>
           {showPresets && (
-            <div className="preset-grid">
-              {presetIndex.map((preset) => (
+            <>
+              {presetCategories.length > 0 && (
+                <div className="filter-bar">
+                  <button
+                    type="button"
+                    className={`filter-tag${selectedPresetCategory === null ? ' active' : ''}`}
+                    onClick={() => setSelectedPresetCategory(null)}
+                  >
+                    {t('doc.allCategories')}
+                    <span className="filter-count">{presetIndex.length}</span>
+                  </button>
+                  {presetCategories.map((cat) => (
+                    <button
+                      key={cat.name}
+                      type="button"
+                      className={`filter-tag${selectedPresetCategory === cat.name ? ' active' : ''}`}
+                      onClick={() => setSelectedPresetCategory(cat.name)}
+                    >
+                      {cat.name}
+                      <span className="filter-count">{cat.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="preset-grid">
+                {visiblePresets.map((preset) => (
                   <div key={preset.file} className="preset-card">
                     <div className="preset-card-title">{preset.title}</div>
-                    <div className="preset-card-desc">{preset.description}</div>
                     {preset.category && (
-                      <div className="preset-card-category">{preset.category}</div>
+                      <span className="card-badge">{preset.category}</span>
                     )}
+                    <div className="preset-card-desc">{preset.description}</div>
                     <div className="preset-card-bottom">
                       {renamedPreset?.file === preset.file && (
                         <span className="preset-renamed-tip">
@@ -630,7 +657,8 @@ export default function DocumentList() {
                     </div>
                   </div>
                 ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -877,6 +905,7 @@ export default function DocumentList() {
 function DocumentCard({
   doc,
   categories,
+  categoryName,
   confirmDeleteId,
   isNew,
   onNavigate,
@@ -886,6 +915,7 @@ function DocumentCard({
 }: {
   doc: Document;
   categories: { id: string; name: string }[];
+  categoryName?: string;
   confirmDeleteId: string | null;
   isNew?: boolean;
   onNavigate: (id: string) => void;
@@ -908,6 +938,9 @@ function DocumentCard({
   return (
     <div ref={cardRef} className={`document-card${isNew ? ' document-card-new' : ''}`} onClick={() => onNavigate(doc.id)}>
       <div className="document-card-title">{doc.title}</div>
+      {categoryName && (
+        <span className="card-badge">{categoryName}</span>
+      )}
       {doc.description && (
         <div className="document-card-desc">{doc.description}</div>
       )}

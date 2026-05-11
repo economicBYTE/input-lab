@@ -12,6 +12,7 @@ const zh = {
   'doc.defaultCategory': '默认',
   'doc.emptyHint': '还没有文档 — 点击 "+ 新建" 添加练习内容',
   'doc.recommendedDocs': '推荐文档',
+  'doc.allCategories': '全部',
   'doc.adding': '添加中...',
   'doc.add': '添加',
   'doc.renamedTo': '已添加，重命名为: {title}',
