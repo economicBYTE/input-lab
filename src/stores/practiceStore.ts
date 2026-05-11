@@ -108,9 +108,19 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
       const pos = newTyped.length - 1;
       const targetAtPos = text[pos] ?? '';
       const matchedHere = pos < text.length && eqChar(char, targetAtPos, caseInsensitive);
+      const isMistake = !matchedHere;
 
-      // 完成条件：已输入长度等于目标长度且全部正确
-      if (newTyped.length === text.length && matchedHere && !freeHasError(state.freeTyped, text, caseInsensitive)) {
+      // 完成条件：输入长度达到目标长度即完成（中间错字计入统计，由结果页呈现）
+      if (newTyped.length === text.length) {
+        // 收集本 item 的错字位置写入 errorDetails，供结果页与错字加权使用
+        const newDetails = [...errorDetails];
+        for (let i = 0; i < text.length; i++) {
+          const typed = newTyped[i]!;
+          const expected = text[i]!;
+          if (!eqChar(typed, expected, caseInsensitive)) {
+            newDetails.push({ expected, actual: [typed], position: currentItemIndex });
+          }
+        }
         const newItemIndex = currentItemIndex + 1;
         set({
           currentItemIndex: newItemIndex,
@@ -118,13 +128,14 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
           freeTyped: [],
           isError: false,
           totalKeystrokes: state.totalKeystrokes + 1,
+          errorCount: isMistake ? state.errorCount + 1 : state.errorCount,
+          errorDetails: newDetails,
           startTime,
         });
         return newItemIndex >= items.length;
       }
 
       // 未完成：写入缓冲，按需累计错误
-      const isMistake = !matchedHere;
       set({
         freeTyped: newTyped,
         currentCharIndex: newTyped.length,
