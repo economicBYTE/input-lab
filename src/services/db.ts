@@ -133,7 +133,7 @@ export function initSampleData(): Promise<void> {
     {
       title: 'Welcome to TypePractice',
       description: 'Get started with TypePractice',
-      content: [{ type: 'text', content: 'Welcome to TypePractice!\nBuild muscle memory for technical commands.\nImport your own documents or browse recommended ones.\nStart typing to begin your practice journey.\nGit, SQL, JavaScript and more - master them all!' }],
+      content: [{ type: 'text', content: 'Welcome to TypePractice!\nBuild muscle memory for technical commands.\nImport your own documents or browse recommended ones.' }],
     },
   ];
 

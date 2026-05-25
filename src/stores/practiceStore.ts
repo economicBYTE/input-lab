@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PracticeState, ContentItem, InputMode } from '@/types';
+import type { PracticeState, ContentItem, InputMode, ErrorDetail } from '@/types';
 
 const INPUT_MODE_KEY = 'practice.inputMode';
 
@@ -112,13 +112,13 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
       // 完成条件：输入长度达到目标长度即完成（中间错字计入统计，由结果页呈现）
       if (newTyped.length === text.length) {
-        // 收集本 item 的错字位置写入 errorDetails，供结果页与错字加权使用
+        // 收集本 item 残留的错字位置写入 errorDetails（已被 Backspace 修正的错字已在 handleBackspace 中记录）
         const newDetails = [...errorDetails];
         for (let i = 0; i < text.length; i++) {
           const typed = newTyped[i]!;
           const expected = text[i]!;
           if (!eqChar(typed, expected, caseInsensitive)) {
-            newDetails.push({ expected, actual: [typed], position: currentItemIndex });
+            newDetails.push({ expected, actual: [typed], position: currentItemIndex, charIndex: i });
           }
         }
         const newItemIndex = currentItemIndex + 1;
@@ -153,7 +153,12 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
 
     if (isError) {
       if (charMatch) {
-        const detail = { expected: targetChar, actual: currentErrorActual, position: currentItemIndex };
+        const detail: ErrorDetail = {
+          expected: targetChar,
+          actual: currentErrorActual,
+          position: currentItemIndex,
+          charIndex: currentCharIndex,
+        };
         const newCharIndex = currentCharIndex + 1;
         if (newCharIndex >= text.length) {
           // 当前 text item 完成，前进到下一个 item
@@ -179,8 +184,10 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
         });
         return false;
       }
+      // Strict 模式连续错按：每次都计入错误次数，与 Free 模式口径一致
       set({
         totalKeystrokes: state.totalKeystrokes + 1,
+        errorCount: state.errorCount + 1,
         startTime,
         currentErrorActual: [...currentErrorActual, char],
       });
@@ -228,12 +235,32 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
     if (state.freeTyped.length === 0) return;
 
     const text = item.content as string;
+    const lastIndex = state.freeTyped.length - 1;
+    const typedChar = state.freeTyped[lastIndex]!;
+    const isOverflow = lastIndex >= text.length;
+    const expectedChar = isOverflow ? '' : text[lastIndex]!;
+    // 溢出位置一律视为错字；正常位置按字符比对判断
+    const wasMistake = isOverflow || !eqChar(typedChar, expectedChar, state.caseInsensitive);
+
     const newTyped = state.freeTyped.slice(0, -1);
-    set({
+    const updates: Partial<PracticeState> = {
       freeTyped: newTyped,
       currentCharIndex: newTyped.length,
       isError: freeHasError(newTyped, text, state.caseInsensitive),
-    });
+    };
+
+    if (wasMistake) {
+      // 修正前先记录错字详情，避免完成时回扫只看残留导致修正过的错字丢失
+      const detail: ErrorDetail = {
+        expected: expectedChar,
+        actual: [typedChar],
+        position: state.currentItemIndex,
+        charIndex: lastIndex,
+      };
+      updates.errorDetails = [...state.errorDetails, detail];
+    }
+
+    set(updates);
   },
 
   handleKeyDown: (code) => {
@@ -271,8 +298,10 @@ export const usePracticeStore = create<PracticeStore>((set, get) => ({
           currentErrorActual: [code],
         });
       } else {
+        // 已处于错误态又按下新的非目标键：每次都计入错误次数
         set({
           pressedKeys: newPressedKeys,
+          errorCount: state.errorCount + 1,
           totalKeystrokes: state.totalKeystrokes + 1,
           startTime,
           currentErrorActual: [...currentErrorActual, code],

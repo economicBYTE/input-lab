@@ -353,6 +353,8 @@ export default function Practice() {
     if (globalCharIndex !== prevGlobalRef.current) {
       prevGlobalRef.current = globalCharIndex;
       setScrollOffsetPx(0);
+      // 打字推进时取消未决的回弹计时，避免多余的 state 写入
+      clearTimeout(scrollReturnTimerRef.current);
     }
   }, [globalCharIndex]);
 
@@ -376,12 +378,14 @@ export default function Practice() {
   }, [getBaseLineHeightPx]);
 
   // 使用原生事件监听器注册 wheel，以便 passive: false 允许 preventDefault
+  // 依赖 items.length 是必须的：loading 阶段早返回会让 wrapperRef 为 null，
+  // items 加载完后需要再跑一次才能拿到 wrapper 元素并完成注册
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     wrapper.addEventListener('wheel', handleWheel, { passive: false });
     return () => wrapper.removeEventListener('wheel', handleWheel);
-  }, [handleWheel]);
+  }, [handleWheel, items.length]);
 
   useEffect(() => {
     return () => clearTimeout(scrollReturnTimerRef.current);

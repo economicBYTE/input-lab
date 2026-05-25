@@ -28,7 +28,8 @@ export interface Document {
 export interface ErrorDetail {
   expected: string;
   actual: string[];
-  position: number; // itemIndex
+  position: number;     // itemIndex
+  charIndex?: number;   // text item 内的字符位置（Free/Strict 文本错误才有；keypress 错误无此字段）
 }
 
 // 练习记录（持久化）
