@@ -4,8 +4,8 @@ import { practiceRecordService } from '@/services/db';
 export const ERROR_PRACTICE_ID = '__error-practice';
 
 const LINE_LENGTH = 50;
-const REPEAT_PER_CHAR = 20;       // 每个错字基础重复次数
-const WEIGHT_MULTIPLIER = 2;      // 错误次数额外加权
+const REPEAT_PER_CHAR = 4;        // 每个错字基础重复次数
+const WEIGHT_MULTIPLIER = 1;      // 错误次数额外加权
 const STORAGE_KEY = 'errorPractice.config';
 
 export interface ErrorCharStat {
