@@ -39,6 +39,10 @@
     { "type": "text", "tips": "重置网页缩放 (浏览器快捷键，文字输入练习)", "content": "Cmd + 0" },
     { "type": "text", "tips": "刷新当前页 (浏览器快捷键，文字输入练习)", "content": "Cmd + R" },
     { "type": "text", "tips": "强制刷新（忽略缓存）(浏览器快捷键，文字输入练习)", "content": "Cmd + Shift + R" },
+    { "type": "text", "tips": "后退到上一页 (浏览器快捷键，文字输入练习)", "content": "Cmd + [" },
+    { "type": "text", "tips": "前进到下一页 (浏览器快捷键，文字输入练习)", "content": "Cmd + ]" },
+    { "type": "text", "tips": "后退到上一页(方向键) (浏览器快捷键，文字输入练习)", "content": "Cmd + Left" },
+    { "type": "text", "tips": "前进到下一页(方向键) (浏览器快捷键，文字输入练习)", "content": "Cmd + Right" },
     { "type": "text", "tips": "停止加载网页 (浏览器快捷键，文字输入练习)", "content": "Esc" },
     { "type": "text", "tips": "撰写包含网页链接的电子邮件 (浏览器快捷键，文字输入练习)", "content": "Cmd + Shift + I" }
   ]
