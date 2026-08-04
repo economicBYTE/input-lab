@@ -77,6 +77,7 @@ const zh = {
   'practice.errors': '错误',
   'practice.progress': '进度',
   'practice.caseInsensitive': '忽略大小写',
+  'practice.caseInsensitive.tip': '开启后大小写不计错；选择会按文档记在本机',
   'practice.mode.strict': '严格模式',
   'practice.mode.free': '文档模式',
   'practice.mode.tip': '速度：错字不前进 / 文档：错字标红需 Backspace 删除',

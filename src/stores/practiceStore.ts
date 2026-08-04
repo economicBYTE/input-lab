@@ -1,16 +1,22 @@
 import { create } from 'zustand';
 import type { PracticeState, ContentItem, InputMode, ErrorDetail } from '@/types';
-
-const INPUT_MODE_KEY = 'practice.inputMode';
-
-function loadInputMode(): InputMode {
-  if (typeof localStorage === 'undefined') return 'free';
-  // 默认为 free（文档模式）；仅当显式存储为 strict 时使用 strict（速度模式）
-  return localStorage.getItem(INPUT_MODE_KEY) === 'strict' ? 'strict' : 'free';
-}
+import {
+  loadPracticePrefs,
+  savePracticePrefs,
+  loadGlobalInputMode,
+  saveGlobalInputMode,
+} from '@/utils/practicePrefs';
 
 function eqChar(a: string, b: string, caseInsensitive: boolean): boolean {
   return caseInsensitive ? a.toLowerCase() === b.toLowerCase() : a === b;
+}
+
+// free 模式缓冲中「从头连续正确」的字符数，用于切到 strict 时定位续打点
+function correctPrefixLength(typed: string[], target: string, caseInsensitive: boolean): number {
+  const max = Math.min(typed.length, target.length);
+  let i = 0;
+  while (i < max && eqChar(typed[i]!, target[i]!, caseInsensitive)) i++;
+  return i;
 }
 
 // 判断 free 模式当前 typed 序列是否仍存在错误（不匹配字符或溢出）
@@ -69,20 +75,62 @@ const initialState: PracticeState = {
 export const usePracticeStore = create<PracticeStore>((set, get) => ({
   ...initialState,
   caseInsensitive: false,
-  inputMode: loadInputMode(),
+  inputMode: loadGlobalInputMode(),
 
-  setCaseInsensitive: (value) => set({ caseInsensitive: value }),
+  setCaseInsensitive: (value) => {
+    const state = get();
+    if (state.documentId) {
+      savePracticePrefs(state.documentId, { caseInsensitive: value });
+    }
+    // free 模式下缓冲里的错字判定会随规则变化，需重算错误态
+    const item = state.items[state.currentItemIndex];
+    const isError =
+      state.inputMode === 'free' && item?.type === 'text'
+        ? freeHasError(state.freeTyped, item.content as string, value)
+        : state.isError;
+    set({ caseInsensitive: value, isError });
+  },
 
   setInputMode: (mode) => {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(INPUT_MODE_KEY, mode);
+    const state = get();
+    if (state.inputMode === mode) return;
+
+    saveGlobalInputMode(mode); // 未记忆过的文档沿用最近一次选择
+    if (state.documentId) {
+      savePracticePrefs(state.documentId, { inputMode: mode });
     }
-    // 切换模式时清除当前 item 的错误/缓冲，避免状态错乱
-    set({ inputMode: mode, isError: false, currentErrorActual: [], freeTyped: [] });
+
+    // 切换模式时清除当前 item 的错误态，并把进度换算到另一模式的表示
+    const updates: Partial<PracticeStore> = {
+      inputMode: mode,
+      isError: false,
+      currentErrorActual: [],
+      freeTyped: [],
+    };
+    const item = state.items[state.currentItemIndex];
+    if (item?.type === 'text') {
+      const text = item.content as string;
+      if (mode === 'free') {
+        // strict 的进度全部是正确字符，用目标文本前缀填充缓冲，避免光标回跳到行首
+        updates.freeTyped = text.slice(0, state.currentCharIndex).split('');
+      } else {
+        // 切到 strict：错字与溢出无法表示，从第一个错字处续打
+        updates.currentCharIndex = correctPrefixLength(state.freeTyped, text, state.caseInsensitive);
+      }
+    }
+    set(updates);
   },
 
   init: (documentId, items, options) => {
-    set({ ...initialState, documentId, items, caseInsensitive: options?.caseInsensitive ?? false });
+    // 优先级：本机按文档记忆 > 文档自带默认值 > 全局默认
+    const prefs = loadPracticePrefs(documentId);
+    set({
+      ...initialState,
+      documentId,
+      items,
+      caseInsensitive: prefs.caseInsensitive ?? options?.caseInsensitive ?? false,
+      inputMode: prefs.inputMode ?? loadGlobalInputMode(),
+    });
   },
 
   currentItemType: () => {

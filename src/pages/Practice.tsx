@@ -701,7 +701,7 @@ export default function Practice() {
             {t('practice.mode.strict')}
           </button>
         </div>
-        <div className="toggle-group">
+        <div className="toggle-group" title={t('practice.caseInsensitive.tip')}>
           <button
             type="button"
             className={`toggle-btn ${caseInsensitive ? 'active' : ''}`}

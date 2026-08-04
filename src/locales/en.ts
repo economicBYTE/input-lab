@@ -79,6 +79,7 @@ const en: Record<LocaleKeys, string> = {
   'practice.errors': 'errors',
   'practice.progress': 'progress',
   'practice.caseInsensitive': 'Ignore Case',
+  'practice.caseInsensitive.tip': 'Case differences are not counted as errors; remembered per document on this device',
   'practice.mode.strict': 'Speed',
   'practice.mode.free': 'Document',
   'practice.mode.tip': 'Speed: cannot advance on error / Document: error chars stay until Backspace',

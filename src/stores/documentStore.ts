@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Document } from '@/types';
 import { documentService, initSampleData } from '@/services/db';
+import { clearPracticePrefs } from '@/utils/practicePrefs';
 
 interface DocumentStore {
   documents: Document[];
@@ -35,6 +36,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
   deleteDocument: async (id) => {
     await documentService.delete(id);
+    clearPracticePrefs(id); // 文档已删除，本机练习偏好一并清理
+
     await get().fetchDocuments();
   },
 }));
