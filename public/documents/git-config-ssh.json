@@ -3,17 +3,17 @@
   "description": "Git 系列基础配置：用户名/邮箱、默认编辑器、默认分支、pull rebase、SSH key 与 GitHub 连接测试",
   "category": "Git",
   "content": [
-    { "type": "text", "tips": "设置全局用户名", "content": "git config --global user.name \"your_username\"" },
-    { "type": "text", "tips": "设置全局邮箱", "content": "git config --global user.email \"your_email@example.com\"" },
-    { "type": "text", "tips": "设置默认编辑器为vim", "content": "git config --global core.editor \"vim\"" },
-    { "type": "text", "tips": "设置默认分支名为main", "content": "git config --global init.defaultBranch main" },
-    { "type": "text", "tips": "设置pull默认使用rebase", "content": "git config --global pull.rebase true" },
-    { "type": "text", "tips": "查看所有配置项", "content": "git config --list" },
-    { "type": "text", "tips": "查看已有SSH密钥", "content": "ls -al ~/.ssh" },
-    { "type": "text", "tips": "生成ed25519 SSH密钥", "content": "ssh-keygen -t ed25519 -C \"your_email@example.com\"" },
-    { "type": "text", "tips": "启动SSH代理", "content": "eval \"$(ssh-agent -s)\"" },
-    { "type": "text", "tips": "将私钥添加到SSH代理", "content": "ssh-add ~/.ssh/id_ed25519" },
-    { "type": "text", "tips": "查看公钥(复制到GitHub)", "content": "cat ~/.ssh/id_ed25519.pub" },
-    { "type": "text", "tips": "测试GitHub SSH连接", "content": "ssh -T git@github.com" }
+    { "type": "text", "tips": "设置全局用户名为 tom", "content": "git config --global user.name \"tom\"" },
+    { "type": "text", "tips": "设置全局邮箱为 tom@a.com", "content": "git config --global user.email \"tom@a.com\"" },
+    { "type": "text", "tips": "设置全局默认编辑器为 vim", "content": "git config --global core.editor \"vim\"" },
+    { "type": "text", "tips": "设置全局默认分支名为 main", "content": "git config --global init.defaultBranch main" },
+    { "type": "text", "tips": "全局设置 pull 默认走 rebase", "content": "git config --global pull.rebase true" },
+    { "type": "text", "tips": "列出所有配置项", "content": "git config --list" },
+    { "type": "text", "tips": "查看 ~/.ssh 下已有密钥（含隐藏文件）", "content": "ls -al ~/.ssh" },
+    { "type": "text", "tips": "生成 ed25519 密钥，备注 tom@a.com", "content": "ssh-keygen -t ed25519 -C \"tom@a.com\"" },
+    { "type": "text", "tips": "启动 ssh-agent 并导入环境变量", "content": "eval \"$(ssh-agent -s)\"" },
+    { "type": "text", "tips": "把私钥 ~/.ssh/id_ed25519 加入 ssh-agent", "content": "ssh-add ~/.ssh/id_ed25519" },
+    { "type": "text", "tips": "打印公钥 ~/.ssh/id_ed25519.pub", "content": "cat ~/.ssh/id_ed25519.pub" },
+    { "type": "text", "tips": "测试与 github.com 的 SSH 连接", "content": "ssh -T git@github.com" }
   ]
 }

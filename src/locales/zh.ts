@@ -81,6 +81,23 @@ const zh = {
   'practice.mode.strict': '严格模式',
   'practice.mode.free': '文档模式',
   'practice.mode.tip': '速度：错字不前进 / 文档：错字标红需 Backspace 删除',
+  'practice.present.flow': '跟打',
+  'practice.present.qa': '问答',
+  'practice.present.tip': '跟打：答案始终可见照着打 / 问答：只给问题，凭记忆默写后回车提交',
+
+  // qa
+  'qa.answer': '答案',
+  'qa.peek': '查看答案',
+  'qa.noQuestion': '（本条没有提示，直接输入答案）',
+  'qa.pressPrompt': '按下快捷键…',
+  'qa.hint.text': 'Enter 提交 · 按住 Tab 查看答案',
+  'qa.hint.retryText': '答错了 — 照着答案打对一遍再继续',
+  'qa.hint.keypress': '直接按下对应快捷键 · 点住「查看答案」可提示',
+  'qa.hint.retryKeys': '按错了 — 按下正确的组合键再继续',
+  'qa.accuracy': '首答正确',
+  'qa.peeked': '提示',
+  'qa.result.items': '答对',
+  'qa.result.missed': '首答未通过 ({count})',
 
   // result
   'result.title': '练习完成',

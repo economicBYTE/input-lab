@@ -83,6 +83,23 @@ const en: Record<LocaleKeys, string> = {
   'practice.mode.strict': 'Speed',
   'practice.mode.free': 'Document',
   'practice.mode.tip': 'Speed: cannot advance on error / Document: error chars stay until Backspace',
+  'practice.present.flow': 'Follow',
+  'practice.present.qa': 'Recall',
+  'practice.present.tip': 'Follow: answer always visible / Recall: question only, type from memory and press Enter',
+
+  // qa
+  'qa.answer': 'answer',
+  'qa.peek': 'reveal answer',
+  'qa.noQuestion': '(no prompt for this item — type the answer)',
+  'qa.pressPrompt': 'press the shortcut…',
+  'qa.hint.text': 'Enter to submit · hold Tab to reveal',
+  'qa.hint.retryText': 'wrong — type it correctly once to continue',
+  'qa.hint.keypress': 'press the shortcut · hold "reveal answer" for a hint',
+  'qa.hint.retryKeys': 'wrong — press the correct combination to continue',
+  'qa.accuracy': 'first try',
+  'qa.peeked': 'revealed',
+  'qa.result.items': 'correct',
+  'qa.result.missed': 'missed on first try ({count})',
 
   // result
   'result.title': 'practice complete',

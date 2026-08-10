@@ -3,19 +3,19 @@
   "description": "Git 系列变更恢复：stash、restore、reset、revert、reflog，覆盖临时保存与撤销操作",
   "category": "Git",
   "content": [
-    { "type": "text", "tips": "暂存当前工作区修改", "content": "git stash" },
-    { "type": "text", "tips": "暂存并包含未跟踪文件", "content": "git stash push -u -m \"temp build\"" },
-    { "type": "text", "tips": "列出所有暂存记录", "content": "git stash list" },
-    { "type": "text", "tips": "恢复最近暂存并删除记录", "content": "git stash pop" },
-    { "type": "text", "tips": "恢复指定暂存(保留记录)", "content": "git stash apply stash@{0}" },
-    { "type": "text", "tips": "删除指定暂存记录", "content": "git stash drop stash@{0}" },
-    { "type": "text", "tips": "清除所有暂存记录", "content": "git stash clear" },
-    { "type": "text", "tips": "丢弃工作区文件修改", "content": "git restore src/index.ts" },
-    { "type": "text", "tips": "取消暂存(从暂存区移出)", "content": "git restore --staged src/index.ts" },
-    { "type": "text", "tips": "撤销最近提交(保留修改)", "content": "git reset HEAD~1" },
-    { "type": "text", "tips": "软重置(修改回到暂存区)", "content": "git reset --soft HEAD~1" },
-    { "type": "text", "tips": "硬重置(丢弃所有修改)", "content": "git reset --hard HEAD~1" },
-    { "type": "text", "tips": "创建反向提交来撤销变更", "content": "git revert abc1234" },
-    { "type": "text", "tips": "查看所有操作历史(可恢复)", "content": "git reflog" }
+    { "type": "text", "tips": "把当前修改存进 stash", "content": "git stash" },
+    { "type": "text", "tips": "存 stash 并带上未跟踪文件，备注 tmp", "content": "git stash push -u -m \"tmp\"" },
+    { "type": "text", "tips": "列出所有 stash 记录", "content": "git stash list" },
+    { "type": "text", "tips": "恢复最近的 stash 并删除该记录", "content": "git stash pop" },
+    { "type": "text", "tips": "恢复 stash@{0} 但保留记录", "content": "git stash apply stash@{0}" },
+    { "type": "text", "tips": "删除 stash@{0} 这条记录", "content": "git stash drop stash@{0}" },
+    { "type": "text", "tips": "清空所有 stash 记录", "content": "git stash clear" },
+    { "type": "text", "tips": "丢弃 a.ts 的工作区修改", "content": "git restore a.ts" },
+    { "type": "text", "tips": "把 a.ts 从暂存区移出（用 restore）", "content": "git restore --staged a.ts" },
+    { "type": "text", "tips": "撤销上一个提交，改动留在工作区", "content": "git reset HEAD~1" },
+    { "type": "text", "tips": "软重置到上一个提交（改动留在暂存区）", "content": "git reset --soft HEAD~1" },
+    { "type": "text", "tips": "硬重置到上一个提交（改动全丢弃）", "content": "git reset --hard HEAD~1" },
+    { "type": "text", "tips": "创建反向提交撤销 abc123", "content": "git revert abc123" },
+    { "type": "text", "tips": "查看 HEAD 的全部移动记录（用于找回提交）", "content": "git reflog" }
   ]
 }

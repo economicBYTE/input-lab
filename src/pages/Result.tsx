@@ -4,6 +4,7 @@ import { usePracticeStore } from '@/stores/practiceStore';
 import { practiceRecordService, documentService } from '@/services/db';
 import { getTotalChars } from '@/types';
 import { useT } from '@/locales';
+import { formatKeyCode } from '@/utils/keycode';
 import { SPEED_TEST_ID } from '@/utils/speedTest';
 import {
   ERROR_PRACTICE_ID,
@@ -24,10 +25,20 @@ export default function Result() {
     errorCount,
     totalKeystrokes,
     errorDetails,
+    presentMode,
+    itemResults,
     reset,
   } = usePracticeStore();
 
+  const isQA = presentMode === 'qa';
   const totalChars = getTotalChars(items);
+
+  const firstTryCount = itemResults.filter((r) => r.firstTryCorrect).length;
+  const peekedCount = itemResults.filter((r) => r.peeked).length;
+  const qaAccuracy =
+    itemResults.length > 0 ? Math.round((firstTryCount / itemResults.length) * 100) : 0;
+  // 首次没答对的题（含看过答案的）——这就是下一轮该重点练的内容
+  const missedItems = itemResults.filter((r) => !r.firstTryCorrect);
 
   const [endTime] = useState(() => Date.now());
   const duration = startTime ? endTime - startTime : 0;
@@ -57,9 +68,12 @@ export default function Result() {
         kpm,
         errorRate,
         errorDetails,
+        presentMode,
+        // 题级结果只在问答模式下产生，跟打模式存空数组没有意义
+        ...(presentMode === 'qa' ? { itemResults } : {}),
       });
     }
-  }, [documentId, startTime, endTime, totalChars, errorCount, kpm, errorRate, errorDetails]);
+  }, [documentId, startTime, endTime, totalChars, errorCount, kpm, errorRate, errorDetails, presentMode, itemResults]);
 
   const handleRetry = () => {
     reset();
@@ -115,22 +129,71 @@ export default function Result() {
               {minutes}:{seconds.toString().padStart(2, '0')}
             </div>
           </div>
-          <div className="result-stat">
-            <div className="result-stat-label">{t('result.kpm')}</div>
-            <div className="result-stat-value">{kpm}</div>
-          </div>
-          <div className="result-stat">
-            <div className="result-stat-label">{t('result.errors')}</div>
-            <div className="result-stat-value">
-              {errorRate}
-              <span className="unit">%</span>
+          {isQA ? (
+            <>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('qa.accuracy')}</div>
+                <div className="result-stat-value">
+                  {qaAccuracy}
+                  <span className="unit">%</span>
+                </div>
+              </div>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('qa.result.items')}</div>
+                <div className="result-stat-value">
+                  {firstTryCount}
+                  <span className="unit">/{itemResults.length}</span>
+                </div>
+              </div>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('qa.peeked')}</div>
+                <div className="result-stat-value">{peekedCount}</div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('result.kpm')}</div>
+                <div className="result-stat-value">{kpm}</div>
+              </div>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('result.errors')}</div>
+                <div className="result-stat-value">
+                  {errorRate}
+                  <span className="unit">%</span>
+                </div>
+              </div>
+              <div className="result-stat">
+                <div className="result-stat-label">{t('result.chars')}</div>
+                <div className="result-stat-value">{totalChars}</div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {isQA && missedItems.length > 0 && (
+          <div className="result-errors">
+            <div className="result-errors-title">
+              {t('qa.result.missed', { count: missedItems.length })}
+            </div>
+            <div className="qa-missed-list">
+              {missedItems.map((r) => {
+                const item = items[r.itemIndex];
+                if (!item) return null;
+                return (
+                  <div key={r.itemKey + r.itemIndex} className="qa-missed-item">
+                    <span className="qa-missed-q">{item.tips}</span>
+                    <span className="qa-missed-a">
+                      {item.type === 'keypress'
+                        ? (item.content as string[]).map(formatKeyCode).join(' + ')
+                        : (item.content as string)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div className="result-stat">
-            <div className="result-stat-label">{t('result.chars')}</div>
-            <div className="result-stat-value">{totalChars}</div>
-          </div>
-        </div>
+        )}
 
         {errorDetails.length > 0 && (
           <div className="result-errors">

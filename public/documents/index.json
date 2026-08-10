@@ -1,194 +1,34 @@
 [
-  {
-    "file": "git-commands.json",
-    "title": "Git 速查总览 (Quick Reference)",
-    "description": "Git 系列总览：覆盖配置、初始化、提交、远程、分支、差异、撤销、stash 与 tag 的高频命令，适合先建立整体手感",
-    "category": "Git"
-  },
-  {
-    "file": "git-config-ssh.json",
-    "title": "Git 配置与 SSH 认证 (Config & SSH)",
-    "description": "Git 系列基础配置：用户名/邮箱、默认编辑器、默认分支、pull rebase、SSH key 与 GitHub 连接测试",
-    "category": "Git"
-  },
-  {
-    "file": "git-basic-workflow.json",
-    "title": "Git 日常工作流 (Basic Workflow)",
-    "description": "Git 系列日常高频：init/clone、status/add/commit、remote、push/pull/fetch 等基础协作流程",
-    "category": "Git"
-  },
-  {
-    "file": "git-branch-merge.json",
-    "title": "Git 分支与合并 (Branch & Merge)",
-    "description": "Git 系列分支协作：branch/switch/checkout、merge、rebase、cherry-pick 与分支删除",
-    "category": "Git"
-  },
-  {
-    "file": "git-conflict-resolution.json",
-    "title": "Git 冲突解决 (Conflict Resolution)",
-    "description": "Git 系列冲突处理：定位冲突文件、查看 ours/theirs 差异、选择版本、标记解决，并继续或中止 merge/rebase/cherry-pick/revert",
-    "category": "Git"
-  },
-  {
-    "file": "git-log-diff.json",
-    "title": "Git 历史与差异 (Log & Diff)",
-    "description": "Git 系列代码审查：log/show/diff/blame/shortlog，用于查看历史、定位变更与比较分支",
-    "category": "Git"
-  },
-  {
-    "file": "git-stash-restore.json",
-    "title": "Git 暂存与撤销 (Stash & Restore)",
-    "description": "Git 系列变更恢复：stash、restore、reset、revert、reflog，覆盖临时保存与撤销操作",
-    "category": "Git"
-  },
-  {
-    "file": "git-tag-release.json",
-    "title": "Git 标签与发布 (Tag & Release)",
-    "description": "Git 系列发布流程：创建、删除、查看、推送 tag，并练习检出指定版本标签",
-    "category": "Git"
-  },
-  {
-    "file": "git-advanced.json",
-    "title": "Git 进阶工具 (Advanced Operations)",
-    "description": "Git 系列进阶操作：interactive rebase、bisect、worktree、submodule、clean、hooks 等复杂场景",
-    "category": "Git"
-  },
-  {
-    "file": "js-array-methods.json",
-    "title": "JavaScript 数组方法",
-    "description": "JS 数组常用操作方法",
-    "category": "JavaScript"
-  },
-  {
-    "file": "sql-select-filter.json",
-    "title": "SQL 查询与过滤 (Select & Filter)",
-    "description": "SQL 工作流系列 (1/16)：SELECT、WHERE、LIKE、IN、BETWEEN、NULL、ORDER BY 与 LIMIT，先掌握最常用查询骨架",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-aggregate-group.json",
-    "title": "SQL 聚合分组 (Aggregate & Group)",
-    "description": "SQL 工作流系列 (2/16)：COUNT、SUM、AVG、MAX、MIN、GROUP BY 与 HAVING，用于统计和分组报表",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-dml-ddl-basics.json",
-    "title": "SQL 写入与建表基础 (DML & DDL)",
-    "description": "SQL 工作流系列 (3/16)：INSERT、UPDATE、DELETE 与 CREATE TABLE 常见字段类型，补齐基础读写闭环",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-functions-string.json",
-    "title": "SQL 字符串函数 (String Functions)",
-    "description": "SQL 工作流系列 (4/16)：CONCAT、SUBSTRING、TRIM、REPLACE、LPAD/RPAD、INSTR/LOCATE 等字符串处理函数",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-functions-numeric.json",
-    "title": "SQL 数值与类型转换函数 (Numeric & Cast)",
-    "description": "SQL 工作流系列 (5/16)：ROUND、CEIL、FLOOR、ABS、POWER 等数值函数，以及 CAST/CONVERT 类型转换",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-functions-datetime.json",
-    "title": "SQL 日期时间函数 (Date & Time)",
-    "description": "SQL 工作流系列 (6/16)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期时间处理函数",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-functions-conditional.json",
-    "title": "SQL 聚合与条件函数 (Aggregate & Conditional)",
-    "description": "SQL 工作流系列 (7/16)：COUNT/SUM/AVG/MAX/MIN、GROUP_CONCAT，以及 IF/IFNULL/COALESCE/CASE 条件函数",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-join.json",
-    "title": "SQL 多表连接 (JOIN)",
-    "description": "SQL 工作流系列 (8/16)：INNER JOIN、LEFT JOIN、RIGHT JOIN、CROSS JOIN、自连接与三表连接",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-subquery.json",
-    "title": "SQL 子查询 (Subquery)",
-    "description": "SQL 工作流系列 (9/16)：标量子查询、IN/NOT IN、EXISTS/NOT EXISTS、ANY/ALL 与 FROM 子查询",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-case-reporting.json",
-    "title": "SQL 条件报表 (CASE & Reporting)",
-    "description": "SQL 工作流系列 (10/16)：复杂布尔条件、CASE WHEN、条件计数、条件求和与 ROLLUP 报表写法",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-index-explain.json",
-    "title": "SQL 索引与执行计划 (Index & EXPLAIN)",
-    "description": "SQL 工作流系列 (11/16)：排序分页、游标分页、索引创建与维护、EXPLAIN 执行计划分析",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-window-functions.json",
-    "title": "SQL 窗口函数 (Window Functions)",
-    "description": "SQL 工作流系列 (12/16)：ROW_NUMBER、RANK、DENSE_RANK、SUM/AVG OVER、LAG、LEAD 与 NTILE",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-cte-recursive.json",
-    "title": "SQL CTE 与递归查询 (CTE & Recursive)",
-    "description": "SQL 工作流系列 (13/16)：WITH、多个 CTE、WITH RECURSIVE、序列生成、树结构与层级员工查询",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-analytics-patterns.json",
-    "title": "SQL 分析查询模式 (Analytics Patterns)",
-    "description": "SQL 工作流系列 (14/16)：EXISTS vs IN、JOIN 替代子查询、透视表、覆盖索引、前缀索引与慢查询分析",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-transaction-lock.json",
-    "title": "SQL 事务与锁 (Transaction & Lock)",
-    "description": "SQL 工作流系列 (15/16)：事务开启、提交、回滚、保存点、隔离级别、悲观锁、共享锁与乐观锁更新",
-    "category": "SQL"
-  },
-  {
-    "file": "sql-procedure-trigger.json",
-    "title": "SQL 存储过程与触发器 (Procedure & Trigger)",
-    "description": "SQL 工作流系列 (16/16)：创建、调用、删除存储过程，以及 INSERT/UPDATE 触发器的基础写法",
-    "category": "SQL"
-  },
-  {
-    "file": "vscode-shortcuts.json",
-    "title": "VSCode 快捷键 (Mac)",
-    "description": "VS Code macOS 常用快捷键：编辑、导航、搜索、代码折叠",
-    "category": "快捷键"
-  },
-  {
-    "file": "chrome-mac-shortcuts.json",
-    "title": "Mac Chrome 浏览器快捷键",
-    "description": "macOS Chrome 浏览器常用快捷键：标签页、窗口、功能、地址栏与网页操作",
-    "category": "快捷键"
-  },
-  {
-    "file": "mac-shortcuts.json",
-    "title": "Mac 常用快捷键",
-    "description": "macOS 系统级快捷键：窗口管理、文件操作、截屏、导航等",
-    "category": "快捷键"
-  },
-  {
-    "file": "linux-commands.json",
-    "title": "Linux 常用命令 (Common Commands)",
-    "description": "Linux/Ubuntu 服务器日常运维高频命令:文件操作、进程端口、服务管理、SSH 与 Docker",
-    "category": "Linux"
-  },
-  {
-    "file": "claude-code-commands.json",
-    "title": "Claude Code CLI Commands",
-    "description": "Claude Code CLI core commands and essential flags for daily use",
-    "category": "Claude Code"
-  },
-  {
-    "file": "claude-code-skills.json",
-    "title": "Claude Code Skills & Shortcuts",
-    "description": "Claude Code slash commands, skills, and keyboard shortcuts",
-    "category": "Claude Code"
-  }
+  { "file": "git-commands.json", "title": "Git 速查总览 (Quick Reference)", "description": "Git 系列总览：覆盖配置、初始化、提交、远程、分支、差异、撤销、stash 与 tag 的高频命令，适合先建立整体手感", "category": "Git" },
+  { "file": "git-config-ssh.json", "title": "Git 配置与 SSH 认证 (Config & SSH)", "description": "Git 系列基础配置：用户名/邮箱、默认编辑器、默认分支、pull rebase、SSH key 与 GitHub 连接测试", "category": "Git" },
+  { "file": "git-basic-workflow.json", "title": "Git 日常工作流 (Basic Workflow)", "description": "Git 系列日常高频：init/clone、status/add/commit、remote、push/pull/fetch 等基础协作流程", "category": "Git" },
+  { "file": "git-branch-merge.json", "title": "Git 分支与合并 (Branch & Merge)", "description": "Git 系列分支协作：branch/switch/checkout、merge、rebase、cherry-pick 与分支删除", "category": "Git" },
+  { "file": "git-conflict-resolution.json", "title": "Git 冲突解决 (Conflict Resolution)", "description": "Git 系列冲突处理：定位冲突文件、查看 ours/theirs 差异、选择版本、标记解决，并继续或中止 merge/rebase/cherry-pick/revert", "category": "Git" },
+  { "file": "git-log-diff.json", "title": "Git 历史与差异 (Log & Diff)", "description": "Git 系列代码审查：log/show/diff/blame/shortlog，用于查看历史、定位变更与比较分支", "category": "Git" },
+  { "file": "git-stash-restore.json", "title": "Git 暂存与撤销 (Stash & Restore)", "description": "Git 系列变更恢复：stash、restore、reset、revert、reflog，覆盖临时保存与撤销操作", "category": "Git" },
+  { "file": "git-tag-release.json", "title": "Git 标签与发布 (Tag & Release)", "description": "Git 系列发布流程：创建、删除、查看、推送 tag，并练习检出指定版本标签", "category": "Git" },
+  { "file": "git-advanced.json", "title": "Git 进阶工具 (Advanced Operations)", "description": "Git 系列进阶操作：interactive rebase、bisect、worktree、submodule、clean、hooks 等复杂场景", "category": "Git" },
+  { "file": "js-array-methods.json", "title": "JavaScript 数组方法", "description": "JS 数组常用操作方法。回调统一用箭头函数，数组变量名统一为 arr", "category": "JavaScript" },
+  { "file": "sql-select-filter.json", "title": "SQL 查询与过滤 (Select & Filter)", "description": "SQL 工作流系列 (1/16)：SELECT、WHERE、LIKE、IN、BETWEEN、NULL、ORDER BY 与 LIMIT，先掌握最常用查询骨架", "category": "SQL" },
+  { "file": "sql-aggregate-group.json", "title": "SQL 聚合分组 (Aggregate & Group)", "description": "SQL 工作流系列 (2/16)：COUNT、SUM、AVG、MAX、MIN、GROUP BY 与 HAVING，用于统计和分组报表", "category": "SQL" },
+  { "file": "sql-dml-ddl-basics.json", "title": "SQL 写入与建表基础 (DML & DDL)", "description": "SQL 工作流系列 (3/16)：INSERT、UPDATE、DELETE 与 CREATE TABLE 常见字段类型，补齐基础读写闭环", "category": "SQL" },
+  { "file": "sql-functions-string.json", "title": "SQL 字符串函数 (String Functions)", "description": "SQL 工作流系列 (4/16)：CONCAT、SUBSTRING、TRIM、REPLACE、LPAD/RPAD、INSTR/LOCATE 等字符串处理函数", "category": "SQL" },
+  { "file": "sql-functions-numeric.json", "title": "SQL 数值与类型转换函数 (Numeric & Cast)", "description": "SQL 工作流系列 (5/16)：ROUND、CEIL、FLOOR、ABS、POWER 等数值函数，以及 CAST/CONVERT 类型转换", "category": "SQL" },
+  { "file": "sql-functions-datetime.json", "title": "SQL 日期时间函数 (Date & Time)", "description": "SQL 工作流系列 (6/16)：NOW、DATE_FORMAT、DATE_ADD、YEAR/MONTH、UNIX_TIMESTAMP 等日期时间处理函数", "category": "SQL" },
+  { "file": "sql-functions-conditional.json", "title": "SQL 聚合与条件函数 (Aggregate & Conditional)", "description": "SQL 工作流系列 (7/16)：COUNT/SUM/AVG/MAX/MIN、GROUP_CONCAT，以及 IF/IFNULL/COALESCE/CASE 条件函数", "category": "SQL" },
+  { "file": "sql-join.json", "title": "SQL 多表连接 (JOIN)", "description": "SQL 工作流系列 (8/16)：INNER JOIN、LEFT JOIN、RIGHT JOIN、CROSS JOIN、自连接与三表连接。表别名统一用 users u、orders o、products p", "category": "SQL" },
+  { "file": "sql-subquery.json", "title": "SQL 子查询 (Subquery)", "description": "SQL 工作流系列 (9/16)：标量子查询、IN/NOT IN、EXISTS/NOT EXISTS、ANY/ALL 与 FROM 子查询", "category": "SQL" },
+  { "file": "sql-case-reporting.json", "title": "SQL 条件报表 (CASE & Reporting)", "description": "SQL 工作流系列 (10/16)：复杂布尔条件、CASE WHEN、条件计数、条件求和与 ROLLUP 报表写法", "category": "SQL" },
+  { "file": "sql-index-explain.json", "title": "SQL 索引与执行计划 (Index & EXPLAIN)", "description": "SQL 工作流系列 (11/16)：排序分页、游标分页、索引创建与维护、EXPLAIN 执行计划分析", "category": "SQL" },
+  { "file": "sql-window-functions.json", "title": "SQL 窗口函数 (Window Functions)", "description": "SQL 工作流系列 (12/16)：ROW_NUMBER、RANK、DENSE_RANK、SUM/AVG OVER、LAG、LEAD 与 NTILE", "category": "SQL" },
+  { "file": "sql-cte-recursive.json", "title": "SQL CTE 与递归查询 (CTE & Recursive)", "description": "SQL 工作流系列 (13/16)：WITH、多个 CTE、WITH RECURSIVE、序列生成、树结构与层级员工查询", "category": "SQL" },
+  { "file": "sql-analytics-patterns.json", "title": "SQL 分析查询模式 (Analytics Patterns)", "description": "SQL 工作流系列 (14/16)：EXISTS vs IN、JOIN 替代子查询、透视表、覆盖索引、前缀索引与慢查询分析", "category": "SQL" },
+  { "file": "sql-transaction-lock.json", "title": "SQL 事务与锁 (Transaction & Lock)", "description": "SQL 工作流系列 (15/16)：事务开启、提交、回滚、保存点、隔离级别、悲观锁、共享锁与乐观锁更新", "category": "SQL" },
+  { "file": "sql-procedure-trigger.json", "title": "SQL 存储过程与触发器 (Procedure & Trigger)", "description": "SQL 工作流系列 (16/16)：创建、调用、删除存储过程，以及 INSERT/UPDATE 触发器的基础写法", "category": "SQL" },
+  { "file": "vscode-shortcuts.json", "title": "VSCode 快捷键 (Mac)", "description": "VS Code macOS 常用快捷键：编辑、导航、搜索、代码折叠。少数被系统或浏览器占用的组合以文字形式练习，统一写成「Cmd + Shift + N」这种形式，修饰键按 Cmd / Shift / Option / Ctrl 的顺序书写；其余条目直接按键作答", "category": "快捷键" },
+  { "file": "chrome-mac-shortcuts.json", "title": "Mac Chrome 浏览器快捷键", "description": "macOS Chrome 常用快捷键：标签页、窗口、地址栏与网页操作。这些组合键浏览器拦截不到，所以全部以文字形式练习，统一写成「Cmd + T」这种「按键 + 按键」形式，修饰键按 Cmd / Shift / Option / Ctrl 的顺序书写", "category": "快捷键" },
+  { "file": "mac-shortcuts.json", "title": "Mac 常用快捷键", "description": "macOS 系统与访达快捷键：窗口管理、文件操作、截屏、导航。系统拦截不到的组合以文字形式练习，统一写成「Cmd + Shift + 3」这种形式，修饰键按 Cmd / Shift / Option / Ctrl 的顺序书写；其余条目直接按键作答", "category": "快捷键" },
+  { "file": "linux-commands.json", "title": "Linux 常用命令 (Common Commands)", "description": "Linux/Ubuntu 服务器日常运维高频命令：文件操作、进程端口、服务管理、SSH 与 Docker", "category": "Linux" },
+  { "file": "claude-code-commands.json", "title": "Claude Code CLI Commands", "description": "Claude Code CLI core commands and essential flags for daily use", "category": "Claude Code" },
+  { "file": "claude-code-skills.json", "title": "Claude Code Skills & Shortcuts", "description": "Claude Code 斜杠命令、技能与交互式会话快捷键。斜杠命令带 / 前缀；快捷键类条目统一写成 Ctrl + O 这种「按键 + 按键」形式", "category": "Claude Code" }
 ]

@@ -4,15 +4,15 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "统计行数", "content": "SELECT COUNT(*) FROM users;" },
-    { "type": "text", "tips": "统计非空列", "content": "SELECT COUNT(email) FROM users;" },
-    { "type": "text", "tips": "求和", "content": "SELECT SUM(amount) FROM orders;" },
-    { "type": "text", "tips": "求平均", "content": "SELECT AVG(price) FROM products;" },
-    { "type": "text", "tips": "最大值与最小值", "content": "SELECT MAX(price), MIN(price) FROM products;" },
-    { "type": "text", "tips": "GROUP BY 分组统计", "content": "SELECT city, COUNT(*) FROM users GROUP BY city;" },
-    { "type": "text", "tips": "GROUP BY 多列", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
-    { "type": "text", "tips": "GROUP BY 求总额", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id;" },
-    { "type": "text", "tips": "HAVING 过滤分组", "content": "SELECT city, COUNT(*) AS c FROM users GROUP BY city HAVING c > 10;" },
-    { "type": "text", "tips": "WHERE 与 HAVING 配合", "content": "SELECT user_id, SUM(amount) AS total FROM orders WHERE status = 'paid' GROUP BY user_id HAVING total > 1000;" }
+    { "type": "text", "tips": "统计 users 的总行数", "content": "SELECT COUNT(*) FROM users;" },
+    { "type": "text", "tips": "统计 users 中 email 非空的行数", "content": "SELECT COUNT(email) FROM users;" },
+    { "type": "text", "tips": "求 orders 的 amount 总和", "content": "SELECT SUM(amount) FROM orders;" },
+    { "type": "text", "tips": "求 products 的 price 平均值", "content": "SELECT AVG(price) FROM products;" },
+    { "type": "text", "tips": "一次查出 products 的 price 最大值和最小值", "content": "SELECT MAX(price), MIN(price) FROM products;" },
+    { "type": "text", "tips": "users 按 city 分组，输出 city 和该组行数", "content": "SELECT city, COUNT(*) FROM users GROUP BY city;" },
+    { "type": "text", "tips": "users 按 city、status 两列分组，输出这两列和行数", "content": "SELECT city, status, COUNT(*) FROM users GROUP BY city, status;" },
+    { "type": "text", "tips": "orders 按 user_id 分组求 amount 总和，别名 total", "content": "SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "users 按 city 分组统计行数别名 c，只留 c 大于 10 的组", "content": "SELECT city, COUNT(*) AS c FROM users GROUP BY city HAVING c > 10;" },
+    { "type": "text", "tips": "orders 取 status 为 paid，按 user_id 分组求 amount 和别名 total，只留 total 大于 1000", "content": "SELECT user_id, SUM(amount) AS total FROM orders WHERE status = 'paid' GROUP BY user_id HAVING total > 1000;" }
   ]
 }

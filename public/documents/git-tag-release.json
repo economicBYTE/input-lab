@@ -4,14 +4,14 @@
   "category": "Git",
   "content": [
     { "type": "text", "tips": "列出所有标签", "content": "git tag" },
-    { "type": "text", "tips": "创建轻量标签", "content": "git tag v1.0.0" },
-    { "type": "text", "tips": "创建带注释的标签", "content": "git tag -a v1.0.0 -m \"Release version 1.0.0\"" },
-    { "type": "text", "tips": "为指定提交打标签", "content": "git tag -a v1.0.0 abc1234" },
-    { "type": "text", "tips": "删除本地标签", "content": "git tag -d v1.0.0" },
-    { "type": "text", "tips": "查看标签详细信息", "content": "git show v1.0.0" },
-    { "type": "text", "tips": "推送指定标签到远程", "content": "git push origin v1.0.0" },
-    { "type": "text", "tips": "推送所有标签到远程", "content": "git push origin --tags" },
-    { "type": "text", "tips": "删除远程标签", "content": "git push origin --delete v1.0.0" },
-    { "type": "text", "tips": "检出标签对应的代码", "content": "git checkout v1.0.0" }
+    { "type": "text", "tips": "创建轻量标签 v1.0.0", "content": "git tag v1.0.0" },
+    { "type": "text", "tips": "创建带注释标签 v1.0.0，注释为 release v1.0.0", "content": "git tag -a v1.0.0 -m \"release v1.0.0\"" },
+    { "type": "text", "tips": "给提交 abc123 打带注释标签 v1.0.0（不写注释内容）", "content": "git tag -a v1.0.0 abc123" },
+    { "type": "text", "tips": "删除本地标签 v1.0.0", "content": "git tag -d v1.0.0" },
+    { "type": "text", "tips": "查看标签 v1.0.0 的详情", "content": "git show v1.0.0" },
+    { "type": "text", "tips": "推送标签 v1.0.0 到 origin", "content": "git push origin v1.0.0" },
+    { "type": "text", "tips": "推送所有标签到 origin", "content": "git push origin --tags" },
+    { "type": "text", "tips": "删除 origin 上的标签 v1.0.0", "content": "git push origin --delete v1.0.0" },
+    { "type": "text", "tips": "检出标签 v1.0.0 对应的代码", "content": "git checkout v1.0.0" }
   ]
 }

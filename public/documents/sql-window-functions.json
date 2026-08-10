@@ -4,14 +4,14 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "ROW_NUMBER 分组排名", "content": "SELECT user_id, amount, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY amount DESC) AS rn FROM orders;" },
-    { "type": "text", "tips": "RANK 排名(并列跳号)", "content": "SELECT name, score, RANK() OVER (ORDER BY score DESC) AS rk FROM exams;" },
-    { "type": "text", "tips": "DENSE_RANK 密集排名", "content": "SELECT name, score, DENSE_RANK() OVER (ORDER BY score DESC) AS rk FROM exams;" },
-    { "type": "text", "tips": "每组 Top N 查询", "content": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn FROM products) t WHERE t.rn <= 3;" },
-    { "type": "text", "tips": "SUM OVER 累计求和", "content": "SELECT id, amount, SUM(amount) OVER (ORDER BY id) AS running_total FROM orders;" },
-    { "type": "text", "tips": "AVG OVER 移动平均", "content": "SELECT id, amount, AVG(amount) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS ma3 FROM orders;" },
-    { "type": "text", "tips": "LAG 获取上一行", "content": "SELECT id, amount, LAG(amount, 1) OVER (ORDER BY id) AS prev_amount FROM orders;" },
-    { "type": "text", "tips": "LEAD 获取下一行", "content": "SELECT id, amount, LEAD(amount, 1) OVER (ORDER BY id) AS next_amount FROM orders;" },
-    { "type": "text", "tips": "NTILE 数据分桶", "content": "SELECT name, score, NTILE(4) OVER (ORDER BY score DESC) AS quartile FROM exams;" }
+    { "type": "text", "tips": "orders 取 user_id、amount，再用 ROW_NUMBER 按 user_id 分区、amount 降序编号，别名 rn", "content": "SELECT user_id, amount, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY amount DESC) AS rn FROM orders;" },
+    { "type": "text", "tips": "exams 取 name、score，再用 RANK 按 score 降序排名，别名 rk", "content": "SELECT name, score, RANK() OVER (ORDER BY score DESC) AS rk FROM exams;" },
+    { "type": "text", "tips": "exams 取 name、score，再用 DENSE_RANK 按 score 降序排名，别名 rk", "content": "SELECT name, score, DENSE_RANK() OVER (ORDER BY score DESC) AS rk FROM exams;" },
+    { "type": "text", "tips": "products 每个 category 取 price 最高的前 3：子查询用 ROW_NUMBER 别名 rn，外层表别名 t 筛 t.rn 不大于 3", "content": "SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY price DESC) AS rn FROM products) t WHERE t.rn <= 3;" },
+    { "type": "text", "tips": "orders 取 id、amount，再用 SUM OVER 按 id 排序累计求和，别名 running_total", "content": "SELECT id, amount, SUM(amount) OVER (ORDER BY id) AS running_total FROM orders;" },
+    { "type": "text", "tips": "orders 取 id、amount，再用 AVG OVER 按 id 排序取前 2 行到当前行的移动平均，别名 ma3", "content": "SELECT id, amount, AVG(amount) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS ma3 FROM orders;" },
+    { "type": "text", "tips": "orders 取 id、amount，再用 LAG 按 id 排序取上 1 行的 amount，别名 prev_amount", "content": "SELECT id, amount, LAG(amount, 1) OVER (ORDER BY id) AS prev_amount FROM orders;" },
+    { "type": "text", "tips": "orders 取 id、amount，再用 LEAD 按 id 排序取下 1 行的 amount，别名 next_amount", "content": "SELECT id, amount, LEAD(amount, 1) OVER (ORDER BY id) AS next_amount FROM orders;" },
+    { "type": "text", "tips": "exams 取 name、score，再用 NTILE 按 score 降序分成 4 桶，别名 quartile", "content": "SELECT name, score, NTILE(4) OVER (ORDER BY score DESC) AS quartile FROM exams;" }
   ]
 }

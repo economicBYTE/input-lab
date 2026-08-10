@@ -5,20 +5,20 @@
   "content": [
     { "type": "text", "tips": "查看完整提交日志", "content": "git log" },
     { "type": "text", "tips": "单行简洁日志", "content": "git log --oneline" },
-    { "type": "text", "tips": "图形化显示所有分支日志", "content": "git log --oneline --graph --all" },
-    { "type": "text", "tips": "按作者筛选提交", "content": "git log --author=\"username\"" },
-    { "type": "text", "tips": "按日期范围筛选提交", "content": "git log --since=\"2024-01-01\" --until=\"2024-12-31\"" },
-    { "type": "text", "tips": "按提交信息关键字搜索", "content": "git log --grep=\"fix login\"" },
-    { "type": "text", "tips": "按代码变更内容搜索(pickaxe)", "content": "git log -S\"useState\"" },
-    { "type": "text", "tips": "跨重命名追踪文件历史", "content": "git log --follow src/index.ts" },
-    { "type": "text", "tips": "显示最近2次提交的详细差异", "content": "git log -p -2" },
-    { "type": "text", "tips": "显示每次提交的文件统计", "content": "git log --stat" },
+    { "type": "text", "tips": "单行 + 图形化查看所有分支日志", "content": "git log --oneline --graph --all" },
+    { "type": "text", "tips": "筛选作者为 tom 的提交", "content": "git log --author=\"tom\"" },
+    { "type": "text", "tips": "筛选 2026-01-01 到 2026-12-31 的提交", "content": "git log --since=\"2026-01-01\" --until=\"2026-12-31\"" },
+    { "type": "text", "tips": "按提交信息搜索关键字 fix login", "content": "git log --grep=\"fix login\"" },
+    { "type": "text", "tips": "按代码变更搜索 useState（pickaxe）", "content": "git log -S\"useState\"" },
+    { "type": "text", "tips": "查看 a.ts 的历史，并跨重命名追踪", "content": "git log --follow a.ts" },
+    { "type": "text", "tips": "显示最近 2 次提交的完整补丁", "content": "git log -p -2" },
+    { "type": "text", "tips": "显示每次提交的文件改动统计", "content": "git log --stat" },
     { "type": "text", "tips": "查看工作区未暂存的差异", "content": "git diff" },
     { "type": "text", "tips": "查看已暂存的差异", "content": "git diff --staged" },
-    { "type": "text", "tips": "比较两个分支的差异", "content": "git diff main..feature/login" },
-    { "type": "text", "tips": "比较最近3次提交的差异", "content": "git diff HEAD~3..HEAD" },
-    { "type": "text", "tips": "查看指定提交的详情", "content": "git show abc1234" },
-    { "type": "text", "tips": "逐行追溯文件修改者", "content": "git blame src/index.ts" },
-    { "type": "text", "tips": "按提交数统计贡献者", "content": "git shortlog -sn" }
+    { "type": "text", "tips": "比较 main 和 dev 两个分支（用 .. 写法）", "content": "git diff main..dev" },
+    { "type": "text", "tips": "比较 HEAD 和它往前 3 个提交（用 .. 写法）", "content": "git diff HEAD~3..HEAD" },
+    { "type": "text", "tips": "查看提交 abc123 的详情", "content": "git show abc123" },
+    { "type": "text", "tips": "逐行查看 a.ts 每行是谁改的", "content": "git blame a.ts" },
+    { "type": "text", "tips": "按提交数降序统计各贡献者", "content": "git shortlog -sn" }
   ]
 }

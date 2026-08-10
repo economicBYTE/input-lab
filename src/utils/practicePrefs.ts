@@ -1,15 +1,17 @@
-import type { InputMode } from '@/types';
+import type { InputMode, PresentMode } from '@/types';
 
 // 练习偏好按文档记忆，仅存本机 localStorage：
 // - 属于「本机练习偏好」而非文档内容，不该写回文档（导出/分享时不带个人状态）
 // - 同步读取，init 时一次定妥，避免异步读 DB 造成的模式闪烁
 const PREFS_KEY = 'practice.prefs.v1';
 const GLOBAL_INPUT_MODE_KEY = 'practice.inputMode';
+const GLOBAL_PRESENT_MODE_KEY = 'practice.presentMode';
 const MAX_ENTRIES = 100; // 超出后按 updatedAt 淘汰最旧的
 
 export interface PracticePrefs {
   caseInsensitive?: boolean;
   inputMode?: InputMode;
+  presentMode?: PresentMode;
   updatedAt?: number;
 }
 
@@ -83,6 +85,21 @@ export function saveGlobalInputMode(mode: InputMode): void {
   if (!hasStorage()) return;
   try {
     localStorage.setItem(GLOBAL_INPUT_MODE_KEY, mode);
+  } catch {
+    // 同上，静默降级
+  }
+}
+
+/** 全局「最近一次使用」的呈现模式，作为未记忆过的文档的默认值 */
+export function loadGlobalPresentMode(): PresentMode {
+  if (!hasStorage()) return 'flow';
+  return localStorage.getItem(GLOBAL_PRESENT_MODE_KEY) === 'qa' ? 'qa' : 'flow';
+}
+
+export function saveGlobalPresentMode(mode: PresentMode): void {
+  if (!hasStorage()) return;
+  try {
+    localStorage.setItem(GLOBAL_PRESENT_MODE_KEY, mode);
   } catch {
     // 同上，静默降级
   }

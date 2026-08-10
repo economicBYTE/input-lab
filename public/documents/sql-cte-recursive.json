@@ -4,10 +4,10 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "CTE 基础用法", "content": "WITH high_value AS (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id HAVING total > 1000) SELECT u.name, h.total FROM users u JOIN high_value h ON u.id = h.user_id;" },
-    { "type": "text", "tips": "多个 CTE 组合", "content": "WITH paid AS (SELECT * FROM orders WHERE status = 'paid'), top_users AS (SELECT user_id, SUM(amount) AS total FROM paid GROUP BY user_id) SELECT * FROM top_users ORDER BY total DESC LIMIT 10;" },
-    { "type": "text", "tips": "递归 CTE 生成序列", "content": "WITH RECURSIVE seq AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM seq WHERE n < 10) SELECT * FROM seq;" },
-    { "type": "text", "tips": "递归 CTE 查询层级结构", "content": "WITH RECURSIVE tree AS (SELECT id, name, parent_id FROM departments WHERE parent_id IS NULL UNION ALL SELECT d.id, d.name, d.parent_id FROM departments d JOIN tree t ON d.parent_id = t.id) SELECT * FROM tree;" },
-    { "type": "text", "tips": "递归查询下属员工", "content": "WITH RECURSIVE subs AS (SELECT id, name, manager_id FROM employees WHERE id = 1 UNION ALL SELECT e.id, e.name, e.manager_id FROM employees e JOIN subs s ON e.manager_id = s.id) SELECT * FROM subs;" }
+    { "type": "text", "tips": "CTE 名 high_value：orders 按 user_id 求 SUM(amount) 别名 total 筛 total 大于 1000；外层 users u 连 h ON u.id = h.user_id，取 u.name、h.total", "content": "WITH high_value AS (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id HAVING total > 1000) SELECT u.name, h.total FROM users u JOIN high_value h ON u.id = h.user_id;" },
+    { "type": "text", "tips": "两个 CTE：paid 取 orders 中 status 为 paid；top_users 从 paid 按 user_id 求 SUM(amount) 别名 total；外层查 top_users 按 total 降序取 10 条", "content": "WITH paid AS (SELECT * FROM orders WHERE status = 'paid'), top_users AS (SELECT user_id, SUM(amount) AS total FROM paid GROUP BY user_id) SELECT * FROM top_users ORDER BY total DESC LIMIT 10;" },
+    { "type": "text", "tips": "递归 CTE 名 seq 生成 1 到 10：起点 SELECT 1 别名 n，递归项 n + 1 且 n 小于 10", "content": "WITH RECURSIVE seq AS (SELECT 1 AS n UNION ALL SELECT n + 1 FROM seq WHERE n < 10) SELECT * FROM seq;" },
+    { "type": "text", "tips": "递归 CTE 名 tree 遍历 departments(id, name, parent_id)：起点 parent_id 为 NULL，递归项 d 连 t ON d.parent_id = t.id", "content": "WITH RECURSIVE tree AS (SELECT id, name, parent_id FROM departments WHERE parent_id IS NULL UNION ALL SELECT d.id, d.name, d.parent_id FROM departments d JOIN tree t ON d.parent_id = t.id) SELECT * FROM tree;" },
+    { "type": "text", "tips": "递归 CTE 名 subs 查 employees(id, name, manager_id) 中 id 为 1 的所有下属：递归项 e 连 s ON e.manager_id = s.id", "content": "WITH RECURSIVE subs AS (SELECT id, name, manager_id FROM employees WHERE id = 1 UNION ALL SELECT e.id, e.name, e.manager_id FROM employees e JOIN subs s ON e.manager_id = s.id) SELECT * FROM subs;" }
   ]
 }

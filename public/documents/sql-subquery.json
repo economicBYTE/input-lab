@@ -4,14 +4,14 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "单行子查询 =", "content": "SELECT * FROM orders WHERE user_id = (SELECT id FROM users WHERE name = 'Tom');" },
-    { "type": "text", "tips": "子查询取最大值", "content": "SELECT * FROM products WHERE price = (SELECT MAX(price) FROM products);" },
-    { "type": "text", "tips": "IN 多行子查询", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE amount > 1000);" },
-    { "type": "text", "tips": "NOT IN 子查询", "content": "SELECT * FROM users WHERE id NOT IN (SELECT user_id FROM orders);" },
-    { "type": "text", "tips": "EXISTS 相关子查询", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
-    { "type": "text", "tips": "NOT EXISTS 子查询", "content": "SELECT * FROM users u WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
-    { "type": "text", "tips": "ANY 子查询", "content": "SELECT * FROM products WHERE price > ANY (SELECT price FROM products WHERE category = 'book');" },
-    { "type": "text", "tips": "ALL 子查询", "content": "SELECT * FROM products WHERE price > ALL (SELECT price FROM products WHERE category = 'book');" },
-    { "type": "text", "tips": "FROM 子句中的子查询", "content": "SELECT t.user_id, t.total FROM (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) t WHERE t.total > 1000;" }
+    { "type": "text", "tips": "查 orders 全部，其 user_id 等于（users 中 name 为 Tom 的 id）", "content": "SELECT * FROM orders WHERE user_id = (SELECT id FROM users WHERE name = 'Tom');" },
+    { "type": "text", "tips": "查 products 中 price 等于 products 最大 price 的行", "content": "SELECT * FROM products WHERE price = (SELECT MAX(price) FROM products);" },
+    { "type": "text", "tips": "查 users 中 id 落在（orders 里 amount 大于 1000 的 user_id）集合内的行", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE amount > 1000);" },
+    { "type": "text", "tips": "查 users 中 id 不在（orders 的 user_id）集合内的行", "content": "SELECT * FROM users WHERE id NOT IN (SELECT user_id FROM orders);" },
+    { "type": "text", "tips": "用 EXISTS 查有订单的用户：users u，子查询 SELECT 1 FROM orders o 关联 o.user_id = u.id", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "用 NOT EXISTS 查没有订单的用户：users u，子查询 SELECT 1 FROM orders o 关联 o.user_id = u.id", "content": "SELECT * FROM users u WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id);" },
+    { "type": "text", "tips": "查 products 中 price 大于（category 为 book 的任一 price），用 ANY", "content": "SELECT * FROM products WHERE price > ANY (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "查 products 中 price 大于（category 为 book 的所有 price），用 ALL", "content": "SELECT * FROM products WHERE price > ALL (SELECT price FROM products WHERE category = 'book');" },
+    { "type": "text", "tips": "FROM 里放子查询：orders 按 user_id 求 SUM(amount) 别名 total，外层表别名 t，取 t.user_id、t.total，筛 total 大于 1000", "content": "SELECT t.user_id, t.total FROM (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) t WHERE t.total > 1000;" }
   ]
 }

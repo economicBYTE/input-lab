@@ -64,6 +64,66 @@ argument-hint: <主题或内容描述，如 "Docker 常用命令" 或 "Chrome De
 - 不得为了塞进预算而硬性砍掉高价值条目（应该选择拆分而非删减）
 - 不得未与用户确认就生成多个文档（拆分是设计决策，需用户参与）
 
+### 2.2 tips 自足性与字面量简化（强制）
+
+问答模式（`presentMode: 'qa'`）只把 `tips` 当题面展示，答案完全盲输。因此 **`tips` 写不清楚 = 这道题根本没法答**。
+
+#### 规则一：tips 必须自足
+
+答案里每一个**无法从功能描述推导出来的字面量**，都必须出现在 `tips` 里。包括：
+
+| 字面量类型 | 例子 |
+|-----------|------|
+| 文件名 / 路径 | `a.ts`、`logs/tmp`、`./mcp.json` |
+| 分支 / 标签 / 提交号 | `main`、`dev`、`v1.0.0`、`abc123` |
+| 提交信息 / 引号内文本 | `feat: login`、`use TypeScript` |
+| 表名 / 列名 / 别名 | `users`、`amount`、`AS total` |
+| 具体取值与数字 | `status = 'paid'`、`LIMIT 20`、`INTERVAL 7 DAY` |
+| 主机 / 邮箱 / URL | `1.2.3.4`、`tom@a.com`、`git@github.com:u/repo.git` |
+
+同时，**当同一个功能有多种写法时，tips 必须指明用哪一种**，否则一个问题会对应多个正确答案：
+
+```json
+// ✗ 一个问题两个答案，用户猜不到该写哪个
+{ "tips": "切换到 main 分支", "content": "git checkout main" }
+{ "tips": "切换分支(新语法)", "content": "git switch main" }
+
+// ✓ 明确指定命令族
+{ "tips": "用 checkout 切换到 main 分支", "content": "git checkout main" }
+{ "tips": "用 switch 切换到 main 分支",   "content": "git switch main" }
+```
+
+同类需要显式点名的还有：`LIMIT 20, 10` vs `LIMIT 10 OFFSET 20`、`MOD(10,3)` vs `10 % 3`、`INNER JOIN` vs `JOIN` 简写、是否写出 `ASC`。
+
+**自检方法**：遮住 `content`，只看 `tips`，问自己能不能一字不差地还原答案。不能，就补 tips。
+
+#### 规则二：非核心字面量一律简化
+
+要练的是**命令骨架和参数**，不是记业务噪音。除命令本身外的一切占位符都取最短、最好记的形式，并在整个文档体系内保持一致：
+
+| 类别 | 统一用 | 不要用 |
+|------|--------|--------|
+| 源码文件 | `a.ts` / `b.ts` | `src/components/UserProfile.tsx` |
+| 普通文件 / 日志 / 配置 | `a.txt`、`app.log`、`a.conf`、`run.sh` | `shu-huang-dian.conf` |
+| 目录 | `src`、`logs`、`tmp`、`/tmp` | `/usr/local/nginx/conf` |
+| 分支 | `main`、`dev` | `feature/user-login-v2` |
+| 提交号 / 容器 ID | `abc123` | `9b3be913c499` |
+| 提交信息 | `feat: login` | `feat: add user login page` |
+| 用户 / 邮箱 | `tom` / `tom@a.com` | `your_email@example.com` |
+| 主机 / 端口 / 进程号 | `1.2.3.4`、`443`、`1234` | `124.222.230.225`、`385177` |
+| 仓库地址 | `git@github.com:u/repo.git` | 冗长的真实地址 |
+| SQL 表 | `users`、`orders`、`products` | 生僻业务表名 |
+
+#### 规则三：同一文档内 tips 不得重复
+
+重复的 `tips` 在问答模式里就是同一道题出现两次；若两条重复 tips 的答案还不一样，用户必然答错。生成后务必去重。
+
+#### 规则四：快捷键文字形式全局统一
+
+`text` 型快捷键统一写成 `Cmd + Shift + 3` 这种「按键 空格 + 空格 按键」形式，修饰键固定按 **Cmd → Shift → Option → Ctrl → 主键** 的顺序，并在 `description` 里说明该约定。禁止 `Cmd+T`、`Shift + Cmd + 3`、`Meta+P` 等混写——问答模式下用户无从判断该敲哪种写法。
+
+同时，**不要在每条 `tips` 后面重复贴 `(系统快捷键，文字输入练习)` 之类的后缀**：几十条重复噪音会淹没题面，而且问答模式已经通过条目类型给出了"打字 / 按键"的提示。把这句说明写进 `description` 一次即可。
+
 ### 3. 快捷键可练习性判断
 
 **这是核心规则。** 对于快捷键类文档，必须判断每个快捷键是否能被浏览器 `e.preventDefault()` 拦截：

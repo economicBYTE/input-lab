@@ -4,15 +4,15 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "插入单条记录", "content": "INSERT INTO users (name, age, email) VALUES ('Tom', 25, 'tom@example.com');" },
-    { "type": "text", "tips": "插入多条记录", "content": "INSERT INTO users (name, age) VALUES ('Alice', 22), ('Bob', 30), ('Carol', 28);" },
-    { "type": "text", "tips": "按条件更新", "content": "UPDATE users SET status = 'active' WHERE id = 1;" },
-    { "type": "text", "tips": "更新多个字段", "content": "UPDATE users SET name = 'Tom', age = 26 WHERE id = 1;" },
-    { "type": "text", "tips": "条件删除(务必带 WHERE)", "content": "DELETE FROM users WHERE id = 1;" },
-    { "type": "text", "tips": "按状态批量删除", "content": "DELETE FROM users WHERE status = 'deleted';" },
-    { "type": "text", "tips": "建表：数字类型", "content": "CREATE TABLE products (id INT PRIMARY KEY, stock INT, price DECIMAL(10,2), rating FLOAT);" },
-    { "type": "text", "tips": "建表：字符类型", "content": "CREATE TABLE users (id INT, code CHAR(8), name VARCHAR(50), bio TEXT);" },
-    { "type": "text", "tips": "建表：日期时间", "content": "CREATE TABLE logs (id INT, log_date DATE, log_time DATETIME, created_at TIMESTAMP);" },
-    { "type": "text", "tips": "建表：布尔字段", "content": "CREATE TABLE users (id INT, is_active TINYINT(1) DEFAULT 1);" }
+    { "type": "text", "tips": "往 users 插一条：name=Tom, age=25, email=tom@a.com", "content": "INSERT INTO users (name, age, email) VALUES ('Tom', 25, 'tom@a.com');" },
+    { "type": "text", "tips": "往 users 的 name, age 一次插三条：Tom 25、Amy 22、Bob 30", "content": "INSERT INTO users (name, age) VALUES ('Tom', 25), ('Amy', 22), ('Bob', 30);" },
+    { "type": "text", "tips": "把 users 中 id 为 1 的 status 改成 active", "content": "UPDATE users SET status = 'active' WHERE id = 1;" },
+    { "type": "text", "tips": "把 users 中 id 为 1 的 name 改成 Tom、age 改成 26", "content": "UPDATE users SET name = 'Tom', age = 26 WHERE id = 1;" },
+    { "type": "text", "tips": "删除 users 中 id 为 1 的行", "content": "DELETE FROM users WHERE id = 1;" },
+    { "type": "text", "tips": "删除 users 中 status 为 deleted 的行", "content": "DELETE FROM users WHERE status = 'deleted';" },
+    { "type": "text", "tips": "建表 products：id INT 主键、stock INT、price DECIMAL(10,2)、rate FLOAT", "content": "CREATE TABLE products (id INT PRIMARY KEY, stock INT, price DECIMAL(10,2), rate FLOAT);" },
+    { "type": "text", "tips": "建表 users：id INT、code CHAR(8)、name VARCHAR(50)、bio TEXT", "content": "CREATE TABLE users (id INT, code CHAR(8), name VARCHAR(50), bio TEXT);" },
+    { "type": "text", "tips": "建表 logs：id INT、d DATE、t DATETIME、created_at TIMESTAMP", "content": "CREATE TABLE logs (id INT, d DATE, t DATETIME, created_at TIMESTAMP);" },
+    { "type": "text", "tips": "建表 users：id INT、is_active TINYINT(1) 默认 1", "content": "CREATE TABLE users (id INT, is_active TINYINT(1) DEFAULT 1);" }
   ]
 }

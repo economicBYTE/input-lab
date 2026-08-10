@@ -4,15 +4,15 @@
   "category": "SQL",
   "caseInsensitive": true,
   "content": [
-    { "type": "text", "tips": "EXISTS 判断存在(推荐大表)", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id AND o.status = 'paid');" },
-    { "type": "text", "tips": "IN 子查询(小结果集)", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM vip_list);" },
-    { "type": "text", "tips": "JOIN 替代子查询", "content": "SELECT DISTINCT u.* FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" },
-    { "type": "text", "tips": "CASE 实现透视表", "content": "SELECT user_id, SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid, SUM(CASE WHEN status = 'refund' THEN amount ELSE 0 END) AS refund FROM orders GROUP BY user_id;" },
-    { "type": "text", "tips": "月度统计透视", "content": "SELECT product_id, SUM(CASE WHEN MONTH(created_at) = 1 THEN amount ELSE 0 END) AS jan, SUM(CASE WHEN MONTH(created_at) = 2 THEN amount ELSE 0 END) AS feb FROM orders GROUP BY product_id;" },
-    { "type": "text", "tips": "避免 SELECT *，指定列", "content": "SELECT id, name, email FROM users WHERE status = 'active';" },
-    { "type": "text", "tips": "创建覆盖索引", "content": "CREATE INDEX idx_cover ON orders(user_id, status, amount);" },
-    { "type": "text", "tips": "创建前缀索引", "content": "CREATE INDEX idx_name_prefix ON users(name(10));" },
-    { "type": "text", "tips": "FORCE INDEX 强制走索引", "content": "SELECT * FROM orders FORCE INDEX (idx_user_id) WHERE user_id = 100;" },
-    { "type": "text", "tips": "EXPLAIN 分析慢查询", "content": "EXPLAIN SELECT u.name FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" }
+    { "type": "text", "tips": "用 EXISTS 查有已付款订单的用户：users u，子查询 SELECT 1 FROM orders o，条件 o.user_id = u.id 且 o.status 为 paid", "content": "SELECT * FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id AND o.status = 'paid');" },
+    { "type": "text", "tips": "用 IN 子查询：查 users 中 id 落在 vip_list 的 user_id 集合内的行", "content": "SELECT * FROM users WHERE id IN (SELECT user_id FROM vip_list);" },
+    { "type": "text", "tips": "用 JOIN 替代子查询：users u 连 orders o（ON u.id = o.user_id），筛 o.status 为 paid，取 DISTINCT u.*", "content": "SELECT DISTINCT u.* FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" },
+    { "type": "text", "tips": "orders 按 user_id 分组做透视：SUM+CASE 统计 status 为 paid 的 amount（别名 paid）和 refund 的 amount（别名 refund）", "content": "SELECT user_id, SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS paid, SUM(CASE WHEN status = 'refund' THEN amount ELSE 0 END) AS refund FROM orders GROUP BY user_id;" },
+    { "type": "text", "tips": "orders 按 product_id 分组做月度透视：用 MONTH(created_at) 判 1 月（别名 jan）和 2 月（别名 feb）的 amount 合计", "content": "SELECT product_id, SUM(CASE WHEN MONTH(created_at) = 1 THEN amount ELSE 0 END) AS jan, SUM(CASE WHEN MONTH(created_at) = 2 THEN amount ELSE 0 END) AS feb FROM orders GROUP BY product_id;" },
+    { "type": "text", "tips": "不用 SELECT *：查 users 的 id, name, email，筛 status 为 active", "content": "SELECT id, name, email FROM users WHERE status = 'active';" },
+    { "type": "text", "tips": "给 orders(user_id, status, amount) 建覆盖索引，名为 idx_cover", "content": "CREATE INDEX idx_cover ON orders(user_id, status, amount);" },
+    { "type": "text", "tips": "给 users 的 name 建前 10 个字符的前缀索引，名为 idx_name", "content": "CREATE INDEX idx_name ON users(name(10));" },
+    { "type": "text", "tips": "查 orders 中 user_id 为 100 的所有列，并强制走索引 idx_user_id", "content": "SELECT * FROM orders FORCE INDEX (idx_user_id) WHERE user_id = 100;" },
+    { "type": "text", "tips": "用 EXPLAIN 分析：users u 连 orders o（ON u.id = o.user_id）取 u.name，筛 o.status 为 paid", "content": "EXPLAIN SELECT u.name FROM users u JOIN orders o ON u.id = o.user_id WHERE o.status = 'paid';" }
   ]
 }
